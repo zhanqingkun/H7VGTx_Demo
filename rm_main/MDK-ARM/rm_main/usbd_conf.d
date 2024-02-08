@@ -47,7 +47,10 @@ rm_main\usbd_conf.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\stdio.
 rm_main\usbd_conf.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\stdlib.h
 rm_main\usbd_conf.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\string.h
 rm_main\usbd_conf.o: ../Core/Inc/main.h
+rm_main\usbd_conf.o: ../Drivers/CMSIS/DSP/Include/arm_math.h
+rm_main\usbd_conf.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\float.h
 rm_main\usbd_conf.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
 rm_main\usbd_conf.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
 rm_main\usbd_conf.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
 rm_main\usbd_conf.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
+rm_main\usbd_conf.o: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h

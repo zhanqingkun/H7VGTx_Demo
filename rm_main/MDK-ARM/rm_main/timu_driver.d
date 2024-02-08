@@ -45,4 +45,6 @@ rm_main\timu_driver.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.
 rm_main\timu_driver.o: ..\User\Drivers\can_comm.h
 rm_main\timu_driver.o: ../Core/Inc/fdcan.h
 rm_main\timu_driver.o: ../Core/Inc/main.h
+rm_main\timu_driver.o: ../Drivers/CMSIS/DSP/Include/arm_math.h
 rm_main\timu_driver.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\string.h
+rm_main\timu_driver.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\float.h

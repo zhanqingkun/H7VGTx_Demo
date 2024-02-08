@@ -13,7 +13,7 @@ rm_main\debug_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wra
 rm_main\debug_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
 rm_main\debug_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
 rm_main\debug_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h
-rm_main\debug_task.o: ..\User\Support\data_scope.h
+rm_main\debug_task.o: ../User/Support/data_scope.h
 rm_main\debug_task.o: ../Core/Inc/usart.h
 rm_main\debug_task.o: ../Core/Inc/main.h
 rm_main\debug_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
@@ -56,6 +56,9 @@ rm_main\debug_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.
 rm_main\debug_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 rm_main\debug_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 rm_main\debug_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-rm_main\debug_task.o: ..\User\Support\func_generator.h
+rm_main\debug_task.o: ../Drivers/CMSIS/DSP/Include/arm_math.h
+rm_main\debug_task.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\string.h
+rm_main\debug_task.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\float.h
+rm_main\debug_task.o: ../User/Support/func_generator.h
 rm_main\debug_task.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\stdlib.h
-rm_main\debug_task.o: ..\User\Support\us_time.h
+rm_main\debug_task.o: ../User/Support/us_time.h

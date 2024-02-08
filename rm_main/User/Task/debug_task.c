@@ -6,7 +6,6 @@
 #include "func_generator.h"
 #include "us_time.h"
 FGT_sin_t sin_test;
-us_time_t ust_user1, ust_user2;
 
 uint8_t debug_wave = 1;
 
@@ -33,10 +32,7 @@ void debug_task(void *argument)
 	for(;;)
 	{
 		taskENTER_CRITICAL();
-		usTime_Interval_Test_Start(&ust_user2);
-		usTime_Period_Test(&ust_user1);
 //		DataWave(&huart2);
-		usTime_Interval_Test_End(&ust_user2);
 		taskEXIT_CRITICAL();
 		vTaskDelayUntil(&thread_wake_time, 1);
 	}

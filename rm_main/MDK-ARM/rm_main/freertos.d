@@ -51,8 +51,11 @@ rm_main\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
 rm_main\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 rm_main\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 rm_main\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
+rm_main\freertos.o: ../Drivers/CMSIS/DSP/Include/arm_math.h
+rm_main\freertos.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\string.h
+rm_main\freertos.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\float.h
 rm_main\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h
 rm_main\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h
-rm_main\freertos.o: ..\User\Drivers\can_comm.h
+rm_main\freertos.o: ../User/Drivers/can_comm.h
 rm_main\freertos.o: ../Core/Inc/fdcan.h
-rm_main\freertos.o: ..\User\Task\debug_task.h
+rm_main\freertos.o: ../User/Task/debug_task.h
