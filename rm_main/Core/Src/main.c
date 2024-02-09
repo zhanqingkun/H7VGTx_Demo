@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "crc.h"
 #include "dma.h"
 #include "fdcan.h"
 #include "rng.h"
@@ -60,7 +61,7 @@ void SystemClock_Config(void);
 static void MPU_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+void USB_Reset(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -101,7 +102,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-//	MX_USB_DEVICE_Init();
+	USB_Reset();//USB复位，让电脑重新识别
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -114,6 +115,7 @@ int main(void)
   MX_TIM2_Init();
   MX_FDCAN2_Init();
   MX_FDCAN3_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   usTime_Start();
   CAN_Comm_Init();
@@ -205,7 +207,19 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void USB_Reset(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	GPIO_InitStruct.Pin = GPIO_PIN_12;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET);
+	HAL_Delay(100);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);
+}
 /* USER CODE END 4 */
 
 /* MPU Configuration */

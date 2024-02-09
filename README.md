@@ -19,15 +19,19 @@ https://www.freertos.org/2020/04/using-freertos-on-armv8-m-microcontrollers.html
   #endif
 ```
 
-**对于具体的FPU单元添加如下（本工程已添加）：**
+**对于具体的FPU功能添加如下（本工程已添加）：**
 
-1. ![](doc/image/FPU1.png)由CubeMX生成的代码第一次生成勾选添加全部相关库，会在rm_main\Drivers\CMSIS中加上各种库，其中就有DSP库。(后续生成可改回只添加所需相关库，不会删除之前的库)
+1. ![](doc/image/FPU1.png)由CubeMX生成的代码第一次生成勾选添加全部相关库，会在rm_main\Drivers\CMSIS中加上各种库，其中就有DSP库。(后续将各种库删除，并将选项改为只添加所需相关库来减小工程大小)
 
-2. 添加库和头文件
+2. 移植和添加库和头文件
 
-   \rm_main\Drivers\CMSIS\DSP\Lib\ARM\arm_cortexM7lfdp_math.lib（双精度浮点Cortex-M7小端模式）
+   将所需的文件移植到\rm_main\User\Math\DSP中，其中
 
-   \rm_main\Drivers\CMSIS\DSP\Include
+   arm_cortexM7lfdp_math.lib（双精度浮点Cortex-M7小端模式）为库文件，添加进工程中。
+
+   \Include为各头文件，添加进工程头文件路径。
+
+   \Source为各函数具体实现，不用添加进工程，需要研究具体实现时查看即可。
 
 3. 添加宏定义
 
@@ -46,5 +50,3 @@ https://www.freertos.org/2020/04/using-freertos-on-armv8-m-microcontrollers.html
 <img src="doc/image/FPU3.png" style="zoom: 50%;" />
 
 此处注意是Double Precision
-
-关于DSP库的具体实现可以看\rm_main\Drivers\CMSIS\DSP\Source

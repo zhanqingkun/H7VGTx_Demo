@@ -33,6 +33,8 @@ rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_mdma.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_exti.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_cortex.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_fdcan.h
+rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_crc.h
+rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_crc_ex.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash_ex.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h
@@ -49,7 +51,7 @@ rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 rm_main\usbd_cdc.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-rm_main\usbd_cdc.o: ../Drivers/CMSIS/DSP/Include/arm_math.h
+rm_main\usbd_cdc.o: ../User/Math/DSP/Include/arm_math.h
 rm_main\usbd_cdc.o: E:\keil\MDK_ARM\MDK_ARM_533\ARM\ARMCC\Bin\..\include\float.h
 rm_main\usbd_cdc.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
 rm_main\usbd_cdc.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h

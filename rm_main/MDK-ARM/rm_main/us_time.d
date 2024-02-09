@@ -26,6 +26,8 @@ rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_mdma.h
 rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_exti.h
 rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_cortex.h
 rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_fdcan.h
+rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_crc.h
+rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_crc_ex.h
 rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash.h
 rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash_ex.h
 rm_main\us_time.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h

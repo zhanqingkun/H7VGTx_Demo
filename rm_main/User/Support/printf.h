@@ -19,7 +19,7 @@
 
 #define DEBUG_HUART huart2
 #define PRINTF_MAX_LEN 100
-#define __DEBUG__ 2
+#define __DEBUG__ 0
 
 #if __DEBUG__ == 1
 	#define DEBUG(format, ...) Dma_Printf(&DEBUG_HUART, format, ##__VA_ARGS__)

@@ -5,6 +5,7 @@
 
 uint8_t dbus_dma_rx_buf[2*DT7_DATA_LEN];
 uint8_t debug_dma_rx_buf[2*DEBUG_DATA_LEN];
+uint32_t idle_cnt, half_cnt, cplt_cnt;
 
 //串口初始化
 //开启空闲中断并开始DMA接收数据
@@ -33,7 +34,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 	else if(huart == &DEBUG_HUART)
 	{
-		HAL_UART_Transmit_DMA(huart, &debug_dma_rx_buf[DEBUG_DATA_LEN], DEBUG_DATA_LEN);
+//		HAL_UART_Transmit_DMA(huart, &debug_dma_rx_buf[DEBUG_DATA_LEN], DEBUG_DATA_LEN);
+		cplt_cnt++;
 	}
 }
 
@@ -51,7 +53,8 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 	}
 	else if(huart == &DEBUG_HUART)
 	{
-		HAL_UART_Transmit_DMA(huart, &debug_dma_rx_buf[0], DEBUG_DATA_LEN);
+//		HAL_UART_Transmit_DMA(huart, &debug_dma_rx_buf[0], DEBUG_DATA_LEN);
+		half_cnt++;
 	}
 }
 
@@ -73,8 +76,9 @@ void USART_User_IRQHandler(UART_HandleTypeDef *huart)
 		}
 		else if(huart == &DEBUG_HUART)
 		{
-			__HAL_UART_DISABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
 			HAL_UART_Receive_DMA(huart, debug_dma_rx_buf, 2*DEBUG_DATA_LEN);
+			idle_cnt++;
+			__HAL_UART_DISABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
 		}
 	}
 }

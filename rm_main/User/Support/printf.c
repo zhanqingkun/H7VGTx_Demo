@@ -15,9 +15,9 @@ void _sys_exit(int x)
 
 int fputc(int ch, FILE *f)
 {
-	while(__HAL_UART_GET_FLAG(&DEBUG_HUART, UART_FLAG_TC) == RESET);
-	HAL_UART_Transmit(&DEBUG_HUART, (uint8_t*)&ch, 1, 0xFF);
-	return ch;
+//	while(__HAL_UART_GET_FLAG(&DEBUG_HUART, UART_FLAG_TC) == RESET);
+//	HAL_UART_Transmit(&DEBUG_HUART, (uint8_t*)&ch, 1, 0xFF);
+//	return ch;
 }
 
 static uint8_t UartTxBuf[PRINTF_MAX_LEN];
