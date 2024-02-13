@@ -584,7 +584,7 @@
           <GroupName>User/Model</GroupName>
         </Group>
         <Group>
-          <GroupName>UserSupport</GroupName>
+          <GroupName>User/Support</GroupName>
           <Files>
             <File>
               <FileName>data_buffer.c</FileName>
@@ -605,11 +605,6 @@
               <FileName>func_generator.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Support\func_generator.c</FilePath>
-            </File>
-            <File>
-              <FileName>printf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Support\printf.c</FilePath>
             </File>
             <File>
               <FileName>us_time.c</FileName>
