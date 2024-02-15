@@ -14,8 +14,8 @@ static int32_t FIFO_Init(fifo_t* pfifo, void* base_addr, uint32_t unit_num, uint
     //检查输入参数
     assert_param(pfifo && base_addr && unit_num && unit_size);
     
-    osMutexAttr_t mute_attr = {0};
-    pfifo->mutex = osMutexNew(&mute_attr);
+    osMutexDef_t mute_def = {0};
+    pfifo->mutex = osMutexCreate(&mute_def);
     if(pfifo->mutex != NULL)
     {
         pfifo->pbuff       = base_addr;
@@ -80,7 +80,7 @@ int32_t FIFO_Push(fifo_t* pfifo, const void* pdata)
     assert_param(pfifo && pdata);
     if(pfifo->free <= 0)
         return -1;//fifo已满，错误
-    osMutexAcquire(pfifo->mutex, osWaitForever);
+    osMutexWait(pfifo->mutex, osWaitForever);
     memcpy(&((uint8_t*)pfifo->pbuff)[pfifo->write_index * pfifo->buf_size], pdata, pfifo->buf_size);
     pfifo->write_index++;
     pfifo->write_index %= pfifo->buf_num;
@@ -120,7 +120,7 @@ int32_t  FIFO_Pop(fifo_t* pfifo, void* pdata)
     assert_param(pfifo);
     if(pfifo->used <= 0)
         return -1;//FIFO已空，错误
-    osMutexAcquire(pfifo->mutex, osWaitForever);
+    osMutexWait(pfifo->mutex, osWaitForever);
     memcpy(pdata, &((uint8_t*)pfifo->pbuff)[pfifo->read_index * pfifo->buf_size], pfifo->buf_size);
     pfifo->read_index++;
     pfifo->read_index %= pfifo->buf_num;
@@ -216,7 +216,7 @@ void FIFO_Flush(fifo_t* pfifo)
 {
     //检查输入参数
     assert_param(pfifo);
-    osMutexAcquire(pfifo->mutex, osWaitForever);
+    osMutexWait(pfifo->mutex, osWaitForever);
     memset(pfifo->pbuff, 0, pfifo->buf_num * pfifo->buf_size);
     pfifo->free        = pfifo->buf_num;
     pfifo->used        = 0;

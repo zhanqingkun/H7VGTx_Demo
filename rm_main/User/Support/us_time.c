@@ -77,6 +77,7 @@ float usTime_Interval_Test_End(us_time_t* us_time)
 //@breif  us延时函数
 //@param  us: 需要延时的毫秒数
 //@retval None
+//@note   但需要延时超过1ms时，请用osDelay或osDelayUntil以免堵塞任务
 void usTime_Delay(float us)
 {
     prv_us_time.tim_cnt = usTime_Get();

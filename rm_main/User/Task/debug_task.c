@@ -1,6 +1,6 @@
 #include "debug_task.h"
 #include "cmsis_os.h"
-#include "data_scope.h"
+#include "data_log.h"
 #include "stdint.h"
 
 #include "func_generator.h"
@@ -16,8 +16,7 @@ void DataWavePkg(void)
         case 1:
         {
             usTime_Interval_Test_Start(&test_time);
-            usTime_Delay(996);
-//            usTime_Delay(200);
+            usTime_Delay(200);
             usTime_Interval_Test_End(&test_time);
            DataScope_Get_Channel_Data(test_time.dt);
 //            DataScope_Get_Channel_Data(usTime_Period_Test(&test_time));
@@ -28,15 +27,15 @@ void DataWavePkg(void)
 }
 
 /* 串口上位机数据发送任务 */
-void debug_task(void *argument)
+void debug_task(void const* argument)
 {
     uint32_t thread_wake_time = osKernelSysTick();
     for(;;)
     {
-        thread_wake_time += 100;
 //        taskENTER_CRITICAL();
+        Log_printf("test");
         DataWave();
 //        taskEXIT_CRITICAL();
-        osDelayUntil(thread_wake_time);
+        osDelayUntil(&thread_wake_time, 10);
     }
 }

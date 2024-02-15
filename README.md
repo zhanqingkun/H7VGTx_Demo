@@ -1,5 +1,12 @@
 # H7VGTx_Demo
 
+## 软件环境
+
+ - Toolchain/IDE : Keil MDK-ARM V5 | STM32CubeMX Version 6.10.0
+ - package version: STM32Cube FW_H7 V1.9.0（最新版本v1.11.1更新过usb，使用时会进硬件中断）
+ - FreeRTOS version: 10.3.1
+ - CMSIS-RTOS version: 1.02
+
 ## 代码风格
 
 文件编码：UTF-8（使用UTF-8在显示中文和打印中文不会乱码）
@@ -15,6 +22,14 @@
 宏定义：统一全大写，用下划线分割。
 
 头文件引用：在.h文件中只引用声明结构体、变量等必要的头文件。在.c文件中引用头文件由复杂到简单引用。
+
+## 操作系统版本选择
+
+![](doc/image/freertos_choose.png)
+
+RTOS v1使得软件能够在不同的实时操作系统下运行（屏蔽不同RTOS提供的API的差别），而RTOS v2则是拓展了RTOS v1，兼容更多的CPU架构和实时操作系统。
+
+由上图可以看出RTOS v1兼容Cortex-M7，也就是说兼容stm32h723。我们没必要选择RTOS v2，更高的兼容性背后时更加冗余的代码，理解起来比较困难；如果选择Disable则使用RTOS厂商提供的API，CubeIDE将不会提供图形化配置服务；所以在CubeMX配置时选择RTOS v1就足够了。
 
 ## FPU单元说明
 
@@ -66,3 +81,9 @@ https://www.freertos.org/2020/04/using-freertos-on-armv8-m-microcontrollers.html
 <img src="doc/image/FPU3.png" style="zoom: 50%;" />
 
 此处注意是Double Precision
+
+## DMA串口发送注意点
+
+在进行DMA发送前，通常会在前面加`while(HAL_DMA_GetState(&hdma_usart1_tx) == HAL_DMA_STATE_BUZY);`来等待上一次发送完成。但经过测试，`HAL_DMA_GetState()`在初始化后它的状态就不会变了，使用`while((&huart1)->gState == HAL_UART_STATE_READY);`才能正常等待。
+
+连续两次发送没有等待的结果是只有第一次发送成功，第二次发送`HAL_UART_Transmit_DMA()`会返回HAL_BUSY。

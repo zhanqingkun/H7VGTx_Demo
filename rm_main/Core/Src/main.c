@@ -122,9 +122,6 @@ int main(void)
   USART_Comm_Init();
   /* USER CODE END 2 */
 
-  /* Init scheduler */
-  osKernelInitialize();
-
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 
