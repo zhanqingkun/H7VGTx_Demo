@@ -1,12 +1,12 @@
 #include "data_log.h"
 #include "stdarg.h"
 
-//<-------------------------------------------printf重定向------------------------------------------->
-//printf重定向使用的为HAL_UART_Transmit，
-//取消ARM的半主机工作模式
+/*********************************** printf重定向 *********************************/
+/* printf重定向使用的为HAL_UART_Transmit */
+/* 取消ARM的半主机工作模式 */
 #pragma import(__use_no_semihosting)
 struct __FILE
-{ 
+{
     int handle;
 };
 
@@ -23,7 +23,7 @@ int fputc(int ch, FILE *f)
     return ch;
 }
 
-//<-------------------------------------------Log_printf------------------------------------------->
+/*********************************** Log_printf实现 *********************************/
 char *LOG_LEVEL_TAGS[6] = {"NULL", "ASSERT", "ERROR", "WARNING", "INFO", "DEBUG"};
 char log_str[DATA_LOG_LEN];
 
@@ -49,20 +49,22 @@ int log_printf_to_buffer(char *buff, int size, char *format, ...)
     return len;
 }
 
-//<-------------------------------------------DataScope------------------------------------------->
-//示波器数据结构体
+/*********************************** DataScope *********************************/
+/* 示波器数据结构体 */
 static struct _DataTypedfef_t
 {
     unsigned char OutPut_Buffer[4 * DATA_MAX_NUM + 4]; //串口发送缓冲区
     unsigned char Send_Count;                          //串口需要发送的数据个数
     unsigned char Data_Num;                            //变量数量
 } CK;
-
-//@breif  将单精度浮点数据转成4字节数据并存入指定地址
-//@param  target: 目标浮点数据
-//@param  buf   : 目标地址
-//@param  offset: 地址偏置
-//@retval None
+/*
+ * @brief      将单精度浮点数据转成4字节数据并存入指定地址
+ * @param[in]  target: 目标浮点数据
+ * @param[out] buf   : 目标地址
+ * @param[in]  offset: 地址偏置
+ * @retval     void
+ */
+#if (DATA_LOG_MODE == 2U) || (DATA_LOG_MODE == 3U)
 static void Float2Byte(float *target, unsigned char *buf, unsigned char offset)
 {
     unsigned char *point;
@@ -72,10 +74,13 @@ static void Float2Byte(float *target, unsigned char *buf, unsigned char offset)
     buf[offset+2] = point[2];
     buf[offset+3] = point[3];
 }
+#endif
 
-//@breif  生成能正确识别的帧格式
-//@param  Channel_Number: 需要发送的通道个数
-//@retval 返回发送缓冲区数据个数
+/*
+ * @brief     生成能正确识别的帧格式
+ * @param[in] Channel_Number: 需要发送的通道个数
+ * @retval    返回发送缓冲区数据个数
+ */
 static unsigned char DataScope_Data_Generate(unsigned char Channel_Number)
 {
     if(Channel_Number == 0)
@@ -100,9 +105,11 @@ static unsigned char DataScope_Data_Generate(unsigned char Channel_Number)
     }
 }
 
-//@breif  将待发送通道的单精度浮点数据写入发送缓冲区
-//@param  Data: 目标浮点数据
-//@retval None
+/*
+ * @brief     将待发送通道的单精度浮点数据写入发送缓冲区
+ * @param[in] Data: 目标浮点数据
+ * @retval    void
+ */
 void DataScope_Get_Channel_Data(float Data)
 {
 #if (DATA_LOG_MODE == 2U)//VOFA+
@@ -126,7 +133,10 @@ void DataScope_Get_Channel_Data(float Data)
 #endif
 }
 
-//@breif 重写此函数，用来注册需要发送的数据
+/*
+ * @brief  重写此函数，用来注册需要发送的数据
+ * @retval void
+ */
 __weak void DataWavePkg(void)
 {
     //注册格式如下
@@ -134,9 +144,11 @@ __weak void DataWavePkg(void)
     //DataScope_Get_Channel_Data(float_type_data2);
 }
 
-//@breif  上位机通过串口打印数据波形
-//@retval None
-//@note   周期调用此函数
+/*
+ * @brief  上位机通过串口打印数据波形
+ * @retval void
+ * @note   周期调用此函数
+ */
 void DataWave(void)
 {
     DataWavePkg();

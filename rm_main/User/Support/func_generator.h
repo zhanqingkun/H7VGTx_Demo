@@ -8,7 +8,7 @@ extern "C"
 
 #include "rng.h"
 
-//正弦信号生成器
+/* 正弦信号生成器 */
 typedef struct
 {
     float Td;   //信号生成周期 即调用函数周期 Td,time,T单位相同(ms或s都行)
@@ -20,10 +20,10 @@ typedef struct
     float out;  //输出记录
 } FGT_sin_t;
 
-void FGT_sin_Init(FGT_sin_t* sin, float Td, float dc, float T, float A, float phi);
-float FGT_sin_Calc(FGT_sin_t* sin);
+void FGT_sin_init(FGT_sin_t* sin, float Td, float dc, float T, float A, float phi);
+float FGT_sin_calc(FGT_sin_t* sin);
 
-//方波信号生成器
+/* 方波信号生成器 */
 typedef struct
 {
     float Td;   //信号生成周期 即调用函数周期 Td,time,Th,Tl单位相同(ms或s都行)
@@ -35,10 +35,10 @@ typedef struct
     float out;
 } FGT_sqr_t;
 
-void FGT_sqr_Init(FGT_sqr_t* sqr, float Td, float Th, float Tl, float high, float low);
-float FGT_sqr_Calc(FGT_sqr_t* sqr);
+void FGT_sqr_init(FGT_sqr_t* sqr, float Td, float Th, float Tl, float high, float low);
+float FGT_sqr_calc(FGT_sqr_t* sqr);
 
-//角波信号生成器
+/* 角波信号生成器 */
 typedef struct
 {
     float Td;     //信号生成周期 即调用函数周期 Td,time,T1,T2单位相同(ms或s都行)
@@ -50,10 +50,10 @@ typedef struct
     float out;
 } FGT_agl_t;
 
-void FGT_agl_Init(FGT_agl_t* agl, float Td, float T1, float T2, float T1_out, float T2_out);
-float FGT_agl_Calc(FGT_agl_t* agl);
+void FGT_agl_init(FGT_agl_t* agl, float Td, float T1, float T2, float T1_out, float T2_out);
+float FGT_agl_calc(FGT_agl_t* agl);
 
-//符号函数信号生成器
+/* 符号函数信号生成器 */
 typedef struct
 {
     float Td;   //信号生成周期 即调用函数周期 Td,time,T1,T2,T3单位相同(ms或s都行)
@@ -64,10 +64,10 @@ typedef struct
     float out;
 } FGT_npz_t;
 
-void FGT_npz_Init(FGT_npz_t* npz, float Td, float T1, float T2, float T3);
-float FGT_npz_Calc(FGT_npz_t* npz);
+void FGT_npz_init(FGT_npz_t* npz, float Td, float T1, float T2, float T3);
+float FGT_npz_calc(FGT_npz_t* npz);
 
-//一般函数信号发生器
+/* 一般函数信号发生器 */
 typedef struct _FGT_f_t
 {
     float Td;   //信号生成周期 即调用函数周期 Td,time,T单位相同(ms或s都行)
@@ -77,14 +77,14 @@ typedef struct _FGT_f_t
     float out;
 } FGT_f_t;
 
-void FGT_f_Init(FGT_f_t* pf, float (*f)(float time), float Td, float T);
-float FGT_f_Calc(FGT_f_t* pf);
+void FGT_f_init(FGT_f_t* pf, float (*f)(float time), float Td, float T);
+float FGT_f_calc(FGT_f_t* pf);
 
-//生成一维噪声(随机数)
-float FGT_RandomGenerate(float min, float max);
+/* 生成一维噪声(随机数) */
+float FGT_random_generate(float min, float max);
 
-//生成高斯噪声
-float FGT_GaussGenerate(float mu, float sigma);
+/* 生成高斯噪声 */
+float FGT_gauss_generate(float mu, float sigma);
 
 #ifdef __cplusplus
 }

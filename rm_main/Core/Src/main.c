@@ -32,6 +32,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "us_time.h"
+#include "data_log.h"
 #include "can_comm.h"
 #include "usart_comm.h"
 /* USER CODE END Includes */
@@ -117,7 +118,7 @@ int main(void)
   MX_FDCAN3_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
-  usTime_Start();
+  us_timer_start();
   CAN_Comm_Init();
   USART_Comm_Init();
   /* USER CODE END 2 */
@@ -300,6 +301,7 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    Log_printf("[%s,%d]assert_failed!\r\n", file, line);
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

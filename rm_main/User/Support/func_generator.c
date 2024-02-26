@@ -1,10 +1,12 @@
 #include "func_generator.h"
 #include "stdlib.h"
 
-//@breif  正弦信号生成器初始化
-//@param  各参数详细见结构体说明
-//@retval None
-void FGT_sin_Init(FGT_sin_t* sin, float Td, float dc, float T, float A, float phi)
+/*
+ * @brief     正弦信号生成器初始化
+ * @param[in] 各参数详细见结构体说明
+ * @retval    void
+ */
+void FGT_sin_init(FGT_sin_t* sin, float Td, float dc, float T, float A, float phi)
 {
     sin->Td = Td;
     sin->time = 0;
@@ -15,10 +17,12 @@ void FGT_sin_Init(FGT_sin_t* sin, float Td, float dc, float T, float A, float ph
     sin->out = 0;
 }
 
-//@breif  产生正弦信号
-//@param  sin: 正弦信号生成器结构体
-//@retval 返回正弦信号值
-float FGT_sin_Calc(FGT_sin_t* sin)
+/*
+ * @brief     产生正弦信号
+ * @param[in] sin: 正弦信号生成器实例
+ * @retval    返回正弦信号值
+ */
+float FGT_sin_calc(FGT_sin_t* sin)
 {
     float ac = 0;
     ac = (sin->A) * sinf((2 * PI / sin->T) * (sin->time) + sin->phi); //计算交流量
@@ -27,10 +31,12 @@ float FGT_sin_Calc(FGT_sin_t* sin)
     return sin->out;
 }
 
-//@breif  方波信号生成器初始化
-//@param  各参数详细见结构体说明
-//@retval None
-void FGT_sqr_Init(FGT_sqr_t* sqr, float Td, float Th, float Tl, float high, float low)
+/*
+ * @brief     方波信号生成器初始化
+ * @param[in] 各参数详细见结构体说明
+ * @retval    void
+ */
+void FGT_sqr_init(FGT_sqr_t* sqr, float Td, float Th, float Tl, float high, float low)
 {
     sqr->Td = Td;
     sqr->time = 0;
@@ -41,10 +47,12 @@ void FGT_sqr_Init(FGT_sqr_t* sqr, float Td, float Th, float Tl, float high, floa
     sqr->out = 0;
 }
 
-//@breif  产生方波信号
-//@param  sqr: 方波信号生成器结构体
-//@retval 返回方波信号值
-float FGT_sqr_Calc(FGT_sqr_t* sqr)
+/*
+ * @brief     产生方波信号
+ * @param[in] sqr: 方波信号生成器实例
+ * @retval    返回方波信号值
+ */
+float FGT_sqr_calc(FGT_sqr_t* sqr)
 {
     float dc = 0;
     if(sqr->time > sqr->Th)                                    //计算直流量
@@ -56,10 +64,12 @@ float FGT_sqr_Calc(FGT_sqr_t* sqr)
     return sqr->out;
 }
 
-//@breif  角波信号生成器初始化
-//@param  各参数详细见结构体说明
-//@retval None
-void FGT_agl_Init(FGT_agl_t* agl, float Td, float T1, float T2, float T1_out, float T2_out)
+/*
+ * @brief     角波信号生成器初始化
+ * @param[in] 各参数详细见结构体说明
+ * @retval    void
+ */
+void FGT_agl_init(FGT_agl_t* agl, float Td, float T1, float T2, float T1_out, float T2_out)
 {
     agl->Td = Td;
     agl->time = 0;
@@ -70,10 +80,12 @@ void FGT_agl_Init(FGT_agl_t* agl, float Td, float T1, float T2, float T1_out, fl
     agl->out = 0;
 }
 
-//@breif  产生角波信号
-//@param  agl: 角波信号生成器结构体
-//@retval 返回角波信号值
-float FGT_agl_Calc(FGT_agl_t* agl)
+/*
+ * @brief     产生角波信号
+ * @param[in] agl: 角波信号生成器实例
+ * @retval    返回角波信号值
+ */
+float FGT_agl_calc(FGT_agl_t* agl)
 {
     float ac = 0;
     //确定区间，计算相对时间，计算交流量
@@ -86,10 +98,12 @@ float FGT_agl_Calc(FGT_agl_t* agl)
     return agl->out;
 }
 
-//@breif  符号函数信号生成器初始化
-//@param  各参数详细见结构体说明
-//@retval None
-void FGT_npz_Init(FGT_npz_t* npz, float Td, float T1, float T2, float T3)
+/*
+ * @brief     符号函数信号生成器初始化
+ * @param[in] 各参数详细见结构体说明
+ * @retval    void
+ */
+void FGT_npz_init(FGT_npz_t* npz, float Td, float T1, float T2, float T3)
 {
     npz->Td = Td;
     npz->time = 0;
@@ -99,10 +113,12 @@ void FGT_npz_Init(FGT_npz_t* npz, float Td, float T1, float T2, float T3)
     npz->out = 0;
 }
 
-//@breif  产生符号函数信号
-//@param  npz: 符号函数信号生成器结构体
-//@retval 返回符号函数信号值
-float FGT_npz_Calc(FGT_npz_t* npz)
+/*
+ * @brief     产生符号函数信号
+ * @param[in] npz: 符号函数信号生成器实例
+ * @retval    返回符号函数信号值
+ */
+float FGT_npz_calc(FGT_npz_t* npz)
 {
     if (npz->time <= npz->T1)                                                                //在第一个拐点之前
         npz->out = -1;
@@ -114,10 +130,12 @@ float FGT_npz_Calc(FGT_npz_t* npz)
     return npz->out;
 }
 
-//@breif  一般函数信号生成器初始化
-//@param  各参数详细见结构体说明
-//@retval None
-void FGT_f_Init(FGT_f_t* pf, float (*f)(float time), float Td, float T)
+/*
+ * @brief     一般函数信号生成器初始化
+ * @param[in] 各参数详细见结构体说明
+ * @retval    void
+ */
+void FGT_f_init(FGT_f_t* pf, float (*f)(float time), float Td, float T)
 {
     pf->f = f;
     pf->T = T;
@@ -126,21 +144,25 @@ void FGT_f_Init(FGT_f_t* pf, float (*f)(float time), float Td, float T)
     pf->out = 0;
 }
 
-//@breif  产生一般函数信号
-//@param  pf: 一般函数信号生成器结构体
-//@retval 返回一般函数信号值
-float FGT_f_Calc(FGT_f_t* pf)
+/*
+ * @brief     产生一般函数信号
+ * @param[in] npz: 一般函数信号生成器实例
+ * @retval    返回一般函数信号值
+ */
+float FGT_f_calc(FGT_f_t* pf)
 {
     pf->time = fmodf(pf->time+pf->Td,pf->T); //迭代时间(先输出再计算，使从0开始)
     pf->out = pf->f(pf->time);
     return pf->out;
 }
 
-//@breif  生成[min,max]范围的随机数 运行一次函数需要1.7us左右
-//@param  min: 随机数最小值
-//@param  max: 随机数最大值
-//@retval 返回随机数
-float FGT_RandomGenerate(float min, float max)
+/*
+ * @brief     生成[min,max]范围的随机数 运行一次函数需要1.7us左右
+ * @param[in] min: 随机数最小值
+ * @param[in] max: 随机数最大值
+ * @retval    返回随机数
+ */
+float FGT_random_generate(float min, float max)
 {
     uint32_t temp_32_rng;
 //    while(__HAL_RNG_GET_FLAG(&hrng, RNG_FLAG_DRDY) == RESET);
@@ -148,11 +170,13 @@ float FGT_RandomGenerate(float min, float max)
     return (float)temp_32_rng / 0xffffffff * (max - min) + min;
 }
 
-//@breif  生成高斯噪声
-//@param  mu   : 均值
-//@param  sigma:标准差
-//@retval 返回高斯噪声值
-float FGT_GaussGenerate(float mu, float sigma)
+/*
+ * @brief     生成高斯噪声
+ * @param[in] mu   : 均值
+ * @param[in] sigma: 标准差
+ * @retval    返回高斯噪声值
+ */
+float FGT_gauss_generate(float mu, float sigma)
 {
     float t1, t2, a, r, x;
     //产生两个均匀分布的0~1的随机序列 两种实现方式：硬件实现和软件实现

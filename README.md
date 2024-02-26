@@ -23,6 +23,20 @@
 
 头文件引用：在.h文件中只引用声明结构体、变量等必要的头文件。在.c文件中引用头文件由复杂到简单引用。
 
+## FDcan配置
+
+波特率为1Mbps，所以1个can1ms最多传输1000000/1000/108=9.26帧数据（DLC为8的标准帧为108bit）。如果can设备是大疆电机，收发需要2帧数据，1个can最多接4个电机不丢包。如果can设备是陀螺仪，只需要收，那么可以接收9个ID。总的来说，标准过滤器设置5个是足够的（用列表模式，10个ID）。
+
+canRAM空间共有2560words大小，其中can1分配850words，can2分配850words，can2分配860words。1个标准帧消息占4个words，所以fifo大小直接拉到最大，接收为64，发送为32，还剩850 - 5 - 64 * 4 * 2 - 32 * 4 = 205words。剩下空间看需求分配。
+
+![](doc/image/FDcan配置1.png)
+
+![](doc/image/FDcan配置2.png)
+
+can中断只开启中断0就足够。默认情况下所有can中断都会进中断0，这里有两个中断目的是为了中断分流。详细可见以下网址：https://www.armbbs.cn/forum.php?mod=viewthread&tid=119164
+
+![](doc/image/FDcan配置3.png)
+
 ## 操作系统版本选择
 
 ![](doc/image/freertos_choose.png)

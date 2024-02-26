@@ -3,224 +3,252 @@
 #include "string.h"
 #include "stdlib.h"
 
-//@breif  初始化FIFO结构体
-//@param  pfifo    : FIFO结构体指针
-//@param  base_addr: FIFO缓冲区首地址
-//@param  unit_num : FIFO缓冲区单元数量
-//@param  unit_size: FIFO缓冲区单元大小
-//@retval 成功返回0，失败返回-1
-static int32_t FIFO_Init(fifo_t* pfifo, void* base_addr, uint32_t unit_num, uint32_t unit_size)
+/*
+ * @brief     初始化fifo实例(静态分配内存)
+ * @param[in] p_fifo     : fifo实例指针
+ * @param[in] p_base_addr：fifo内存单元指针
+ * @param[in] unit_size  : fifo内存单元长度
+ * @param[in] unit_cnt   : fifo内存单元数量
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_init(fifo_t *p_fifo, void *p_base_addr, char unit_size, int unit_cnt)
 {
-    //检查输入参数
-    assert_param(pfifo && base_addr && unit_num && unit_size);
+    assert_param(p_fifo);
+    assert_param(p_base_addr);
+    assert_param(unit_size);
+    assert_param(unit_cnt);
     
     osMutexDef_t mute_def = {0};
-    pfifo->mutex = osMutexCreate(&mute_def);
-    if(pfifo->mutex != NULL)
-    {
-        pfifo->pbuff       = base_addr;
-        pfifo->buf_num     = unit_num;
-        pfifo->buf_size    = unit_size;
-        pfifo->free        = unit_num;
-        pfifo->used        = 0;
-        pfifo->read_index  = 0;
-        pfifo->write_index = 0;
-        return 0;
+    p_fifo->mutex = osMutexCreate(&mute_def);
+
+    if (p_fifo->mutex != NULL) {
+        p_fifo->p_start_addr = (char *)p_base_addr;
+        p_fifo->p_end_addr = (char *)p_base_addr + unit_size * unit_cnt - 1;
+        p_fifo->free_num = unit_cnt;
+        p_fifo->used_num = 0;
+        p_fifo->unit_size = unit_size;
+        p_fifo->p_read_addr = (char *)p_base_addr;
+        p_fifo->p_write_addr = (char *)p_base_addr;
+        return (0);
+    } else {
+        return (-1);
     }
-    else
-        return -1;
 }
 
-//@breif  创建FIFO结构体
-//@param  unit_num : FIFO缓冲区单元数量
-//@param  unit_size: FIFO缓冲区单元大小
-//@retval 成功返回FIFO指针，失败返回NULL
-fifo_t* FIFO_Create(uint32_t unit_num, uint32_t unit_size)
+/*
+ * @brief     创建fifo实例(动态分配内存)
+ * @param[in] unit_size: fifo内存单元长度
+ * @param[in] unit_num : fifo内存单元数量
+ * @retval    成功返回fifo指针，失败返回NULL
+ */
+fifo_t *fifo_create(char unit_size, int unit_cnt)
 {
-    //检查输入参数
-    assert_param(unit_num && unit_size);
+    fifo_t *p_fifo = NULL;
+    char *p_base_addr = NULL;
 
-    fifo_t* pfifo = NULL;
-    uint8_t* base_addr = NULL;
-    pfifo = (fifo_t*)malloc(sizeof(fifo_t));
-    if(pfifo == NULL)
-        return NULL;
-    base_addr = malloc(unit_num * unit_size);
-    if(base_addr == NULL)
-    {
-        free(pfifo);
-        return NULL;
+    assert_param(unit_size);
+    assert_param(unit_cnt);
+
+    p_fifo = (fifo_t *)malloc(sizeof(fifo_t));
+    if (p_fifo == NULL)
+        return (NULL);
+    p_base_addr = malloc(unit_size * unit_cnt);
+    if (p_base_addr == NULL) {
+        free(p_fifo);
+        return (NULL);
     }
-    FIFO_Init(pfifo, base_addr, unit_num, unit_size);
-    return pfifo;
-}
-
-//@breif  删除FIFO结构体
-//@param  pfifo: FIFO结构体指针
-//@retval None
-void FIFO_Delete(fifo_t* pfifo)
-{
-    //检查输入参数
-    assert_param(pfifo && pfifo->pbuff);
-    //释放内存
-    free(pfifo->pbuff);
-    //删除互斥量
-    osMutexDelete(pfifo->mutex);
-    //释放fifo结构体内存
-    free(pfifo);
-}
-
-//@breif  压入一个数据
-//@param  pfifo: FIFO结构体指针
-//@param  pdata: 压入数据指针
-//@retval 成功返回0，失败返回-1
-int32_t FIFO_Push(fifo_t* pfifo, const void* pdata)
-{
-    //检查输入参数
-    assert_param(pfifo && pdata);
-    if(pfifo->free <= 0)
-        return -1;//fifo已满，错误
-    osMutexWait(pfifo->mutex, osWaitForever);
-    memcpy(&((uint8_t*)pfifo->pbuff)[pfifo->write_index * pfifo->buf_size], pdata, pfifo->buf_size);
-    pfifo->write_index++;
-    pfifo->write_index %= pfifo->buf_num;
-    pfifo->free--;
-    pfifo->used++;
-    osMutexRelease(pfifo->mutex);
-    return 0;
-}
-
-//@breif  压入多个数据
-//@param  pfifo : FIFO结构体指针
-//@param  pdata : 压入数据指针
-//@param  number: 压入数据数量
-//@retval 返回成功存入的数据数量，失败返回-1
-int32_t FIFO_Pushs(fifo_t *pfifo, const void* pdata, uint32_t number)
-{
-    int32_t puts_num = 0;
-    //检查输入参数
-    assert_param(pfifo && pdata && number);
-    if(pfifo->free <= 0)
-        return -1;//fifo已满，错误
-    for(uint32_t i = 0; (i < number) && (pfifo->free > 0); i++)
-    {
-        FIFO_Push(pfifo, &((uint8_t*)pdata)[i * pfifo->buf_size]);
-        puts_num++;
+    if (fifo_init(p_fifo, p_base_addr, unit_size, unit_cnt)) {
+        free(p_base_addr);
+        free(p_fifo);
     }
-    return puts_num;
+    return (p_fifo);
 }
 
-//@breif  取出一个数据
-//@param  pfifo: FIFO结构体指针
-//@param  pdata: 取出数据存放指针
-//@retval 成功返回0，失败返回-1
-int32_t  FIFO_Pop(fifo_t* pfifo, void* pdata)
+/*
+ * @brief     删除fifo实例
+ * @param[in] p_fifo: fifo实例指针
+ * @retval    void
+ */
+void fifo_destory(fifo_t *p_fifo)
 {
-    //检查输入参数
-    assert_param(pfifo);
-    if(pfifo->used <= 0)
-        return -1;//FIFO已空，错误
-    osMutexWait(pfifo->mutex, osWaitForever);
-    memcpy(pdata, &((uint8_t*)pfifo->pbuff)[pfifo->read_index * pfifo->buf_size], pfifo->buf_size);
-    pfifo->read_index++;
-    pfifo->read_index %= pfifo->buf_num;
-    pfifo->free++;
-    pfifo->used--;
-    osMutexRelease(pfifo->mutex);
-    return 0;
+    assert_param(p_fifo);
+    assert_param(p_fifo->p_start_addr);
+    free(p_fifo->p_start_addr);
+    osMutexDelete(p_fifo->mutex);
+    free(p_fifo);
+    return;
 }
 
-//@breif  取出多个数据
-//@param  pfifo : FIFO结构体指针
-//@param  pdata : 取出数据存放指针
-//@param  number: 取出数据数量
-//@retval 返回成功取出数据的数量，失败返回-1
-int32_t FIFO_Pops(fifo_t* pfifo, void* pdata, uint32_t number)
+/*
+ * @brief     压入一个数据(加互斥锁保护)
+ * @param[in] p_fifo   : fifo实例指针
+ * @param[in] p_element: 压入数据指针
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_put(fifo_t *p_fifo, const void *p_element)
 {
-    int32_t pops_num = 0;
-    //检查输入参数
-    assert_param(pfifo && pdata && number);
-    if(pfifo->used <= 0)
-        return -1;//FIFO已空，错误
-    for(int i = 0; (i < number) && (pfifo->used > 0); i++)
-    {
-        FIFO_Pop(pfifo, &((uint8_t*)pdata)[i * pfifo->buf_size]);
-        pops_num++;
+    assert_param(p_fifo);
+    assert_param(p_element);
+    osMutexWait(p_fifo->mutex, osWaitForever);
+    if (p_fifo->free_num == 0) {
+        osMutexRelease(p_fifo->mutex);
+        return (-1);
     }
-    return pops_num;
+    memcpy(p_fifo->p_write_addr, p_element, p_fifo->unit_size);
+    p_fifo->p_write_addr += p_fifo->unit_size;
+    if (p_fifo->p_write_addr > p_fifo->p_end_addr)
+        p_fifo->p_write_addr = p_fifo->p_start_addr;
+    p_fifo->free_num--;
+    p_fifo->used_num++;
+    osMutexRelease(p_fifo->mutex);
+    return (0);
 }
 
-//@breif  获取倒数第offset次压入的数据
-//@param  pfifo : FIFO结构体指针
-//@param  pdata : 取出数据存放指针
-//@param  offset: 倒数第offset次，范围1 ~ pfifo->buf_num||pfifo->used
-//@retval 成功返回0，失败返回-1
-int32_t FIFO_PreRead(fifo_t* pfifo, void* pdata, uint32_t offset)
+/*
+ * @brief     压入一个数据(不加互斥锁保护)
+ * @param[in] p_fifo   : fifo实例指针
+ * @param[in] p_element: 压入数据指针
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_put_noprotect(fifo_t *p_fifo, const void *p_element)
 {
-    
-    //检查输入参数
-    assert_param(pfifo && pdata);
-    if(offset <= pfifo->write_index)//向前读取
-        memcpy(pdata, &((uint8_t*)pfifo->pbuff)[(pfifo->write_index - offset) * pfifo->buf_size], pfifo->buf_size);
-    else if(offset <= pfifo->buf_num && offset <= pfifo->used)//折回尾部读取
-        memcpy(pdata, &((uint8_t*)pfifo->pbuff)[(pfifo->buf_num + pfifo->write_index - offset) * pfifo->buf_size], pfifo->buf_size);
-    else//超出缓存容量
-        return -1;
-    return 0;
+    assert_param(p_fifo);
+    assert_param(p_element);
+    if (p_fifo->free_num == 0)
+        return (-1);
+    memcpy(p_fifo->p_write_addr, p_element, p_fifo->unit_size);
+    p_fifo->p_write_addr += p_fifo->unit_size;
+    if (p_fifo->p_write_addr > p_fifo->p_end_addr)
+        p_fifo->p_write_addr = p_fifo->p_start_addr;
+    p_fifo->free_num--;
+    p_fifo->used_num++;
+    return (0);
 }
 
-//@breif  FIFO是否空闲
-//@param  pfifo : FIFO结构体指针
-//@retval 空闲返回1，否则返回0
-uint8_t FIFO_IsEmpty(fifo_t* pfifo)
+/*
+ * @brief     取出一个数据(加互斥锁保护)
+ * @param[in]     p_fifo   : fifo实例指针
+ * @param[in,out] p_element: 取出数据指针
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_get(fifo_t *p_fifo, void *p_element)
 {
-    //检查输入参数
-    assert_param(pfifo);
-    return (pfifo->used == 0);
+    assert_param(p_fifo);
+    assert_param(p_element);
+    osMutexWait(p_fifo->mutex, osWaitForever);
+    if (p_fifo->used_num == 0) {
+        osMutexRelease(p_fifo->mutex);
+        return (-1);
+    }
+    memcpy(p_element, p_fifo->p_read_addr, p_fifo->unit_size);
+    p_fifo->p_read_addr += p_fifo->unit_size;
+    if (p_fifo->p_read_addr > p_fifo->p_end_addr)
+        p_fifo->p_read_addr = p_fifo->p_start_addr;
+    p_fifo->free_num++;
+    p_fifo->used_num--;
+    osMutexRelease(p_fifo->mutex);
+    return (0);
 }
 
-//@breif  FIFO是否充满
-//@param  pfifo : FIFO结构体指针
-//@retval 充满返回1，否则返回0
-uint8_t FIFO_IsFull(fifo_t* pfifo)
+/*
+ * @brief     取出一个数据(不加互斥锁保护)
+ * @param[in]     p_fifo   : fifo实例指针
+ * @param[in,out] p_element: 取出数据指针
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_get_noprotect(fifo_t *p_fifo, void *p_element)
 {
-    //检查输入参数
-    assert_param(pfifo);
-    return (pfifo->free == 0);
+    assert_param(p_fifo);
+    assert_param(p_element);
+    if (p_fifo->used_num == 0)
+        return (-1);
+    memcpy(p_element, p_fifo->p_read_addr, p_fifo->unit_size);
+    p_fifo->p_read_addr += p_fifo->unit_size;
+    if (p_fifo->p_read_addr > p_fifo->p_end_addr)
+        p_fifo->p_read_addr = p_fifo->p_start_addr;
+    p_fifo->free_num++;
+    p_fifo->used_num--;
+    return (0);
 }
 
-//@breif  FIFO已使用空间大小
-//@param  pfifo : FIFO结构体指针
-//@retval 返回fifo已使用空间大小
-uint32_t FIFO_UsedCount(fifo_t* pfifo)
+/*
+ * @brief     提前读取一个数据
+ * @param[in]     p_fifo   : fifo实例指针
+ * @param[in]     offset   : 提前数量
+ * @param[in,out] p_element: 取出数据指针
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_pre_read(fifo_t *p_fifo, char offset, void *p_element)
 {
-    //检查输入参数
-    assert_param(pfifo);
-    return pfifo->used;
+    char *_pre_red_index = (void *)0;
+    assert_param(p_fifo);
+    assert_param(p_element);
+    if (offset >= p_fifo->used_num)
+        return (-1);
+    _pre_red_index = p_fifo->p_read_addr + p_fifo->unit_size * offset;
+    while (_pre_red_index > p_fifo->p_end_addr)
+        _pre_red_index = _pre_red_index - (p_fifo->p_end_addr - p_fifo->p_start_addr + 1);
+    memcpy(p_element, _pre_red_index, p_fifo->unit_size);
+    return (0);
 }
 
-//@breif  FIFO未使用空间大小
-//@param  pfifo : FIFO结构体指针
-//@retval 返回fifo未使用空间大小
-uint32_t FIFO_FreeCount(fifo_t* pfifo)
+/*
+ * @brief     检查fifo是否空闲
+ * @param[in] p_fifo: fifo实例指针
+ * @retval    空闲返回1，否则返回0
+ */
+int fifo_is_empty(fifo_t *p_fifo)
 {
-    //检查输入参数
-    assert_param(pfifo);
-    return pfifo->free;
+    assert_param(p_fifo);
+    return (p_fifo->used_num == 0);
 }
 
-//@breif  清空FIFO所有空间
-//@param  pfifo : FIFO结构体指针
-//@retval None
-void FIFO_Flush(fifo_t* pfifo)
+/*
+ * @brief     检查fifo是否充满
+ * @param[in] p_fifo: fifo实例指针
+ * @retval    充满返回1，否则返回0
+ */
+int fifo_is_full(fifo_t *p_fifo)
 {
-    //检查输入参数
-    assert_param(pfifo);
-    osMutexWait(pfifo->mutex, osWaitForever);
-    memset(pfifo->pbuff, 0, pfifo->buf_num * pfifo->buf_size);
-    pfifo->free        = pfifo->buf_num;
-    pfifo->used        = 0;
-    pfifo->read_index  = 0;
-    pfifo->write_index = 0;
-    osMutexRelease(pfifo->mutex);
+    assert_param(p_fifo);
+    return (0 == p_fifo->free_num);
+}
+
+/*
+ * @brief     fifo已使用内存单元数量
+ * @param[in] p_fifo: fifo实例指针
+ * @retval    fifo已使用内存单元数量
+ */
+int fifo_used(fifo_t *p_fifo)
+{
+    assert_param(p_fifo);
+    return (p_fifo->used_num);
+}
+
+/*
+ * @brief     fifo未使用内存单元数量
+ * @param[in] p_fifo: fifo实例指针
+ * @retval    fifo未使用内存单元数量
+ */
+int fifo_free(fifo_t *p_fifo)
+{
+    assert_param(p_fifo);
+    return (p_fifo->free_num);
+}
+
+/*
+ * @brief     清空fifo所有内存
+ * @param[in] p_fifo: fifo实例指针
+ * @retval    成功返回0，失败返回-1
+ */
+int fifo_flush(fifo_t *p_fifo)
+{
+    assert_param(p_fifo);
+    osMutexWait(p_fifo->mutex, osWaitForever);
+    p_fifo->free_num = (p_fifo->p_end_addr - p_fifo->p_start_addr) / (p_fifo->unit_size);
+    p_fifo->used_num = 0;
+    p_fifo->p_read_addr = p_fifo->p_start_addr;
+    p_fifo->p_write_addr = p_fifo->p_start_addr;
+    osMutexRelease(p_fifo->mutex);
+    return (0);
 }

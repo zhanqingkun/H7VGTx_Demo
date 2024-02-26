@@ -15,11 +15,10 @@ void DataWavePkg(void)
     {
         case 1:
         {
-            usTime_Interval_Test_Start(&test_time);
-            usTime_Delay(200);
-            usTime_Interval_Test_End(&test_time);
+            us_timer_interval_test_start(&test_time);
+            us_timer_delay(200);
+            us_timer_interval_test_end(&test_time);
            DataScope_Get_Channel_Data(test_time.dt);
-//            DataScope_Get_Channel_Data(usTime_Period_Test(&test_time));
             break;
         }
         default:break;
@@ -33,7 +32,6 @@ void debug_task(void const* argument)
     for(;;)
     {
 //        taskENTER_CRITICAL();
-        Log_printf("test");
         DataWave();
 //        taskEXIT_CRITICAL();
         osDelayUntil(&thread_wake_time, 10);

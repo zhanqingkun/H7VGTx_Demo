@@ -61,12 +61,12 @@ typedef struct
 
 extern prv_us_time_t prv_us_time;
 
-void  usTime_Start(void);
-void  usTime_End(void);
-float usTime_Period_Test(us_time_t* us_time);
-void  usTime_Interval_Test_Start(us_time_t* us_time);
-float usTime_Interval_Test_End(us_time_t* us_time);
-void  usTime_Delay(float us);
+void  us_timer_start(void);
+void  us_timer_end(void);
+float us_timer_period_test(us_time_t* us_time);
+void  us_timer_interval_test_start(us_time_t* us_time);
+float us_timer_interval_test_end(us_time_t* us_time);
+void  us_timer_delay(float us);
 
 #ifdef __cplusplus
 }
