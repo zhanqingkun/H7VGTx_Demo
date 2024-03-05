@@ -19,8 +19,8 @@ typedef enum
 
 typedef enum
 {
-    DEVICE_RXFIFO1 = 0,
-    DEVICE_RXFIFO2,
+    DEVICE_RXFIFO0 = 0,
+    DEVICE_RXFIFO1,
     DEVICE_RXFIFO_NUM
 } can_rxfifo_e;
 
@@ -28,7 +28,8 @@ typedef enum
 {
     DEVICE_INIT = 0,
     DEVICE_DJI_MOTOR,
-    DEVICE_GYRO,
+    DEVICE_HT_MOTOR,
+    DEVICE_T_IMU,
     DEVICE_UNKNOW,
     DEVICE_TYPE_NUM
 } can_device_type_e;

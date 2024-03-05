@@ -3,16 +3,16 @@
 
 static can_device_info_t object_container = {{
     {
-        {&(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO1]), &(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO1])}, 
-        {&(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO2]), &(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO2])}
+        {&(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO0]), &(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO0])}, 
+        {&(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO1]), &(object_container.object_list[DEVICE_CAN1][DEVICE_RXFIFO1])}
     }, 
     {
-        {&(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO1]), &(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO1])}, 
-        {&(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO2]), &(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO2])}
+        {&(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO0]), &(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO0])}, 
+        {&(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO1]), &(object_container.object_list[DEVICE_CAN2][DEVICE_RXFIFO1])}
     },
     {
-        {&(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO1]), &(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO1])}, 
-        {&(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO2]), &(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO2])}
+        {&(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO0]), &(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO0])}, 
+        {&(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO1]), &(object_container.object_list[DEVICE_CAN3][DEVICE_RXFIFO1])}
     }
 }};
 
@@ -51,7 +51,7 @@ can_device_t *can_device_find(can_device_type_e device_type,
     list_t *node = NULL;
     assert_param(device_type < DEVICE_TYPE_NUM);
     assert_param(can_periph < DEVICE_CAN_NUM);
-    for (int i = DEVICE_RXFIFO1; i < DEVICE_RXFIFO_NUM; i++) {
+    for (int i = DEVICE_RXFIFO0; i < DEVICE_RXFIFO_NUM; i++) {
         for (node = object_container.object_list[can_periph][i].next;
              node != &(object_container.object_list[can_periph][i]);
              node = node->next) {
