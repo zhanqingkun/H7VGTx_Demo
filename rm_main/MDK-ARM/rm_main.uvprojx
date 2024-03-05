@@ -568,6 +568,16 @@
               <FileType>1</FileType>
               <FilePath>..\User\Drivers\Timu_driver.c</FilePath>
             </File>
+            <File>
+              <FileName>bsp_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Drivers\bsp_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>can_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Drivers\can_device.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
