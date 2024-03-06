@@ -1,7 +1,7 @@
 #ifndef __USART_COMM_H
 #define __USART_COMM_H
 
-#include "stm32h7xx_hal.h"
+#include "stm32h7xx.h"
 #include "usart.h"
 #include "string.h"
 

@@ -1,9 +1,9 @@
-#ifndef __DT7CONTROL_DRIVER_H
-#define __DT7CONTROL_DRIVER_H
+#ifndef __DRV_DR16_H
+#define __DRV_DR16_H
 
-#include "stm32h7xx_hal.h"
+#include "stm32h7xx.h"
 
-#define DT7_DATA_LEN 18
+#define DR16_DATA_LEN 18
 
 #define RC_UP 1
 #define RC_MI 3
@@ -49,10 +49,10 @@ typedef struct
 			uint16_t B:1;//16个键位
 		} bit;
 	} kb;
-} rc_t;
+} remote_control_t;
 
-extern rc_t rc;
+extern remote_control_t rc;
 
-uint8_t DT7control_Receive(rc_t *rc, uint8_t *buff);
+uint8_t dr16_get_data(remote_control_t *rc, uint8_t *data);
 
 #endif

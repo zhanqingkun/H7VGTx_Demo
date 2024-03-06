@@ -1,9 +1,9 @@
 #include "usart_comm.h"
-#include "DT7control_driver.h"
+#include "drv_dr16.h"
 
 #define DEBUG_DATA_LEN 10
 
-uint8_t dbus_dma_rx_buf[2*DT7_DATA_LEN];
+uint8_t dbus_dma_rx_buf[2*DR16_DATA_LEN];
 uint8_t debug_dma_rx_buf[2*DEBUG_DATA_LEN];
 uint32_t idle_cnt, half_cnt, cplt_cnt;
 
@@ -13,7 +13,7 @@ void USART_Comm_Init(void)
 {
 	__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
 	__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-	HAL_UART_Receive_DMA(&DBUS_HUART, dbus_dma_rx_buf, 2*DT7_DATA_LEN);
+	HAL_UART_Receive_DMA(&DBUS_HUART, dbus_dma_rx_buf, 2*DR16_DATA_LEN);
 	
 	__HAL_UART_CLEAR_IDLEFLAG(&DEBUG_HUART);
 	__HAL_UART_ENABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
@@ -26,7 +26,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == &DBUS_HUART)
 	{
-		if(DT7control_Receive(&rc, &dbus_dma_rx_buf[DT7_DATA_LEN]))
+		if(dr16_get_data(&rc, &dbus_dma_rx_buf[DR16_DATA_LEN]))
 		{
 			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
 			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
@@ -45,7 +45,7 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == &DBUS_HUART)
 	{
-		if(DT7control_Receive(&rc, &dbus_dma_rx_buf[0]))
+		if(dr16_get_data(&rc, &dbus_dma_rx_buf[0]))
 		{
 			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
 			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
@@ -72,7 +72,7 @@ void USART_User_IRQHandler(UART_HandleTypeDef *huart)
 		if(huart == &DBUS_HUART)
 		{
 			__HAL_UART_DISABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-			HAL_UART_Receive_DMA(huart, dbus_dma_rx_buf, 2*DT7_DATA_LEN);
+			HAL_UART_Receive_DMA(huart, dbus_dma_rx_buf, 2*DR16_DATA_LEN);
 		}
 		else if(huart == &DEBUG_HUART)
 		{

@@ -165,7 +165,7 @@ float FGT_f_calc(FGT_f_t* pf)
 float FGT_random_generate(float min, float max)
 {
     uint32_t temp_32_rng;
-//    while(__HAL_RNG_GET_FLAG(&hrng, RNG_FLAG_DRDY) == RESET);
+//    while (__HAL_RNG_GET_FLAG(&hrng, RNG_FLAG_DRDY) == RESET);
     HAL_RNG_GenerateRandomNumber(&hrng, &temp_32_rng);
     return (float)temp_32_rng / 0xffffffff * (max - min) + min;
 }

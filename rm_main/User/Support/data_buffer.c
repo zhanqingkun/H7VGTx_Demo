@@ -134,14 +134,10 @@ int buffer_get(buffer_t *p_buffer, char offset, void *p_element)
     assert_param(p_element);
     osMutexWait(p_buffer->mutex, osWaitForever);
     if (offset > p_buffer->used_num)
-    {
         return (-1);
-    }
     read_addr = p_buffer->p_write_addr - p_buffer->unit_size * offset;
     while (read_addr < p_buffer->p_start_addr)
-    {
         read_addr = read_addr + (p_buffer->p_end_addr - p_buffer->p_start_addr + 1);
-    }
     memcpy(p_element, read_addr, p_buffer->unit_size);
     osMutexRelease(p_buffer->mutex);
     return (0);
@@ -160,14 +156,10 @@ int buffer_get_noprotect(buffer_t *p_buffer, char offset, void *p_element)
     assert_param(p_buffer);
     assert_param(p_element);
     if (offset > p_buffer->used_num)
-    {
         return (-1);
-    }
     read_addr = p_buffer->p_write_addr - p_buffer->unit_size * offset;
     while (read_addr < p_buffer->p_start_addr)
-    {
         read_addr = read_addr + (p_buffer->p_end_addr - p_buffer->p_start_addr + 1);
-    }
     memcpy(p_element, read_addr, p_buffer->unit_size);
     return (0);
 }
@@ -213,8 +205,7 @@ float buffer_avg_filter(buffer_t* p_buffer, const void* p_element, uint32_t num)
     if (buffer_used(p_buffer) < num)
         num = buffer_used(p_buffer);
     float temp_res, temp_array = 0;
-    for(int i = 0; i < num; i++)
-    {
+    for (int i = 0; i < num; i++) {
         buffer_get(p_buffer, i, &temp_array);
         temp_res += temp_array;
     }
@@ -237,8 +228,7 @@ float buffer_lin_filter(buffer_t* p_buffer, const void* p_element, float* p_weig
     if (buffer_used(p_buffer) < num)
         num = buffer_used(p_buffer);
     float temp_res, temp_array = 0;
-    for(int i = 0; i < num; i++)
-    {
+    for (int i = 0; i < num; i++) {
         buffer_get(p_buffer, i, &temp_array);
         temp_res += (temp_array * p_weight[i]);
     }

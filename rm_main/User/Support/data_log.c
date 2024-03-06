@@ -18,7 +18,7 @@ void _sys_exit(int x)
 
 int fputc(int ch, FILE *f)
 {
-    while(__HAL_UART_GET_FLAG(&DATA_LOG_UART, UART_FLAG_TC) == RESET);
+    while (__HAL_UART_GET_FLAG(&DATA_LOG_UART, UART_FLAG_TC) == RESET);
     HAL_UART_Transmit(&DATA_LOG_UART, (uint8_t*)&ch, 1, 0xFF);
     return ch;
 }
@@ -33,7 +33,7 @@ void log_printf(const char *format, ...)
     va_list args;
     va_start(args, format);
     //如果串口对应的DMA还未发送完就等待，防止变量UartTxBuf被CPU和DMA同时使用。
-    while((&DATA_LOG_UART)->gState != HAL_UART_STATE_READY);
+    while ((&DATA_LOG_UART)->gState != HAL_UART_STATE_READY);
     len = vsnprintf((char*)log_str, sizeof(log_str)+1, (char*)format, args);
     va_end(args);
     HAL_UART_Transmit_DMA(&DATA_LOG_UART, (uint8_t*)log_str, len);
@@ -83,10 +83,9 @@ static void Float2Byte(float *target, unsigned char *buf, unsigned char offset)
  */
 static unsigned char DataScope_Data_Generate(unsigned char Channel_Number)
 {
-    if(Channel_Number == 0)
+    if(Channel_Number == 0) {
         return 0;
-    else
-    {
+    } else {
 #if (DATA_LOG_MODE == 2U)//VOFA+
         uint8_t temp_cnt = Channel_Number * 4 + 4;
         CK.OutPut_Buffer[4 * Channel_Number + 0] = 0x00;
@@ -113,18 +112,16 @@ static unsigned char DataScope_Data_Generate(unsigned char Channel_Number)
 void DataScope_Get_Channel_Data(float Data)
 {
 #if (DATA_LOG_MODE == 2U)//VOFA+
-    if(CK.Data_Num >= DATA_MAX_NUM)
+    if(CK.Data_Num >= DATA_MAX_NUM) {
         return;
-    else
-    {
+    } else {
         CK.Data_Num++;
         Float2Byte(&Data, CK.OutPut_Buffer, ((CK.Data_Num - 1) * 4));
     }
 #elif (DATA_DEBUG_MODE == 3U)//MINIBALANCE
-    if(CK.Data_Num >= 10)//MINIBALANCE最多10个通道
+    if(CK.Data_Num >= 10) {//MINIBALANCE最多10个通道
         return;
-    else
-    {
+    } else {
         CK.Data_Num++;
         Float2Byte(&Data, CK.OutPut_Buffer, ((CK.Data_Num - 1) * 4 + 1));//留出帧头
     }

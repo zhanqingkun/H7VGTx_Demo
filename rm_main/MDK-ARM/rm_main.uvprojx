@@ -559,24 +559,14 @@
               <FilePath>..\User\Drivers\usart_comm.c</FilePath>
             </File>
             <File>
-              <FileName>DT7control_driver.c</FileName>
+              <FileName>drv_dr16.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Drivers\DT7control_driver.c</FilePath>
+              <FilePath>..\User\Drivers\drv_dr16.c</FilePath>
             </File>
             <File>
-              <FileName>Timu_driver.c</FileName>
+              <FileName>drv_imu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Drivers\Timu_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_can.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Drivers\bsp_can.c</FilePath>
-            </File>
-            <File>
-              <FileName>can_device.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Drivers\can_device.c</FilePath>
+              <FilePath>..\User\Drivers\drv_imu.c</FilePath>
             </File>
           </Files>
         </Group>

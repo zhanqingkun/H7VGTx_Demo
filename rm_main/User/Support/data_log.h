@@ -29,7 +29,7 @@ extern "C"
  *                为2U时，为VOFA+打印波形
  *                为3U时，为MiniBalance打印波形
  */
-#define DATA_LOG_MODE   1U
+#define DATA_LOG_MODE   2U
 #define DATA_MAX_NUM    16                    //VOFA+示波器最大通道数
 #define DATA_LOG_UART   huart2                //使用data_scope文件中各种DEBUG函数时所用串口
 #define DATA_LOG_LEN    128                   //使用DMA_printf时字符串最大长度
@@ -92,7 +92,7 @@ extern "C"
     do                                                                                                                             \
     {                                                                                                                              \
         uint16_t len = 0;                                                                                                          \
-        while((&DATA_LOG_UART)->gState != HAL_UART_STATE_READY);                                                                   \
+        while ((&DATA_LOG_UART)->gState != HAL_UART_STATE_READY);                                                                  \
         len += snprintf(&log_str[len], DATA_LOG_LEN - len, "\r\n");                                                                \
         if(LOG_TIMESTAMP_EN)                                                                                                       \
             len += snprintf(&log_str[len], DATA_LOG_LEN - len, "[%d.%03d]", (int)HAL_GetTick() / 1000, (int)HAL_GetTick() % 1000); \
@@ -103,7 +103,7 @@ extern "C"
             len += snprintf(&log_str[len], DATA_LOG_LEN - len, "(%s,%d)", __FILE__, __LINE__);                                     \
         len += log_printf_to_buffer(&log_str[len], DATA_LOG_LEN - len, __VA_ARGS__);                                               \
         HAL_UART_Transmit_DMA(&DATA_LOG_UART, (uint8_t*)log_str, len);                                                             \
-    } while(0)                                                                                                                     \
+    } while(0)
 
 extern char log_str[DATA_LOG_LEN];
 extern char *LOG_LEVEL_TAGS[];

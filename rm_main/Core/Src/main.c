@@ -119,7 +119,7 @@ int main(void)
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   us_timer_start();
-  CAN_Comm_Init();
+  can_comm_init();
   USART_Comm_Init();
   /* USER CODE END 2 */
 
