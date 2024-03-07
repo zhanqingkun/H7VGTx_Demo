@@ -18,7 +18,7 @@ void log_scope_data_pkg(void)
             us_timer_interval_test_start(&test_time);
             us_timer_delay(200);
             us_timer_interval_test_end(&test_time);
-            log_scope_get_data(test_time.dt);
+//            log_scope_get_data(test_time.dt);
             break;
         }
         default:break;

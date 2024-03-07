@@ -29,7 +29,7 @@ extern "C"
  *                为2U时，为VOFA+打印波形
  *                为3U时，为MiniBalance打印波形
  */
-#define DATA_LOG_MODE   2U
+#define DATA_LOG_MODE   1U
 #define DATA_MAX_NUM    16                    //VOFA+示波器最大通道数
 #define DATA_LOG_UART   huart2                //使用data_scope文件中各种DEBUG函数时所用串口
 #define DATA_LOG_LEN    128                   //使用DMA_printf时字符串最大长度

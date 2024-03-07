@@ -1,6 +1,7 @@
 #include "usart_comm.h"
 #include "drv_dr16.h"
 #include "string.h"
+#include "data_log.h"
 
 //#define DEBUG_DATA_LEN 10
 
@@ -58,8 +59,8 @@ static HAL_StatusTypeDef HAL_UART_Receive_DMA_Double(UART_HandleTypeDef *huart, 
  */
 void usart_comm_init(void)
 {
-    HAL_UART_Receive_DMA_Double(&DBUS_HUART, dr16_dma_rx_buf[0], dr16_dma_rx_buf[1], 2 * DR16_DATA_LEN);
-    HAL_UART_Receive_DMA_Double(&DEBUG_HUART, debug_dma_rx_buf[0], debug_dma_rx_buf[1], 2 * DEBUG_DATA_LEN);
+    HAL_UART_Receive_DMA_Double(&DBUS_HUART, dr16_dma_rx_buf[0], dr16_dma_rx_buf[1], DR16_DATA_LEN);
+    HAL_UART_Receive_DMA_Double(&DEBUG_HUART, debug_dma_rx_buf[0], debug_dma_rx_buf[1], DEBUG_DATA_LEN);
 }
 
 /*
@@ -72,7 +73,7 @@ static void UART_DMAReceiveCplt_M0(DMA_HandleTypeDef *hdma)
     if(huart == &DBUS_HUART) {
 		dr16_get_data(&rc, dr16_dma_rx_buf[0]);
 	} else if(huart == &DEBUG_HUART) {
-        ;
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 	}
 }
 
@@ -86,7 +87,7 @@ static void UART_DMAReceiveCplt_M1(DMA_HandleTypeDef *hdma)
     if(huart == &DBUS_HUART) {
 		dr16_get_data(&rc, dr16_dma_rx_buf[1]);
 	} else if(huart == &DEBUG_HUART) {
-        ;
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 	}
 }
 

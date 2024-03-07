@@ -97,3 +97,7 @@ https://www.freertos.org/2020/04/using-freertos-on-armv8-m-microcontrollers.html
 在进行DMA发送前，通常会在前面加`while(HAL_DMA_GetState(&hdma_usart1_tx) == HAL_DMA_STATE_BUZY);`来等待上一次发送完成。但经过测试，`HAL_DMA_GetState()`在初始化后它的状态就不会变了，使用`while((&huart1)->gState == HAL_UART_STATE_READY);`才能正常等待。
 
 连续两次发送没有等待的结果是只有第一次发送成功，第二次发送`HAL_UART_Transmit_DMA()`会返回HAL_BUSY。
+
+## USB配置说明
+
+配置dma时，注意：[[已解决\]STM32H7用USB HS做CDC虚拟串口，打开IP DMA后传输卡死 - STM32H7 - 硬汉嵌入式论坛 - Powered by Discuz! (armbbs.cn)](https://www.armbbs.cn/forum.php?mod=viewthread&tid=109916)

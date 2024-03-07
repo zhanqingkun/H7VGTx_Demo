@@ -148,7 +148,7 @@ __weak void start_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+//      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     osDelay(500);
   }
   /* USER CODE END start_task */
