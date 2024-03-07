@@ -3,13 +3,12 @@
 
 #include "stm32h7xx.h"
 #include "usart.h"
-#include "string.h"
 
 //串口定义
 #define	DBUS_HUART	huart1
 #define DEBUG_HUART	huart2
 
-void USART_Comm_Init(void);
-void USART_User_IRQHandler(UART_HandleTypeDef *huart);
+void usart_comm_init(void);
+void usart_user_handler(UART_HandleTypeDef *huart);
 
 #endif

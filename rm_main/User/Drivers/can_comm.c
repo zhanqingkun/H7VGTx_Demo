@@ -172,7 +172,7 @@ void can1_std_transmit(uint32_t id, uint8_t *data)
 void can2_std_transmit(uint32_t id, uint8_t *data)
 {
     tx_message.Identifier = id;
-    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2, &tx_message, data);
+//    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2, &tx_message, data);
 }
 void can3_std_transmit(uint32_t id, uint8_t *data)
 {

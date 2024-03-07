@@ -53,39 +53,39 @@ extern "C"
 #define LOG_DEBUG    5
 
 #if (DATA_LOG_MODE == 1U)
-    #define Log_printf(format, ...) log_printf(format, ##__VA_ARGS__)
+    #define log_p(format, ...) log_printf(format, ##__VA_ARGS__)
 #else
-    #define Log_printf(...)
+    #define log_p(...)
 #endif
                                    
 #if (LOG_ASSERT_EN == 1) && (DATA_LOG_MODE == 1U)
-    #define Log_a(format, ...) log_level(LOG_ASSERT, format, ##__VA_ARGS__)
+    #define log_a(format, ...) log_level(LOG_ASSERT, format, ##__VA_ARGS__)
 #else
-    #define Log_a(...)
+    #define log_a(...)
 #endif
 
 #if (LOG_ERROR_EN == 1) && (DATA_LOG_MODE == 1U)
-    #define Log_e(format, ...) log_level(LOG_ERROR, format, ##__VA_ARGS__)
+    #define log_e(format, ...) log_level(LOG_ERROR, format, ##__VA_ARGS__)
 #else
-    #define Log_e(...)
+    #define log_e(...)
 #endif
 
 #if (LOG_WARINING_EN == 1) && (DATA_LOG_MODE == 1U)
-    #define Log_w(format, ...) log_level(LOG_WARINING, format, ##__VA_ARGS__)
+    #define log_w(format, ...) log_level(LOG_WARINING, format, ##__VA_ARGS__)
 #else
-    #define Log_w(...)
+    #define log_w(...)
 #endif
 
 #if (LOG_INFO_EN == 1) && (DATA_LOG_MODE == 1U)
-    #define Log_i(format, ...) log_level(LOG_INFO, format, ##__VA_ARGS__)
+    #define log_i(format, ...) log_level(LOG_INFO, format, ##__VA_ARGS__)
 #else
-    #define Log_i(...)
+    #define log_i(...)
 #endif
 
 #if (LOG_DEBUG_EN == 1) && (DATA_LOG_MODE == 1U)
-    #define Log_d(format, ...) log_level(LOG_DEBUG, format, ##__VA_ARGS__)
+    #define log_d(format, ...) log_level(LOG_DEBUG, format, ##__VA_ARGS__)
 #else
-    #define Log_d(...)
+    #define log_d(...)
 #endif
 
 #define log_level(level, ...)                                                                                                      \
@@ -113,9 +113,10 @@ int fputc(int ch, FILE *f);
 void log_printf(const char *format, ...);
 int  log_printf_to_buffer(char *buff, int size, char *format, ...);
 
-void DataWavePkg(void);                         //重写此弱函数
-void DataScope_Get_Channel_Data(float Data);    //按顺序注册待打印数据
-void DataWave(void);                            //一次性按顺序将注册数据打印到上位机
+//示波器相关函数
+void log_scope_data_pkg(void);          //重写此弱函数
+void log_scope_get_data(float Data);    //按顺序注册待打印数据
+void log_scope_data_output(void);       //一次性按顺序将注册数据打印到上位机
 
 #ifdef __cplusplus
 }

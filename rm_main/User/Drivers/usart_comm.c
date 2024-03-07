@@ -1,90 +1,178 @@
 #include "usart_comm.h"
 #include "drv_dr16.h"
+#include "string.h"
+
+//#define DEBUG_DATA_LEN 10
+
+//uint8_t dr16_dma_rx_buf[DR16_DATA_LEN];
+//uint8_t debug_dma_rx_buf[DEBUG_DATA_LEN];
+
+///*
+// * @brief  串口初始化，开启空闲中断并开始DMA接收数据
+// * @retval void
+// */
+//void usart_comm_init(void)
+//{
+//    __HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
+//	__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
+//	HAL_UART_Receive_DMA(&DBUS_HUART, dr16_dma_rx_buf, DR16_DATA_LEN);
+
+//	__HAL_UART_CLEAR_IDLEFLAG(&DEBUG_HUART);
+//	__HAL_UART_ENABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
+//	HAL_UART_Receive_DMA(&DEBUG_HUART, debug_dma_rx_buf, DEBUG_DATA_LEN);
+//}
+
+///*
+// * @brief  串口中断，添加各串口的数据接收函数
+// * @retval void
+// */
+//void usart_user_handler(UART_HandleTypeDef *huart)
+//{
+//	if(__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE) != RESET) {
+//		__HAL_UART_CLEAR_IDLEFLAG(huart);
+//        HAL_UART_AbortReceive_IT(huart);
+//		if(huart == &DBUS_HUART) {
+//			dr16_get_data(&rc, dr16_dma_rx_buf);
+//			HAL_UART_Receive_DMA(huart, dr16_dma_rx_buf, DR16_DATA_LEN);
+//		} else if(huart == &DEBUG_HUART) {
+//            ;
+//		}
+//	}
+//}
+
+__weak void usart_user_handler(UART_HandleTypeDef *huart)
+{
+	;
+}
 
 #define DEBUG_DATA_LEN 10
 
-uint8_t dbus_dma_rx_buf[2*DR16_DATA_LEN];
-uint8_t debug_dma_rx_buf[2*DEBUG_DATA_LEN];
-uint32_t idle_cnt, half_cnt, cplt_cnt;
+uint8_t dr16_dma_rx_buf[2][DR16_DATA_LEN];
+uint8_t debug_dma_rx_buf[2][DEBUG_DATA_LEN];
 
-//串口初始化
-//开启空闲中断并开始DMA接收数据
-void USART_Comm_Init(void)
+static HAL_StatusTypeDef HAL_UART_Receive_DMA_Double(UART_HandleTypeDef *huart, uint8_t *pData1, uint8_t *pData2, uint16_t Size);
+
+/*
+ * @brief  串口初始化，硬件双缓冲接收
+ * @retval void
+ */
+void usart_comm_init(void)
 {
-	__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
-	__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-	HAL_UART_Receive_DMA(&DBUS_HUART, dbus_dma_rx_buf, 2*DR16_DATA_LEN);
-	
-	__HAL_UART_CLEAR_IDLEFLAG(&DEBUG_HUART);
-	__HAL_UART_ENABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
-	HAL_UART_Receive_DMA(&DEBUG_HUART, debug_dma_rx_buf, 2*DEBUG_DATA_LEN);
+    HAL_UART_Receive_DMA_Double(&DBUS_HUART, dr16_dma_rx_buf[0], dr16_dma_rx_buf[1], 2 * DR16_DATA_LEN);
+    HAL_UART_Receive_DMA_Double(&DEBUG_HUART, debug_dma_rx_buf[0], debug_dma_rx_buf[1], 2 * DEBUG_DATA_LEN);
 }
 
-//全满中断 接收数据在buff后半段
-//调用数据处理函数，若数据错误，开启空闲中断，重新对齐数据
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+/*
+ * @brief  前缓冲区接收完成回调函数
+ * @retval void
+ */
+static void UART_DMAReceiveCplt_M0(DMA_HandleTypeDef *hdma)
 {
-	if(huart == &DBUS_HUART)
-	{
-		if(dr16_get_data(&rc, &dbus_dma_rx_buf[DR16_DATA_LEN]))
-		{
-			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
-			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-		}
-	}
-	else if(huart == &DEBUG_HUART)
-	{
-//		HAL_UART_Transmit_DMA(huart, &debug_dma_rx_buf[DEBUG_DATA_LEN], DEBUG_DATA_LEN);
-		cplt_cnt++;
+    UART_HandleTypeDef *huart = (UART_HandleTypeDef *)(hdma->Parent);
+    if(huart == &DBUS_HUART) {
+		dr16_get_data(&rc, dr16_dma_rx_buf[0]);
+	} else if(huart == &DEBUG_HUART) {
+        ;
 	}
 }
 
-//半满中断 接收数据在buff前半段
-//调用数据处理函数，若数据错误，开启空闲中断，重新对齐数据
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+/*
+ * @brief  后缓冲区接收完成回调函数
+ * @retval void
+ */
+static void UART_DMAReceiveCplt_M1(DMA_HandleTypeDef *hdma)
 {
-	if(huart == &DBUS_HUART)
-	{
-		if(dr16_get_data(&rc, &dbus_dma_rx_buf[0]))
-		{
-			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
-			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-		}
-	}
-	else if(huart == &DEBUG_HUART)
-	{
-//		HAL_UART_Transmit_DMA(huart, &debug_dma_rx_buf[0], DEBUG_DATA_LEN);
-		half_cnt++;
+    UART_HandleTypeDef *huart = (UART_HandleTypeDef *)(hdma->Parent);
+    if(huart == &DBUS_HUART) {
+		dr16_get_data(&rc, dr16_dma_rx_buf[1]);
+	} else if(huart == &DEBUG_HUART) {
+        ;
 	}
 }
 
-//串口中断
-//进入空闲中断后重新进行DMA数据接收，然后关闭空闲中断
-//用于将一组数据对齐
-void USART_User_IRQHandler(UART_HandleTypeDef *huart)
+/************************************实现hal库dam双缓冲接收函数*******************************************/
+static HAL_StatusTypeDef UART_Start_Receive_DMA_Double(UART_HandleTypeDef *huart, uint8_t *pData1, uint8_t *pData2, uint16_t Size)
 {
-	//空闲中断一次 用来多字节数据对齐
-	if(__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE) != RESET)
-	{
-		//一帧数据接收完成
-		__HAL_UART_CLEAR_IDLEFLAG(huart);
-		HAL_UART_DMAStop(huart);
-		if(huart == &DBUS_HUART)
-		{
-			__HAL_UART_DISABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-			HAL_UART_Receive_DMA(huart, dbus_dma_rx_buf, 2*DR16_DATA_LEN);
-		}
-		else if(huart == &DEBUG_HUART)
-		{
-			HAL_UART_Receive_DMA(huart, debug_dma_rx_buf, 2*DEBUG_DATA_LEN);
-			idle_cnt++;
-			__HAL_UART_DISABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
-		}
-	}
+  huart->pRxBuffPtr = pData1;
+  huart->RxXferSize = Size;
+
+  huart->ErrorCode = HAL_UART_ERROR_NONE;
+  huart->RxState = HAL_UART_STATE_BUSY_RX;
+
+  if (huart->hdmarx != NULL)
+  {
+    /* Set the UART DMA transfer complete callback */
+    huart->hdmarx->XferCpltCallback = UART_DMAReceiveCplt_M0;
+    huart->hdmarx->XferM1CpltCallback = UART_DMAReceiveCplt_M1;
+    /* Set the UART DMA Half transfer complete callback */
+    huart->hdmarx->XferHalfCpltCallback = NULL;
+
+    /* Set the DMA error callback */
+    huart->hdmarx->XferErrorCallback = NULL;
+
+    /* Set the DMA abort callback */
+    huart->hdmarx->XferAbortCallback = NULL;
+
+    /* Enable the DMA channel */
+      
+    if (HAL_DMAEx_MultiBufferStart_IT(huart->hdmarx, (uint32_t)&huart->Instance->RDR, (uint32_t)pData1, (uint32_t)pData2, Size) != HAL_OK)
+    {
+      /* Set error code to DMA */
+      huart->ErrorCode = HAL_UART_ERROR_DMA;
+
+      __HAL_UNLOCK(huart);
+
+      /* Restore huart->gState to ready */
+      huart->gState = HAL_UART_STATE_READY;
+
+      return HAL_ERROR;
+    }
+  }
+  __HAL_UNLOCK(huart);
+
+  /* Enable the UART Parity Error Interrupt */
+  SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
+
+  /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+  SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
+
+  /* Enable the DMA transfer for the receiver request by setting the DMAR bit
+  in the UART CR3 register */
+  SET_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+
+  return HAL_OK;
 }
 
-//备注：当以一组数据（多个uint8_t）进行通信时，有可能出现数据没有对齐的情况
-//		简单来说就是，单片机刚上电时接收到的第一个数据可能是外界发送一组数据里内的任意一个，而不是这一组数据里的第一个
-//		这时如果没有开空闲中断进行处理，数据就会一直错位
-//		本文件中的空闲中断处理用于数据对齐，经测试上电后只需进行一次即可，后续数据将一直保持对齐
-//		而在半满中断回调函数、全满中断回调函数中再添加空闲中断只是为了保险起见
+static HAL_StatusTypeDef HAL_UART_Receive_DMA_Double(UART_HandleTypeDef *huart, uint8_t *pData1, uint8_t *pData2, uint16_t Size)
+{
+  /* Check that a Rx process is not already ongoing */
+  if (huart->RxState == HAL_UART_STATE_READY)
+  {
+    if ((pData1 == NULL) || (pData2 == NULL) || (Size == 0U))
+    {
+      return HAL_ERROR;
+    }
+
+    __HAL_LOCK(huart);
+
+    /* Set Reception type to Standard reception */
+    huart->ReceptionType = HAL_UART_RECEPTION_STANDARD;
+
+    if (!(IS_LPUART_INSTANCE(huart->Instance)))
+    {
+      /* Check that USART RTOEN bit is set */
+      if (READ_BIT(huart->Instance->CR2, USART_CR2_RTOEN) != 0U)
+      {
+        /* Enable the UART Receiver Timeout Interrupt */
+        SET_BIT(huart->Instance->CR1, USART_CR1_RTOIE);
+      }
+    }
+
+    return (UART_Start_Receive_DMA_Double(huart, pData1, pData2, Size));
+  }
+  else
+  {
+    return HAL_BUSY;
+  }
+}
+

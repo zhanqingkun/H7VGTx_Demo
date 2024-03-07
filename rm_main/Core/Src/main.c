@@ -114,13 +114,16 @@ int main(void)
   MX_USART1_UART_Init();
   MX_RNG_Init();
   MX_TIM2_Init();
-  MX_FDCAN2_Init();
   MX_FDCAN3_Init();
   MX_CRC_Init();
+  MX_UART9_Init();
+  MX_USART3_UART_Init();
+  MX_USART6_UART_Init();
+  MX_USART10_UART_Init();
   /* USER CODE BEGIN 2 */
   us_timer_start();
   can_comm_init();
-  USART_Comm_Init();
+  usart_comm_init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -301,7 +304,7 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    Log_printf("[%s,%d]assert_failed!\r\n", file, line);
+    log_printf("[%s,%d]assert_failed!\r\n", file, line);
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

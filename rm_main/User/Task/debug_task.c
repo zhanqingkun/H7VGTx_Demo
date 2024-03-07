@@ -9,7 +9,7 @@
 us_time_t test_time;
 uint8_t debug_wave = 1;
 
-void DataWavePkg(void)
+void log_scope_data_pkg(void)
 {
     switch(debug_wave)
     {
@@ -18,7 +18,7 @@ void DataWavePkg(void)
             us_timer_interval_test_start(&test_time);
             us_timer_delay(200);
             us_timer_interval_test_end(&test_time);
-           DataScope_Get_Channel_Data(test_time.dt);
+            log_scope_get_data(test_time.dt);
             break;
         }
         default:break;
@@ -32,7 +32,7 @@ void debug_task(void const* argument)
     for(;;)
     {
 //        taskENTER_CRITICAL();
-        DataWave();
+        log_scope_data_output();
 //        taskEXIT_CRITICAL();
         osDelayUntil(&thread_wake_time, 10);
     }
