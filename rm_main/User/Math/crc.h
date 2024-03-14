@@ -1,20 +1,19 @@
-#ifndef __CRC_H__
-#define __CRC_H__
+#ifndef __CRC_H
+#define __CRC_H
 
-/* 系统库 */
-#include <stdint.h>
+#include "stdint.h"
 
-// CRC8
-uint8_t Get_CRC8_Check_Sum(uint8_t *pchMessage, uint16_t dwLength, uint8_t CRC8);
-uint32_t Verify_CRC8_Check_Sum(uint8_t *pchMessage, uint16_t dwLength);
-void Append_CRC8_Check_Sum(uint8_t *pchMessage, uint16_t dwLength);
+//crc8
+uint8_t crc8_get_checksum(uint8_t *pdata, uint16_t length, uint8_t crc8);
+uint32_t crc8_verify_checksum(uint8_t *pdata, uint16_t length);
+void crc8_set_checksum(uint8_t *pdata, uint16_t length);
 
-// CRC16
-uint16_t Get_CRC16_Check_Sum(uint8_t *pchMessage,uint32_t dwLength,uint16_t CRC16);
-uint32_t Verify_CRC16_Check_Sum(uint8_t *pchMessage, uint32_t dwLength);
-void Append_CRC16_Check_Sum(uint8_t * pchMessage,uint32_t dwLength);
+//crc16
+uint16_t crc16_get_checksum(uint8_t *pdata, uint32_t length, uint16_t crc16);
+uint32_t crc16_verify_checksum(uint8_t *pdata, uint16_t length);
+void crc16_set_checksum(uint8_t *pdata, uint16_t length);
 
-//CRC_CCITT
-uint16_t Get_CRC_CCITT_Check_Sum(uint16_t crc, uint8_t const *buffer, int len);
+//crc_ccitt
+uint16_t crc_ccitt_get_checksum(uint8_t const *pdata, uint16_t length, uint16_t crc_init);
 
 #endif

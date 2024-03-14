@@ -1,0 +1,73 @@
+In[1]:= (*LQR权重矩阵*)
+Subscript[Q, lqr]=DiagonalMatrix[{1,1200,50,1,12000,1}];
+Subscript[R, lqr]=DiagonalMatrix[{2,10}];
+Subscript[L, 0]=0.20;Subscript[Q, 0]=90;
+(*====================系统参数配置====================*)
+(*重力加速度*)
+g=9.81;
+(*连杆长度*)
+Subscript[L, 1]=0.150;Subscript[L, 2]=0.270;Subscript[L, 3]=0.270;Subscript[L, 4]=0.150;Subscript[L, 5]=0.150;
+(*五连杆的质量分布参数*)
+Subscript[l, 1]=0.064820;Subscript[l, 2]=0.135660;Subscript[l, 3]=0.135150;Subscript[l, 4]=0.064820;
+Subscript[J, 1]=0.003993;Subscript[J, 2]=0.064379;Subscript[J, 3]=0.060525;Subscript[J, 4]=0.003993;
+Subscript[m, 1]=0.211*2;Subscript[m, 2]=0.390*2;Subscript[m, 3]=0.204*2;Subscript[m, 4]=0.211*2;
+(*机体的质量分布参数*)
+Subscript[L, b]=0.01;(*机体质心相对于关节电机轴平面的高度*)
+Subscript[J, b]=0.2997272;(*机体的转动惯量*)
+Subscript[m, b]=8.548;(*机体的质量*)
+(*驱动轮电机的质量分布参数*)
+Subscript[J, wm]=0.000813;
+Subscript[m, wm]=0.10*2;(*壳0.1 电机0.38*)
+(*驱动轮的质量分布参数*)
+Subscript[J, w]=0.004301;(*轮子的转动惯量*)
+Subscript[m, w]=0.63*2;(*驱动轮的质量 0.35*)
+Subscript[R, w]=0.06;(*轮的半径*)
+(*限位*)
+upLimit=-23.41;(*上限位*)
+downLimit=67.89;(*下限位*)
+(*电机半径--画图*)
+Subscript[R, jm]=0.045;(*GO8010*)
+Subscript[R, wm]=0.0675;(*MF9025*)
+Get["VMCsolution.m",Path->NotebookDirectory[]]
+SystemCalcu[Q1_,Q2_,Q3_,Q4_,Q5_,Q6_,R1_,R2_]:=(
+Module[{},
+Subscript[Q, lqr]=DiagonalMatrix[{Q1,Q2,Q3,Q4,Q5,Q6}];
+Subscript[R, lqr]=DiagonalMatrix[{R1,R2}];
+{Subscript[q, 0],Subscript[q, 1],Subscript[q, 2],Subscript[q, 3],Subscript[q, 4]}=VMCInverseSolution[Subscript[L, 0],Subscript[Q, 0],{Subscript[L, 1],Subscript[L, 2],Subscript[L, 3],Subscript[L, 4],Subscript[L, 5]}][[3]];
+(*====================求解等效腿的质量分布====================*)
+(*得各质心矢量*)
+Subscript[r, 1]={Subscript[l, 1]Cos[Subscript[q, 1]],Subscript[l, 1]Sin[Subscript[q, 1]]};
+Subscript[r, 2]={Subscript[L, 1]Cos[Subscript[q, 1]]+Subscript[l, 2]Cos[Subscript[q, 2]],Subscript[L, 1]Sin[Subscript[q, 1]]+Subscript[l, 2]Sin[Subscript[q, 2]]};
+Subscript[r, 3]={Subscript[L, 4]Cos[Subscript[q, 4]]+Subscript[l, 3]Cos[Subscript[q, 3]]+Subscript[L, 5],Subscript[L, 4]Sin[Subscript[q, 4]]+Subscript[l, 3]Sin[Subscript[q, 3]]};
+Subscript[r, 4]={Subscript[l, 4]Cos[Subscript[q, 4]]+Subscript[L, 5],Subscript[l, 4]Sin[Subscript[q, 4]]};
+Subscript[r, w]={Subscript[L, 1]Cos[Subscript[q, 1]]+Subscript[L, 2]Cos[Subscript[q, 2]],Subscript[L, 1]Sin[Subscript[q, 1]]+Subscript[L, 2]Sin[Subscript[q, 2]]};
+Subscript[m, l]=Subscript[m, 1]+Subscript[m, 2]+Subscript[m, 3]+Subscript[m, 4]+Subscript[m, wm];
+M=Subscript[m, l]+Subscript[m, w]+Subscript[m, b];
+Subscript[r, com]=Collect[Expand[Subscript[m, 1] Subscript[r, 1]+Subscript[m, 2] Subscript[r, 2]+Subscript[m, 3] Subscript[r, 3]+Subscript[m, 4] Subscript[r, 4]+Subscript[m, wm] Subscript[r, w]],{Cos[Subscript[q, 1]],Sin[Subscript[q, 1]],Cos[Subscript[q, 2]],Sin[Subscript[q, 2]],Cos[Subscript[q, 3]],Sin[Subscript[q, 3]],Cos[Subscript[q, 4]],Sin[Subscript[q, 4]]}]/Subscript[m, l];
+(*求解转动惯量*)
+Subscript[d, c1]=Norm[Subscript[r, 1]-Subscript[r, com]];Subscript[J, c1]=Subscript[J, 1]+Subscript[m, 1]Subscript[d, c1]^2;
+Subscript[d, c2]=Norm[Subscript[r, 2]-Subscript[r, com]];Subscript[J, c2]=Subscript[J, 2]+Subscript[m, 2]Subscript[d, c2]^2;
+Subscript[d, c3]=Norm[Subscript[r, 3]-Subscript[r, com]];Subscript[J, c3]=Subscript[J, 3]+Subscript[m, 3]Subscript[d, c3]^2;
+Subscript[d, c4]=Norm[Subscript[r, 4]-Subscript[r, com]];Subscript[J, c4]=Subscript[J, 4]+Subscript[m, 4]Subscript[d, c4]^2;
+Subscript[d, cwm]=Norm[Subscript[r, w]-Subscript[r, com]];Subscript[J, cwm]=Subscript[J, wm]+Subscript[m, wm]Subscript[d, cwm]^2;
+Subscript[J, com]=Subscript[J, c1]+Subscript[J, c2]+Subscript[J, c3]+Subscript[J, c4]+Subscript[J, cwm];
+(*====================腿部模型参数传递====================*)
+Subscript[J, l]=Subscript[J, com];
+Subscript[L, l]=Subscript[L, 0]-Norm[Subscript[r, com]-{Subscript[L, 5]/2,0}];(*腿的质心的高度*)
+(*====================导入模型====================*)
+\[Theta]=(Subscript[Q, 0]-90)/180*Pi;
+Subscript[A, op] = Import[NotebookDirectory[]<>"A_op.wdx"];
+Subscript[B, op] = Import[NotebookDirectory[]<>"B_op.wdx"];
+Subscript[C, op] = DiagonalMatrix[{1,1,1,1,1,1}];
+Subscript[D, op] = ConstantArray[0,{6,2}];
+(*====================LQR控制====================*)
+Subscript[P, lqr] = RiccatiSolve[{Subscript[A, op],Subscript[B, op]},{Subscript[Q, lqr],Subscript[R, lqr]}];(*求解黎卡提方程*)
+Subscript[K, lqr] = Inverse[Subscript[R, lqr]].Subscript[B, op]\[Transpose].Subscript[P, lqr];
+Return[Subscript[K, lqr]];
+];
+);
+Manipulate[SystemCalcu[Q1,Q2,Q3,Q4,Q5,Q6,R1,R2],{{Q1,1},0,10000},{{Q2,1},0,10000},{{Q3,1},0,1000},{{Q4,1},0,1000},{{Q5,1},0,1000000},{{Q6,1},0,1000},{{R1,1},0,1},{{R2,1},0,1000}](*显示具体数值*)
+Out[12]= Manipulate[SystemCalcu[Q1, Q2, Q3, Q4, Q5, Q6, R1, R2], 
+  {{Q1, 100}, 0, 10000}, {{Q2, 200}, 0, 10000}, {{Q3, 500}, 0, 1000}, 
+  {{Q4, 10}, 0, 1000}, {{Q5, 5000}, 0, 1000000}, {{Q6, 300}, 0, 1000}, 
+  {{R1, 1}, 0, 1}, {{R2, 100}, 0, 1000}]
