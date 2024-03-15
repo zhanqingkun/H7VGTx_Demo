@@ -1,7 +1,5 @@
 #ifndef __PID_H
 #define __PID_H
-				
-#include "stm32h7xx.h"
 
 typedef struct
 {

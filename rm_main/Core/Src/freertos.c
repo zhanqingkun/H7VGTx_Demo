@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "can_comm.h"
+#include "comm_task.h"
 #include "debug_task.h"
 /* USER CODE END Includes */
 
@@ -47,8 +47,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+osThreadId CommTaskHandle;
 osThreadId DebugTaskHandle;
-
 /* USER CODE END Variables */
 osThreadId StartTaskHandle;
 
@@ -127,6 +127,8 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  osThreadDef(CommTask, comm_task, osPriorityHigh, 0, 128);
+  CommTaskHandle = osThreadCreate(osThread(CommTask), NULL);
   osThreadDef(DebugTask, debug_task, osPriorityNormal, 0, 128);
   DebugTaskHandle = osThreadCreate(osThread(DebugTask), NULL);
   /* USER CODE END RTOS_THREADS */
@@ -148,8 +150,14 @@ __weak void start_task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    osDelay(500);
+      osDelay(500);//00
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+      osDelay(500);//01
+      HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+      osDelay(500);//11
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+      osDelay(500);//10
+      HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
   }
   /* USER CODE END start_task */
 }

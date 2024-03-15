@@ -61,9 +61,9 @@ const uint16_t crc_ccitt_table[256] = {
 
 /*
  * @brief     计算uint8_t数据的crc校验和
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
- * @param[in] crc8   : 初始值
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
+ * @param[in] crc8  : 初始值
  * @retval    crc校验和
  */
 uint8_t crc8_get_checksum(uint8_t *pdata, uint16_t length, uint8_t crc8)
@@ -78,8 +78,8 @@ uint8_t crc8_get_checksum(uint8_t *pdata, uint16_t length, uint8_t crc8)
 
 /*
  * @brief     校验一组uint8_t数据的crc校验和是否正确
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
  * @retval    正确返回1，错误返回0
  */
 uint32_t crc8_verify_checksum(uint8_t *pdata, uint16_t length)
@@ -93,8 +93,8 @@ uint32_t crc8_verify_checksum(uint8_t *pdata, uint16_t length)
 
 /*
  * @brief     为一组uint8_t数据添加crc校验和
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
  * @retval    void
  */
 void crc8_set_checksum(uint8_t *pdata, uint16_t length)
@@ -108,9 +108,9 @@ void crc8_set_checksum(uint8_t *pdata, uint16_t length)
 
 /*
  * @brief     计算uint16_t数据的crc校验和
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
- * @param[in] crc16  : 初始值
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
+ * @param[in] crc16 : 初始值
  * @retval    crc校验和
  */
 uint16_t crc16_get_checksum(uint8_t *pdata, uint32_t length, uint16_t crc16)
@@ -127,8 +127,8 @@ uint16_t crc16_get_checksum(uint8_t *pdata, uint32_t length, uint16_t crc16)
 
 /*
  * @brief     校验一组uint16_t数据的crc校验和是否正确
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
  * @retval    正确返回1，错误返回0
  */
 uint32_t crc16_verify_checksum(uint8_t *pdata, uint16_t length)
@@ -142,8 +142,8 @@ uint32_t crc16_verify_checksum(uint8_t *pdata, uint16_t length)
 
 /*
  * @brief     为一组uint16_t数据添加crc校验和
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
  * @retval    void
  */
 void crc16_set_checksum(uint8_t *pdata, uint16_t length)
@@ -163,9 +163,9 @@ static uint16_t crc_ccitt_get_byte(uint16_t crc, const uint8_t data)
 
 /*
  * @brief     计算uint16_t数据的crc_ccitt校验和
- * @param[in] pdata  : 校验数据头指针
- * @param[in] length : 校验数据长度
- * @param[in] crc16  : 初始值
+ * @param[in] pdata : 校验数据头指针
+ * @param[in] length: 校验数据长度
+ * @param[in] crc16 : 初始值
  * @retval    crc_ccitt校验和
  */
 uint16_t crc_ccitt_get_checksum(uint8_t const *pdata, uint16_t length, uint16_t crc_init)

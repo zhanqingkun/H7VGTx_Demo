@@ -3,8 +3,8 @@
 #define LIMIT(x,limit) (x)=(((x)<=(-limit))?(-limit):(((x)>=(limit))?(limit):(x)))
 
 /*
- * @brief     pid初始化
- * @retval    void
+ * @brief  pid初始化
+ * @retval void
  */
 void pid_init(pid_t *pid, float kp, float ki, float kd, float i_max, float out_max)
 {

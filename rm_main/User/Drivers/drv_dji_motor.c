@@ -67,11 +67,12 @@ void dji_motor_get_data(dji_motor_t *motor, uint8_t *data)
     
     motor->position = 2.0f * PI * motor->total_ecd / 8192 / motor->reduction_ratio;
     motor->velocity = 2.0f * PI * motor->speed_rpm / 60 / motor->reduction_ratio;
-    motor->torque = (float)motor->rx_current / motor_para_table[motor->motor_type][0] \
-                    * motor_para_table[motor->motor_type][1] \
-                    * motor_para_table[motor->motor_type][2] \
-                    / motor_para_table[motor->motor_type][3] \
-                    * motor->reduction_ratio;
+    motor->torque = (float)motor->rx_current \
+                    * motor->reduction_ratio \
+                    / motor_para_table[motor->motor_type][DATA_RANGE] \
+                    * motor_para_table[motor->motor_type][CURRENT_RANGE] \
+                    * motor_para_table[motor->motor_type][TORQUE_CONSTANT] \
+                    / motor_para_table[motor->motor_type][REDUCTION_RATIO];
 }
 
 /*
@@ -82,7 +83,8 @@ void dji_motor_get_data(dji_motor_t *motor, uint8_t *data)
 void dji_motor_set_current(dji_motor_t *motor, float t)
 {
     motor->t = t;
-    motor->tx_current = (int16_t)(motor->t / motor->reduction_ratio \
+    motor->tx_current = (int16_t)(motor->t \
+                        / motor->reduction_ratio \
                         * motor_para_table[motor->motor_type][DATA_RANGE] \
                         / motor_para_table[motor->motor_type][CURRENT_RANGE] \
                         / motor_para_table[motor->motor_type][TORQUE_CONSTANT] \
