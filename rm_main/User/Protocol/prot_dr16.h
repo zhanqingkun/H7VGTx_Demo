@@ -18,7 +18,7 @@ typedef struct
 	int16_t ch5;
 	uint8_t sw1;
 	uint8_t sw2;
-	struct
+	__packed struct
 	{
 		int16_t x;
 		int16_t y;
@@ -26,7 +26,7 @@ typedef struct
 		uint8_t l;
 		uint8_t r;
 	} mouse;
-	union
+	__packed union
 	{
 		uint16_t key_code;
 		__packed struct

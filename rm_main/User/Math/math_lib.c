@@ -164,7 +164,6 @@ void least_square_linear_fit(float x[], float y[], const int num, float *a, floa
  */
 float vector_arg(float x, float y)
 {
-    float arg = 0;
     if (x == 0) {
         if (y < 0) {
             return -PI/2;

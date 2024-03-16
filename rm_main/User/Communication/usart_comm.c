@@ -31,7 +31,7 @@ void usart_user_handler(UART_HandleTypeDef *huart)
 {
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE) != RESET) {
         __HAL_UART_CLEAR_IDLEFLAG(huart);
-        HAL_UART_AbortReceive_IT(huart);
+        HAL_UART_AbortReceive(huart);
         if (huart == &DBUS_HUART) {
             dr16_get_data(&rc, dr16_dma_rx_buf);
             HAL_UART_Receive_DMA(huart, dr16_dma_rx_buf, DR16_DATA_LEN);

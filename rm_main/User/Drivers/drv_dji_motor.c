@@ -14,6 +14,8 @@ static list_t object_list = {&object_list, &object_list};
 static uint8_t motor_send_flag[CAN_CHANNEL_NUM][2] = {0};
 can_std_msg_t motor_msg[CAN_CHANNEL_NUM][2];
 
+dji_motor_t driver_motor[2];
+
 static const float motor_para_table[3][4] =
 {
     //发送数据范围            发送数据所代表的物理量范围       力矩常数                        电机默认减速比
@@ -46,10 +48,10 @@ void dji_motor_init(dji_motor_t *motor, uint8_t motor_type, can_channel_e can_ch
  * @param[in] data : 数据指针
  * @retval    void
  */
-void dji_motor_get_data(dji_motor_t *motor, uint8_t *data)
+static void dji_motor_get_single_data(dji_motor_t * motor, uint8_t *data)
 {
     motor->receive_cnt++;
-    motor->err_percent  = 1.0f * (motor->send_cnt - motor->receive_cnt) / motor->send_cnt;
+    motor->err_percent  = ((float)motor->send_cnt - (float)motor->receive_cnt) / (float)motor->send_cnt;
     motor->last_ecd     = motor->ecd;
     motor->ecd          = (uint16_t)(data[0] << 8 | data[1]);
     motor->speed_rpm    = (int16_t)(data[2] << 8 | data[3]);
@@ -76,8 +78,28 @@ void dji_motor_get_data(dji_motor_t *motor, uint8_t *data)
 }
 
 /*
+ * @brief     根据id查找对应电机并接收数据
+ * @param[in] id  : 对应id
+ * @param[in] data: 数据指针
+ * @retval    void
+ */
+void dji_motor_get_data(uint32_t id, uint8_t *data)
+{
+    list_t *node = NULL;
+    dji_motor_t *object;
+    memset(&motor_msg, 0, sizeof(motor_msg));
+    for (node = object_list.next; node != &(object_list); node = node->next) {
+        object = list_entry(node, dji_motor_t, list);
+        if (object->can_id == id) {
+            dji_motor_get_single_data(object, data);
+        }
+    }
+}
+
+/*
  * @brief     大疆电机设置控制力矩，并转换成转矩电流
  * @param[in] motor: 电机数据结构体
+ * @param[in] t    : 设置力矩
  * @retval    void
  */
 void dji_motor_set_current(dji_motor_t *motor, float t)

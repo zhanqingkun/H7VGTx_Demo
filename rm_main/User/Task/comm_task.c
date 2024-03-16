@@ -12,6 +12,6 @@ void comm_task(void const* argument)
         ht_motor_output_data();
 //        taskENTER_CRITICAL();
 //        taskEXIT_CRITICAL();
-        osDelayUntil(&thread_wake_time, 2);
+        osDelayUntil(&thread_wake_time, 10);
     }
 }

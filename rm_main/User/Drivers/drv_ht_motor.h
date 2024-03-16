@@ -38,10 +38,12 @@ typedef struct
     float position, velocity, torque;   //rad rad/s N*m
 } ht_motor_t;
 
+extern ht_motor_t joint_motor[4];
+
 void ht_motor_init(ht_motor_t *motor, can_channel_e can_channel, uint32_t id, float zero_point);
 void ht_motor_set_control_para(ht_motor_t *motor, float p, float v, float kp, float kd, float t);
 void ht_motor_set_control_cmd(ht_motor_t *motor, uint8_t cmd);
-void ht_motor_get_data(ht_motor_t *motor, uint8_t *data);
+void ht_motor_get_data(uint8_t id, uint8_t *data);
 void ht_motor_output_data(void);
 
 #endif

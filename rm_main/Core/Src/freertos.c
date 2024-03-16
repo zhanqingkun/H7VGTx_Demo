@@ -151,13 +151,17 @@ __weak void start_task(void const * argument)
   for(;;)
   {
       osDelay(500);//00
-      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
       osDelay(500);//01
-      HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
       osDelay(500);//11
-      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
       osDelay(500);//10
-      HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
   }
   /* USER CODE END start_task */
 }

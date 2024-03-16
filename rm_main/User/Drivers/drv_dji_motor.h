@@ -69,8 +69,10 @@ typedef struct
     int32_t	 round_cnt;                 //已转圈数
 } dji_motor_t;
 
+extern dji_motor_t driver_motor[2];
+
 void dji_motor_init(dji_motor_t *motor, uint8_t motor_type, can_channel_e can_periph, uint32_t id, float reduction_ratio);
-void dji_motor_get_data(dji_motor_t *motor, uint8_t *data);
+void dji_motor_get_data(uint32_t id, uint8_t *data);
 void dji_motor_set_current(dji_motor_t *motor, float t);
 void dji_motor_output_data(void);
 
