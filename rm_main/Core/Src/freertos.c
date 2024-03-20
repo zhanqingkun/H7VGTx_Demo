@@ -27,6 +27,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "comm_task.h"
+#include "mode_switch_task.h"
+#include "chassis_task.h"
 #include "debug_task.h"
 /* USER CODE END Includes */
 
@@ -48,6 +50,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 osThreadId CommTaskHandle;
+osThreadId ModeSwitchTaskHandle;
+osThreadId ChassisTaskHandle;
 osThreadId DebugTaskHandle;
 /* USER CODE END Variables */
 osThreadId StartTaskHandle;
@@ -129,7 +133,13 @@ void MX_FREERTOS_Init(void) {
   /* add threads, ... */
   osThreadDef(CommTask, comm_task, osPriorityHigh, 0, 128);
   CommTaskHandle = osThreadCreate(osThread(CommTask), NULL);
-  osThreadDef(DebugTask, debug_task, osPriorityNormal, 0, 128);
+  osThreadDef(ModeSwitchTask, mode_switch_task, osPriorityHigh, 0, 128);
+  ModeSwitchTaskHandle = osThreadCreate(osThread(ModeSwitchTask), NULL);
+  
+  osThreadDef(ChassisTask, chassis_task, osPriorityNormal, 0, 128);
+  ChassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
+  
+  osThreadDef(DebugTask, debug_task, osPriorityLow, 0, 128);
   DebugTaskHandle = osThreadCreate(osThread(DebugTask), NULL);
   /* USER CODE END RTOS_THREADS */
 

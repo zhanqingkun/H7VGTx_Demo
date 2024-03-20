@@ -31,7 +31,6 @@ extern "C"
  */
 #define DATA_LOG_MODE   2U
 #define DATA_MAX_NUM    16                    //VOFA+示波器最大通道数
-#define DATA_LOG_UART   huart6                //使用data_scope文件中各种DEBUG函数时所用串口
 #define DATA_LOG_LEN    128                   //使用DMA_printf时字符串最大长度
 
 /* Log格式使能 */
@@ -114,6 +113,7 @@ void log_printf(const char *format, ...);
 int  log_printf_to_buffer(char *buff, int size, char *format, ...);
 
 //示波器相关函数
+void log_init(UART_HandleTypeDef *huart);
 void log_scope_data_pkg(void);          //重写此弱函数
 void log_scope_get_data(float Data);    //按顺序注册待打印数据
 void log_scope_data_output(void);       //一次性按顺序将注册数据打印到上位机

@@ -1,11 +1,14 @@
 #include "usart_comm.h"
 #include "prot_dr16.h"
+#include "prot_judge.h"
 #include "string.h"
 #include "data_log.h"
 
 #define DEBUG_DATA_LEN 10
+#define JUDGE_DATA_LEN 100
 
 uint8_t dr16_dma_rx_buf[DR16_DATA_LEN];
+uint8_t judge_data_rx_buf[JUDGE_DATA_LEN];
 uint8_t debug_dma_rx_buf[DEBUG_DATA_LEN];
 
 /*
@@ -17,10 +20,16 @@ void usart_comm_init(void)
     __HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
     __HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
     HAL_UART_Receive_DMA(&DBUS_HUART, dr16_dma_rx_buf, DR16_DATA_LEN);
+    
+    __HAL_UART_CLEAR_IDLEFLAG(&JUDGE_HUART);
+    __HAL_UART_ENABLE_IT(&JUDGE_HUART, UART_IT_IDLE);
+    HAL_UART_Receive_DMA(&JUDGE_HUART, judge_data_rx_buf, JUDGE_DATA_LEN);
+    judge_init(&JUDGE_HUART);
 
     __HAL_UART_CLEAR_IDLEFLAG(&DEBUG_HUART);
     __HAL_UART_ENABLE_IT(&DEBUG_HUART, UART_IT_IDLE);
     HAL_UART_Receive_DMA(&DEBUG_HUART, debug_dma_rx_buf, DEBUG_DATA_LEN);
+    log_init(&DEBUG_HUART);
 }
 
 /*
@@ -35,6 +44,9 @@ void usart_user_handler(UART_HandleTypeDef *huart)
         if (huart == &DBUS_HUART) {
             dr16_get_data(&rc, dr16_dma_rx_buf);
             HAL_UART_Receive_DMA(huart, dr16_dma_rx_buf, DR16_DATA_LEN);
+        } else if (huart == &JUDGE_HUART) {
+            judge_get_data(judge_data_rx_buf);
+            HAL_UART_Receive_DMA(huart, judge_data_rx_buf, JUDGE_DATA_LEN);
         } else if (huart == &DEBUG_HUART) {
             ;
         }

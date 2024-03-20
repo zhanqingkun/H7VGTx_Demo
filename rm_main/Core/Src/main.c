@@ -119,6 +119,7 @@ int main(void)
   MX_USART10_UART_Init();
   MX_FDCAN1_Init();
   MX_FDCAN2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   us_timer_start();
   can_comm_init();

@@ -106,8 +106,10 @@ void kalman_filter_init(kalman_filter_t *kf, uint8_t x_size, uint8_t u_size, uin
     //外部数据接口初始化
     kf->filter_vector = (float *)user_malloc(sizeof_var * x_size);
     memset(kf->filter_vector, 0, sizeof_var * x_size);
-    kf->control_vector = (float *)user_malloc(sizeof_var * u_size);
-    memset(kf->control_vector, 0, sizeof_var * u_size);
+    if (u_size != 0) {
+        kf->control_vector = (float *)user_malloc(sizeof_var * u_size);
+        memset(kf->control_vector, 0, sizeof_var * u_size);
+    }
     kf->measured_vector = (float *)user_malloc(sizeof_var * z_size);
     memset(kf->measured_vector, 0, sizeof_var * z_size);
     kf->min_variance = (float *)user_malloc(sizeof_var * x_size);
@@ -196,8 +198,10 @@ void kalman_filter_measure_update(kalman_filter_t *kf)
 {
     memcpy(kf->z_data, kf->measured_vector, sizeof_var * kf->z_size);
     memset(kf->measured_vector, 0, sizeof_var * kf->z_size);
-    memcpy(kf->u_data, kf->control_vector, sizeof_var * kf->u_size);
-    memset(kf->control_vector, 0, sizeof_var * kf->u_size);
+    if (kf->u_size != 0) {
+        memcpy(kf->u_data, kf->control_vector, sizeof_var * kf->u_size);
+        memset(kf->control_vector, 0, sizeof_var * kf->u_size);
+    }
 }
 
 /*

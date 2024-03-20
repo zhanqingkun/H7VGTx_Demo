@@ -26,6 +26,19 @@ void abs_limit(float *data, float abs_max, float offset)
 }
 
 /*
+ * @brief     数据融合函数
+ * @param[in] data1 : 数据1
+ * @param[in] data2 : 数据2
+ * @param[in] weight: 融合权重
+ * @retval    融合后数据
+ * @note      权重为0时取data1，权重为1时取data2
+ */
+float data_fusion(float data1, float data2, float weight)
+{
+    return data1 * (1.0f - weight) + data2 * weight;
+}
+
+/*
  * @brief     sigmoid函数
  * @param[in] x: 输入值
  * @retval    void

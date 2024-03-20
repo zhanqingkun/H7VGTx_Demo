@@ -1,6 +1,8 @@
 #include "data_log.h"
 #include "stdarg.h"
 
+UART_HandleTypeDef *log_huart;
+
 /*********************************** printf重定向 *********************************/
 /* printf重定向使用的为HAL_UART_Transmit */
 /* 取消ARM的半主机工作模式 */
@@ -18,8 +20,8 @@ void _sys_exit(int x)
 
 int fputc(int ch, FILE *f)
 {
-    while (__HAL_UART_GET_FLAG(&DATA_LOG_UART, UART_FLAG_TC) == RESET);
-    HAL_UART_Transmit(&DATA_LOG_UART, (uint8_t*)&ch, 1, 0xFF);
+    while (__HAL_UART_GET_FLAG(log_huart, UART_FLAG_TC) == RESET);
+    HAL_UART_Transmit(log_huart, (uint8_t*)&ch, 1, 0xFF);
     return ch;
 }
 
@@ -27,16 +29,21 @@ int fputc(int ch, FILE *f)
 char *LOG_LEVEL_TAGS[6] = {"NULL", "ASSERT", "ERROR", "WARNING", "INFO", "DEBUG"};
 char log_str[DATA_LOG_LEN];
 
+void log_init(UART_HandleTypeDef *huart)
+{
+    log_huart = huart;
+}
+
 void log_printf(const char *format, ...)
 {
     uint16_t len = 0;
     va_list args;
     va_start(args, format);
     //如果串口对应的DMA还未发送完就等待，防止变量UartTxBuf被CPU和DMA同时使用。
-    while ((&DATA_LOG_UART)->gState != HAL_UART_STATE_READY);
+    while (log_huart->gState != HAL_UART_STATE_READY);
     len = vsnprintf((char*)log_str, sizeof(log_str)+1, (char*)format, args);
     va_end(args);
-    HAL_UART_Transmit_DMA(&DATA_LOG_UART, (uint8_t*)log_str, len);
+    HAL_UART_Transmit_DMA(log_huart, (uint8_t*)log_str, len);
 }
 
 int log_printf_to_buffer(char *buff, int size, char *format, ...)
@@ -151,7 +158,7 @@ void log_scope_data_output(void)
     log_scope_data_pkg();
     data_scope.send_count = log_scope_data_generate(data_scope.data_num);
     if(data_scope.send_count != 0)
-        HAL_UART_Transmit_DMA(&DATA_LOG_UART, data_scope.output_buffer, data_scope.send_count);
+        HAL_UART_Transmit_DMA(log_huart, data_scope.output_buffer, data_scope.send_count);
     data_scope.data_num = 0;
     data_scope.send_count = 0;
 }

@@ -102,7 +102,7 @@ void dji_motor_get_data(uint32_t id, uint8_t *data)
  * @param[in] t    : 设置力矩
  * @retval    void
  */
-void dji_motor_set_current(dji_motor_t *motor, float t)
+void dji_motor_set_torque(dji_motor_t *motor, float t)
 {
     motor->t = t;
     motor->tx_current = (int16_t)(motor->t \

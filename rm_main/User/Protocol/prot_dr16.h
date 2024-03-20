@@ -49,10 +49,27 @@ typedef struct
 			uint16_t B:1;//16个键位
 		} bit;
 	} kb;
-} remote_control_t;
+} dr16_t;
 
-extern remote_control_t rc;
+typedef enum
+{
+    KB_Q = 0,
+    KB_E,
+    KB_R,
+    KB_F,
+    KB_G,
+    KB_Z,
+    KB_X,
+    KB_C,
+    KB_V,
+    KB_B,
+    KB_CTRL
+} key_index_e;
 
-uint8_t dr16_get_data(remote_control_t *rc, uint8_t *data);
+extern dr16_t rc;
+extern int kb_status[11];
+
+uint8_t dr16_get_data(dr16_t *rc, uint8_t *data);
+void keyboard_scanf(uint16_t key, key_index_e key_index);
 
 #endif
