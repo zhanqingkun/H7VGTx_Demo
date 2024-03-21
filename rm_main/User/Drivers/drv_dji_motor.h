@@ -1,7 +1,6 @@
 #ifndef __DRV_DJI_MOTOR_H
 #define __DRV_DJI_MOTOR_H
 
-#include "stm32h7xx.h"
 #include "can_comm.h"
 #include "data_list.h"
 
@@ -70,6 +69,7 @@ typedef struct
 } dji_motor_t;
 
 extern dji_motor_t driver_motor[2];
+extern dji_motor_t pit_motor, yaw_motor;
 
 void dji_motor_init(dji_motor_t *motor, uint8_t motor_type, can_channel_e can_periph, uint32_t id, float reduction_ratio);
 void dji_motor_get_data(uint32_t id, uint8_t *data);

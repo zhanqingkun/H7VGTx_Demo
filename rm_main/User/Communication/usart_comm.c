@@ -5,7 +5,7 @@
 #include "data_log.h"
 
 #define DEBUG_DATA_LEN 10
-#define JUDGE_DATA_LEN 100
+#define JUDGE_DATA_LEN 150
 
 uint8_t dr16_dma_rx_buf[DR16_DATA_LEN];
 uint8_t judge_data_rx_buf[JUDGE_DATA_LEN];

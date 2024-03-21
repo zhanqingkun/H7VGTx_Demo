@@ -3,6 +3,7 @@
 
 #define ABS(x)  ((x)>0?(x):(-(x)))
 
+scale_t scale;
 dr16_t rc;
 int kb_status[11] = {0};
 

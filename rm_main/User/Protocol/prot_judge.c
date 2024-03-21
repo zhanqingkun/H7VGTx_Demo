@@ -11,7 +11,6 @@ typedef enum
 } color_e;
 
 UART_HandleTypeDef *judge_huart;
-frame_header_t frame_header;
 
 //机器人接收的数据
 game_status_t                       game_status;                    //比赛状态数据，固定以1Hz频率发送
@@ -60,8 +59,10 @@ remote_control_t                    remote_control;                 //键鼠遥�
  * @param[in] data: 数据指针
  * @retval    数据正常返回0，异常返回1
  */
+int cnt_test = 0;
 uint8_t judge_get_data(uint8_t *data)
 {
+    static frame_header_t frame_header;
     uint8_t result = 1;
     uint16_t data_length;
     int cmd_id;
@@ -90,7 +91,7 @@ uint8_t judge_get_data(uint8_t *data)
                         case ID_referee_warning              : memcpy(&referee_warning             , (data + 7), LEN_referee_warning             );break;
                         case ID_dart_info                    : memcpy(&dart_info                   , (data + 7), LEN_dart_info                   );break;
                         case ID_robot_status                 : memcpy(&robot_status                , (data + 7), LEN_robot_status                );break;
-                        case ID_power_heat_data              : memcpy(&power_heat_data             , (data + 7), LEN_power_heat_data             );break;
+                        case ID_power_heat_data              : memcpy(&power_heat_data             , (data + 7), LEN_power_heat_data             );cnt_test++;break;
                         case ID_robot_pos                    : memcpy(&robot_pos                   , (data + 7), LEN_robot_pos                   );break;
                         case ID_buff                         : memcpy(&buff                        , (data + 7), LEN_buff                        );break;
 //                        case ID_air_support_data             : memcpy(&air_support_data            , (data + 7), LEN_air_support_data            );break;
@@ -115,9 +116,9 @@ uint8_t judge_get_data(uint8_t *data)
             }
         }
         //首地址加帧长度,指向CRC16下一字节,用来判断是否为0xA5,用来判断一个数据包是否有多帧数据 
-        if(*(data + sizeof(frame_header) + 2 + frame_header.data_length + 2) == 0xA5) {
+        if(*(data + 5 + 2 + frame_header.data_length + 2) == 0xA5) {
             //如果一个数据包出现了多帧数据,则再次读取
-            judge_get_data(data + sizeof(frame_header) + 2 + frame_header.data_length + 2);
+            judge_get_data(data + 5 + 2 + frame_header.data_length + 2);
         }
     }
     return result;

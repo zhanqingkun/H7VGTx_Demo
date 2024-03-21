@@ -30,6 +30,9 @@
 #include "mode_switch_task.h"
 #include "chassis_task.h"
 #include "debug_task.h"
+
+#include "tim.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -151,27 +154,34 @@ void MX_FREERTOS_Init(void) {
   * @param  argument: Not used
   * @retval None
   */
+int pwm_val = 0;
 /* USER CODE END Header_start_task */
 __weak void start_task(void const * argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN start_task */
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+    TIM3->CCR1 = pwm_val;
   /* Infinite loop */
   for(;;)
   {
       osDelay(500);//00
       HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+      TIM3->CCR1 = pwm_val;
       osDelay(500);//01
       HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+      TIM3->CCR1 = pwm_val;
       osDelay(500);//11
       HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+      TIM3->CCR1 = pwm_val;
       osDelay(500);//10
       HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+      __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, pwm_val);
   }
   /* USER CODE END start_task */
 }

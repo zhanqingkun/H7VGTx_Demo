@@ -1,14 +1,14 @@
 #include "can_comm.h"
-#include "fdcan.h"
-
-#include "prot_imu.h"
 #include "drv_dji_motor.h"
 #include "drv_ht_motor.h"
+#include "prot_imu.h"
+#include "fdcan.h"
 
 FDCAN_TxHeaderTypeDef tx_message;
 FDCAN_RxHeaderTypeDef rx_fifo0_message, rx_fifo1_message;
 //注意FDCAN只能设置64个字节给用，设置8个会数组越界进硬件错误中断
 uint8_t rx_fifo0_data[64], rx_fifo1_data[64];
+
 
 /*
  * @brief  can总线初始化

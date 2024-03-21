@@ -5,7 +5,7 @@
 #include "stdint.h"
 
 //帧头
-typedef __packed struct
+typedef struct
 {
     uint8_t SOF;            //数据帧起始字节，固定值为 0xA5
     uint16_t data_length;   //数据帧中 data 的长度

@@ -11,6 +11,11 @@
 
 typedef struct
 {
+    float ch1, ch2, ch3, ch4, ch5;
+} scale_t;
+
+typedef struct
+{
 	int16_t ch1;
 	int16_t ch2;
 	int16_t ch3;
@@ -66,6 +71,7 @@ typedef enum
     KB_CTRL
 } key_index_e;
 
+extern scale_t scale;
 extern dr16_t rc;
 extern int kb_status[11];
 

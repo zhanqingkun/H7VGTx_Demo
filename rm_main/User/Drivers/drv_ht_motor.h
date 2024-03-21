@@ -1,7 +1,6 @@
 #ifndef __DRV_HT_MOTOR_H
 #define __DRV_HT_MOTOR_H
 
-#include "stm32h7xx.h"
 #include "can_comm.h"
 #include "data_list.h"
 

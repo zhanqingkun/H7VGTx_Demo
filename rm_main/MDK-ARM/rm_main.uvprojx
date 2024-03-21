@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -843,6 +843,16 @@
               <FileName>mode_switch_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Task\mode_switch_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>gimbal_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Task\gimbal_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>shoot_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Task\shoot_task.c</FilePath>
             </File>
           </Files>
         </Group>

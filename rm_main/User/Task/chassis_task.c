@@ -1,6 +1,7 @@
 #include "chassis_task.h"
 #include "mode_switch_task.h"
 #include "wlr.h"
+#include "can_comm.h"
 #include "drv_dji_motor.h"
 #include "drv_ht_motor.h"
 #include "prot_imu.h"
