@@ -11,8 +11,6 @@ void comm_task(void const* argument)
         
         dji_motor_output_data();
         ht_motor_output_data();
-//        taskENTER_CRITICAL();
-//        taskEXIT_CRITICAL();
         osDelayUntil(&thread_wake_time, 2);
     }
 }

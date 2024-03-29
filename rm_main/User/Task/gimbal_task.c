@@ -13,13 +13,11 @@ static void gimbal_init(void)
     memset(&gimbal, 0, sizeof(gimbal_t));
     pid_init(&gimbal.yaw_angle.pid, 0, 0, 0, 0, 0);
     pid_init(&gimbal.yaw_spd.pid, 0, 0, 0, 0, 0);
-    pid_init(&gimbal.yaw_mecd.pid, 0, 0, 0, 0, 0);
-    pid_init(&gimbal.yaw_mspd.pid, 0, 0, 0, 0, 0);
+    pid_init(&gimbal.yaw_ecd.pid, 0, 0, 0, 0, 0);
 
     pid_init(&gimbal.pit_angle.pid, 0, 0, 0, 0, 0);
     pid_init(&gimbal.pit_spd.pid, 0, 0, 0, 0, 0);
-    pid_init(&gimbal.pit_mecd.pid, 0, 0, 0, 0, 0);
-    pid_init(&gimbal.pit_mspd.pid, 0, 0, 0, 0, 0);
+    pid_init(&gimbal.pit_ecd.pid, 0, 0, 0, 0, 0);
 
     scale.ch1 = 2;
     scale.ch2 = 2;

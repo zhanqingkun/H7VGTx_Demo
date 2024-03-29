@@ -5,7 +5,7 @@
 #include "stdint.h"
 
 //帧头
-typedef struct
+typedef __packed struct
 {
     uint8_t SOF;            //数据帧起始字节，固定值为 0xA5
     uint16_t data_length;   //数据帧中 data 的长度
@@ -419,6 +419,8 @@ typedef __packed struct
 {
     uint8_t radar_cmd;
 } radar_cmd_t;
+
+extern frame_header_t frame_header;
 
 void judge_init(UART_HandleTypeDef *huart);
 uint8_t judge_get_data(uint8_t *data);

@@ -12,10 +12,8 @@ typedef struct
 
 typedef struct
 {
-    gimbal_pid_t yaw_angle, yaw_spd;
-    gimbal_pid_t yaw_mecd, yaw_mspd;
-    gimbal_pid_t pit_angle, pit_spd;
-    gimbal_pid_t pit_mecd, pit_mspd;
+    gimbal_pid_t yaw_angle, yaw_spd, yaw_ecd;
+    gimbal_pid_t pit_angle, pit_spd, pit_ecd;
 } gimbal_t;
 
 extern gimbal_t gimbal;

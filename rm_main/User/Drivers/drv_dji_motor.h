@@ -70,6 +70,7 @@ typedef struct
 
 extern dji_motor_t driver_motor[2];
 extern dji_motor_t pit_motor, yaw_motor;
+extern dji_motor_t trigger_motor;
 
 void dji_motor_init(dji_motor_t *motor, uint8_t motor_type, can_channel_e can_periph, uint32_t id, float reduction_ratio);
 void dji_motor_get_data(uint32_t id, uint8_t *data);

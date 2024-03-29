@@ -27,17 +27,17 @@ static void remote_reset(void)
 
 static void get_keyboard_mode(void)
 {
-    keyboard_scanf(rc.kb.bit.Q, KB_Q);
-    keyboard_scanf(rc.kb.bit.E, KB_E);
-    keyboard_scanf(rc.kb.bit.R, KB_R);
-    keyboard_scanf(rc.kb.bit.F, KB_F);
-    keyboard_scanf(rc.kb.bit.G, KB_G);
-    keyboard_scanf(rc.kb.bit.Z, KB_Z);
-    keyboard_scanf(rc.kb.bit.X, KB_X);
-    keyboard_scanf(rc.kb.bit.C, KB_C);
-    keyboard_scanf(rc.kb.bit.V, KB_V);
-    keyboard_scanf(rc.kb.bit.B, KB_B);
-    keyboard_scanf(rc.kb.bit.CTRL, KB_CTRL);
+    key_scan(KB_Q);
+    key_scan(KB_E);
+    key_scan(KB_R);
+    key_scan(KB_F);
+    key_scan(KB_G);
+    key_scan(KB_Z);
+    key_scan(KB_X);
+    key_scan(KB_C);
+    key_scan(KB_V);
+    key_scan(KB_B);
+    key_scan(KB_CTRL);
 }
 
 static void get_sw_mode(void)

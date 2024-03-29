@@ -11,11 +11,12 @@
 #define REDUCTION_RATIO 3
 
 static list_t object_list = {&object_list, &object_list};
-static uint8_t motor_send_flag[CAN_CHANNEL_NUM][2] = {0};
-can_std_msg_t motor_msg[CAN_CHANNEL_NUM][2];
+static uint8_t motor_send_flag[CAN_CHANNEL_NUM][3] = {0};
+can_std_msg_t motor_msg[CAN_CHANNEL_NUM][3];
 
 dji_motor_t driver_motor[2];
 dji_motor_t pit_motor, yaw_motor;
+dji_motor_t trigger_motor;
 
 static const float motor_para_table[3][4] =
 {
@@ -131,11 +132,16 @@ static void dji_motor_fill_data(void)
             motor_msg[object->can_channel][0].data[(object->can_id - 0x201) * 2] = object->tx_current >> 8;
             motor_msg[object->can_channel][0].data[(object->can_id - 0x201) * 2 + 1] = object->tx_current;
             motor_send_flag[object->can_channel][0] = 1;
-        } else {
+        } else if (object->can_id < 0x209){
             motor_msg[object->can_channel][1].id = 0x1FF;
             motor_msg[object->can_channel][1].data[(object->can_id - 0x205) * 2] = object->tx_current >> 8;
             motor_msg[object->can_channel][1].data[(object->can_id - 0x205) * 2 + 1] = object->tx_current;
             motor_send_flag[object->can_channel][1] = 1;
+        } else {
+            motor_msg[object->can_channel][2].id = 0x2FF;
+            motor_msg[object->can_channel][2].data[(object->can_id - 0x209) * 2] = object->tx_current >> 8;
+            motor_msg[object->can_channel][2].data[(object->can_id - 0x209) * 2 + 1] = object->tx_current;
+            motor_send_flag[object->can_channel][2] = 1;
         }
         object->send_cnt++;
     }
@@ -149,7 +155,7 @@ void dji_motor_output_data(void)
 {
     dji_motor_fill_data();
     for (can_channel_e can_channel = CAN_CHANNEL_1; can_channel != CAN_CHANNEL_NUM; can_channel++) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             if (motor_send_flag[can_channel][i] == 1) {
                     can_std_transmit(can_channel, motor_msg[can_channel][i].id, motor_msg[can_channel][i].data);
                     motor_send_flag[can_channel][i] = 0;

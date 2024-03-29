@@ -154,7 +154,8 @@ void MX_FREERTOS_Init(void) {
   * @param  argument: Not used
   * @retval None
   */
-int pwm_val = 0;
+int pwm_val1 = 0;
+int pwm_val2 = 0;
 /* USER CODE END Header_start_task */
 __weak void start_task(void const * argument)
 {
@@ -162,26 +163,16 @@ __weak void start_task(void const * argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN start_task */
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-    TIM3->CCR1 = pwm_val;
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+    TIM3->CCR1 = pwm_val1;
+    TIM3->CCR2 = pwm_val2;
   /* Infinite loop */
   for(;;)
   {
-      osDelay(500);//00
-      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-      TIM3->CCR1 = pwm_val;
-      osDelay(500);//01
-      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-      TIM3->CCR1 = pwm_val;
-      osDelay(500);//11
-      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-      TIM3->CCR1 = pwm_val;
-      osDelay(500);//10
-      HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-      __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, pwm_val);
+      osDelay(100);
+      TIM3->CCR1 = pwm_val1;//500-2500 570
+      TIM3->CCR2 = pwm_val2;//1000-2000
+//      __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, pwm_val);
   }
   /* USER CODE END start_task */
 }
