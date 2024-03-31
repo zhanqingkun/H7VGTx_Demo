@@ -419,6 +419,6 @@ void chassis_task(void const *argu)
         wlr_control();
         chassis_data_output();
 //        taskEXIT_CRITICAL();
-        osDelayUntil(&thread_wake_time, 4);
+        osDelayUntil(&thread_wake_time, 2);
     }
 }

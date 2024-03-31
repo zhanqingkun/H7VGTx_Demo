@@ -9,7 +9,7 @@
 
 #define WLR_SIGN(x) ((x) > 0? (1): (-1))
 
-#define CHASSIS_PERIOD_DU 4
+#define CHASSIS_PERIOD_DU 2
 
 const float LegLengthParam[5] = {0.150f, 0.270f, 0.270f, 0.150f, 0.150f};
 float mb = 4.4f, ml = 2.09f, mw = 0.715f;//机体质量 腿部质量 轮子质量 14.5

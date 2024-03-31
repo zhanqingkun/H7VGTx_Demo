@@ -9,13 +9,13 @@ void comm_task(void const* argument)
     for(;;)
     {
         dji_motor_output_data();
-//        ht_motor_output_data();
-        ht_motor_output_single_data(&joint_motor[0]);
-        ht_motor_output_single_data(&joint_motor[1]);
+        ht_motor_output_data();
+//        ht_motor_output_single_data(&joint_motor[0]);
+//        ht_motor_output_single_data(&joint_motor[1]);
         osDelayUntil(&thread_wake_time, 2);
 //        dji_motor_output_data();
-        ht_motor_output_single_data(&joint_motor[2]);
-        ht_motor_output_single_data(&joint_motor[3]);
-        osDelayUntil(&thread_wake_time, 2);
+//        ht_motor_output_single_data(&joint_motor[2]);
+//        ht_motor_output_single_data(&joint_motor[3]);
+//        osDelayUntil(&thread_wake_time, 2);
     }
 }
