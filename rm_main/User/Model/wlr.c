@@ -27,7 +27,7 @@ const float LegLengthNormal = 0.20f;//正常
 float LegCanChange = 0.25f;
 
 //float x3_balance_zero = 0.03, x5_balance_zero = -0.035f;//腿摆角角度偏置 机体俯仰角度偏置
-float x3_balance_zero = 0.1, x5_balance_zero = 0.05f;//腿摆角角度偏置 机体俯仰角度偏置
+float x3_balance_zero = 0.06f, x5_balance_zero = -0.02f;//腿摆角角度偏置 机体俯仰角度偏置
 
 //								位移  速度	角度	角速度  角度	角速度
 float K_Array_Wheel[2][6] =		{{60, 30, 80, 8, 300, 10}, 

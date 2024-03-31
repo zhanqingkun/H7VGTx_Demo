@@ -32,10 +32,10 @@ static void joint_motor_reset(void)
     chassis.joint_motor_reset = 0;
     for (int i = 0; i < 4; i++) {
         motor_reset[i].reset_flag = 0;
-        ht_motor_set_control_cmd(&joint_motor[i], CMD_MOTOR_MODE);
-        osDelayUntil(&thread_wake_time, 1);
+//        ht_motor_set_control_cmd(&joint_motor[i], CMD_MOTOR_MODE);
+//        osDelayUntil(&thread_wake_time, 1);
         ht_motor_set_control_para(&joint_motor[i], 0, 0, 0, 0, 0);
-        osDelayUntil(&thread_wake_time, 1);
+//        osDelayUntil(&thread_wake_time, 1);
     }
     //未解锁 等待
     while (!lock_flag)

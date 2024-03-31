@@ -69,7 +69,7 @@ static void shoot_mode_sw(void)
                 }
                 case RC_MI: {
                     if (fric.init_flag) {
-                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
+                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
                     }
                     shoot.trigger_mode = TRIGGER_MODE_STOP;
                     break;
