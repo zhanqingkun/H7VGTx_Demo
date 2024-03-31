@@ -17,12 +17,6 @@
 
 #define KEY_SHOOT_HOUSE         KB_B
 
-#define KEY_VISION_bENERGY      KB_X
-#define KEY_VISION_B_S_ARMOR    KB_Z
-//#define KEY_VISION_AUTO         KB_R
-#define KEY_VISION_ANTISPIN     KB_R
-//#define KEY_VISION_KP           KB_X
-
 /*-----------------------------shoot-----------------------------*/
 #define LOW_SPEED           0       //526
 #define MID_SPEED	        350

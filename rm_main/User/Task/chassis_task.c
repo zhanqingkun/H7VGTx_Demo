@@ -329,12 +329,12 @@ static void chassis_data_input(void)
         case CHASSIS_MODE_KEYBOARD_FOLLOW:
         case CHASSIS_MODE_KEYBOARD_PRONE: {
             wlr.yaw_set = (float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI;
-            wlr.yaw_fdb =  (float)yaw_motor.ecd / 8192 * 2 * PI;
+            wlr.yaw_fdb = (float)yaw_motor.ecd / 8192 * 2 * PI;
             break;
         }
         case CHASSIS_MODE_KEYBOARD_FIGHT: {
             wlr.yaw_set = (float)CHASSIS_YAW_FIGHT / 8192 * 2 * PI;
-            wlr.yaw_fdb =  (float)yaw_motor.ecd / 8192 * 2 * PI;
+            wlr.yaw_fdb = (float)yaw_motor.ecd / 8192 * 2 * PI;
             break;
         }
         case CHASSIS_MODE_REMOTER_ROTATE:
@@ -346,7 +346,7 @@ static void chassis_data_input(void)
         case CHASSIS_MODE_KEYBOARD_UNFOLLOW: {
             if (last_chassis_mode != CHASSIS_MODE_KEYBOARD_UNFOLLOW)
                 wlr.yaw_set = -chassis_imu.yaw;
-            wlr.yaw_fdb = chassis_imu.yaw;
+            wlr.yaw_fdb = -chassis_imu.yaw;
             break;
         }
         default:break;
@@ -427,8 +427,11 @@ void chassis_task(void const *argu)
     chassis_init();
     for(;;)
     {
-        if (reset_flag == 1)
-            joint_motor_reset();
+        if (reset_flag == 1) {
+            __set_FAULTMASK(1);
+            NVIC_SystemReset();
+//            joint_motor_reset();
+        }
         thread_wake_time = osKernelSysTick();
 //        taskENTER_CRITICAL();
         chassis_mode_switch();
