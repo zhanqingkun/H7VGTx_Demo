@@ -12,7 +12,7 @@ gimbal_scale_t gimbal_scale = {
     .ecd_remote = 1,
     .ecd_keyboard = 1,
     .angle_remote = 0.00002f,
-    .angle_keyboard = 0.00002f
+    .angle_keyboard = 0.0002f
 };
 gimbal_t gimbal;
 uint8_t test_gimbal_vision_mode = 0;//遥控0 视觉1
@@ -87,7 +87,7 @@ void gimbal_task(void const *argu)
             case VISION_MODE: {
                 if (kb_status[KEY_SHOOT_HOUSE]) { //补弹
                     gimbal.pit_angle.ref = 0;
-                    gimbal.yaw_angle.ref += rc.mouse.x * gimbal_scale.angle_keyboard * 0.5f;
+                    gimbal.yaw_angle.ref -= rc.mouse.x * gimbal_scale.angle_keyboard * 0.5f;
                 } else {
                     //一键调头
                     if(key_scan_clear(KEY_GIMBAL_TURN_R)) {
@@ -97,7 +97,7 @@ void gimbal_task(void const *argu)
                         gimbal.yaw_angle.ref += PI/2;
                     }
                     gimbal.pit_angle.ref += rc.mouse.y * gimbal_scale.angle_keyboard;
-                    gimbal.yaw_angle.ref += rc.mouse.x * gimbal_scale.angle_keyboard;
+                    gimbal.yaw_angle.ref -= rc.mouse.x * gimbal_scale.angle_keyboard;
                 }
                 gimbal_pid_calc();
                 break;

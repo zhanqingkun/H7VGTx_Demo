@@ -16,11 +16,39 @@
 #define JOINT_MOTOR_RESET_TORQUE 1.5f
 #define JOINT_MOTOR_RESET_ERROR 0.005f
 
+ramp_t chassis_x_ramp;
+ramp_t chassis_y_ramp;
+
 chassis_t chassis;
 chassis_scale_t chassis_scale = {
-    .remote = 1.0f/660*3,
-    .keyboard = 3
+    .remote = 1.0f/660*2,
+    .keyboard = 2
 };
+
+static void chassis_ramp(void) {
+    if (rc.kb.bit.W) {
+        ramp_calc(&chassis_x_ramp, 1.0f);
+    } else if (rc.kb.bit.S) {
+        ramp_calc(&chassis_x_ramp, -1.0f);
+    } else {
+        if (chassis_x_ramp.out > 0) {
+            ramp_calc(&chassis_x_ramp, -1.0f);
+        } else if (chassis_x_ramp.out < 0) {
+            ramp_calc(&chassis_x_ramp, 1.0f);
+        }
+    }
+    if (rc.kb.bit.D) {
+        ramp_calc(&chassis_y_ramp, 1.0f);
+    } else if (rc.kb.bit.A) {
+        ramp_calc(&chassis_y_ramp, -1.0f);
+    } else {
+        if (chassis_y_ramp.out > 0) {
+            ramp_calc(&chassis_y_ramp, -1.0f);
+        } else if (chassis_y_ramp.out < 0) {
+            ramp_calc(&chassis_y_ramp, 1.0f);
+        }
+    }
+}
 
 static void joint_motor_reset(void)
 {
@@ -76,8 +104,12 @@ static void joint_motor_reset(void)
 static void chassis_init()
 {
     memset(&chassis, 0, sizeof(chassis_t));
+    memset(&chassis_x_ramp, 0, sizeof(ramp_t));
+    memset(&chassis_y_ramp, 0, sizeof(ramp_t));
     wlr_init();
 	joint_motor_reset();
+    ramp_init(&chassis_x_ramp, 0.02f, -chassis_scale.keyboard, chassis_scale.keyboard);//0.002 1s达到最大
+    ramp_init(&chassis_y_ramp, 0.02f, -chassis_scale.keyboard, chassis_scale.keyboard);
     wlr.yaw_set = (float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI;
 }
 
@@ -250,31 +282,16 @@ static void chassis_data_input(void)
         case CHASSIS_MODE_KEYBOARD_PRONE: {
             //高速模式
             if (kb_status[KEY_CHASSIS_POWER] == KEY_RUN) {
-                chassis_scale.keyboard = 4.0f;  //待修改 高速模式下
+                chassis_scale.keyboard = 3.0f;  //待修改 高速模式下
                 wlr.shift_flag = 1;
             } else {
-                chassis_scale.keyboard = 3.0f;  //待修改 普通模式下
+                chassis_scale.keyboard = 2.0f;  //待修改 普通模式下
                 wlr.shift_flag = 0;
             }
             //速度输入
-            if (rc.kb.bit.W) {
-                chassis.input.vx = chassis_scale.keyboard;
-            } else if (rc.kb.bit.S) {
-                chassis.input.vx = -chassis_scale.keyboard;
-            } else {
-                chassis.input.vx = 0;
-            }
-            if (rc.kb.bit.D) {
-                chassis.input.vy = chassis_scale.keyboard;
-            } else if (rc.kb.bit.A) {
-                chassis.input.vy = -chassis_scale.keyboard;
-            } else {
-                chassis.input.vy = 0;
-            }
-            if (chassis.input.vx != 0 && chassis.input.vy != 0) {
-                chassis.input.vx /= 1.414f;
-                chassis.input.vy /= 1.414f;
-            }
+            chassis_ramp();
+            chassis.input.vx = chassis_x_ramp.out;
+            chassis.input.vy = chassis_y_ramp.out;
             //控制模式
             wlr.ctrl_mode = 2; //键盘直接是轮腿模式
             if (chassis.mode == CHASSIS_MODE_KEYBOARD_PRONE) {
@@ -328,8 +345,8 @@ static void chassis_data_input(void)
         }
         case CHASSIS_MODE_KEYBOARD_UNFOLLOW: {
             if (last_chassis_mode != CHASSIS_MODE_KEYBOARD_UNFOLLOW)
-                wlr.yaw_set = chassis_imu.yaw;
-            wlr.yaw_fdb =  chassis_imu.yaw;
+                wlr.yaw_set = -chassis_imu.yaw;
+            wlr.yaw_fdb = chassis_imu.yaw;
             break;
         }
         default:break;
@@ -340,12 +357,12 @@ static void chassis_data_input(void)
         wlr.yaw_set += 2 * PI;
     else if (wlr.yaw_set > 2 * PI)
         wlr.yaw_set -= 2 * PI;
+    wlr.yaw_err = circle_error((float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI, wlr.yaw_fdb, 2 * PI);
+//    chassis.output.vx = chassis.input.vx;
+//    chassis.output.vy = chassis.input.vy;
+    chassis.output.vx = chassis.input.vx * arm_cos_f32(wlr.yaw_err) - chassis.input.vy * arm_sin_f32(wlr.yaw_err);
+    chassis.output.vy = chassis.input.vx * arm_sin_f32(wlr.yaw_err) + chassis.input.vy * arm_cos_f32(wlr.yaw_err);
     wlr.yaw_err = circle_error(wlr.yaw_set, wlr.yaw_fdb, 2 * PI);
-    chassis.output.vx = chassis.input.vx;
-    chassis.output.vy = chassis.input.vy;
-//    chassis.output.vx = chassis.input.vx * arm_cos_f32(wlr.yaw_err) - chassis.input.vy * arm_sin_f32(wlr.yaw_err);
-//    chassis.output.vy = chassis.input.vx * arm_sin_f32(wlr.yaw_err) + chassis.input.vy * arm_cos_f32(wlr.yaw_err);
-
 	wlr.v_set = chassis.output.vx;
     //陀螺仪数据输入
     wlr.roll_fdb    = -chassis_imu.rol;

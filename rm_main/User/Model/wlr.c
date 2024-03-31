@@ -22,9 +22,8 @@ const float LegLengthJump2 = 0.35f;//蹬腿
 const float LegLengthJump3 = 0.24f;//收腿
 const float LegLengthJump4 = 0.22f;//落地
 const float LegLengthFly = 0.20f;//腾空
-const float LegLengthHigh = 0.30f;//长腿
-const float LegLengthNormal = 0.20f;//正常
-float LegCanChange = 0.25f;
+const float LegLengthHigh = 0.20f;//长腿
+const float LegLengthNormal = 0.15f;//正常
 
 //float x3_balance_zero = 0.03, x5_balance_zero = -0.035f;//腿摆角角度偏置 机体俯仰角度偏置
 float x3_balance_zero = 0.06f, x5_balance_zero = -0.02f;//腿摆角角度偏置 机体俯仰角度偏置
@@ -100,7 +99,7 @@ static void k_array_fit2(float K[2][6], float high_fdb, float q0_fdb)
 void wlr_init(void)
 {
 	wlr.max_stop_angle = 10;
-	wlr.max_wz_error = 0.6f;
+	wlr.max_wz_error = 0.8f;
 	wlr.high_set = LegLengthNormal;
 	wlr.roll_set = 0;
 	wlr.q0_set = PI / 2;
@@ -118,13 +117,15 @@ void wlr_init(void)
         kal_fn[i].Q_data[0] = 1;
         kal_fn[i].R_data[0] = 100;
 		//PID参数初始化
-		pid_init(&pid_leg_length[i], 500, 0, 20000, 10, 20);//10 20
+		pid_init(&pid_leg_length[i], 500, 0, 20000, 10, 20);//i 2.5f
 		pid_init(&pid_leg_length_fast[i], 1000, 0, 10000, 30, 50);
 	}
 	//卡尔曼滤波器初始化
 	
 	//PID参数初始化
-    pid_init(&pid_yaw, -5, 0, 0, 0, 5);
+//    pid_init(&pid_yaw, -7, 0, 0, 0, 10);
+//	pid_init(&pid_wz, 2.0f, 0, 7.0f, 0, 2.5f);
+    pid_init(&pid_yaw, -5, 0, 0, 0, 7);
 	pid_init(&pid_wz, 2.0f, 0, 7.0f, 0, 2.5f);//与LQR的速度控制协同
 	pid_init(&pid_q0, 60, 0, 100, 0, 10);//与LQR的虚拟腿摆角控制拮抗 60 0 120
 	pid_init(&pid_roll, 500, 0, 4000, 0, 15);//与VMC的腿长控制协同  1000 0 3500
@@ -203,8 +204,8 @@ void wlr_control(void)
 	} else if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {//腾空
 		wlr.high_set = LegLengthFly;
     } else {
-		if (wlr.high_flag)//大高度
-            wlr.high_set = LegCanChange;
+		if (wlr.high_flag || wlr.ctrl_mode == 2)//大高度
+            wlr.high_set = LegLengthHigh;
         else
             wlr.high_set = LegLengthNormal;
     }
@@ -238,10 +239,10 @@ void wlr_control(void)
 	//全身运动控制
 	wlr.q0_offs   = pid_calc(&pid_q0, vmc[0].q_fdb[0], vmc[1].q_fdb[0]);//双腿摆角同步控制
 	wlr.roll_offs = pid_calc(&pid_roll, wlr.roll_set, wlr.roll_fdb);
-	if (wlr.wz_set > wlr.wz_fdb + wlr.max_wz_error)//z轴速度窗口 很重要
-		wlr.wz_set = wlr.wz_fdb + wlr.max_wz_error;
-	else if (wlr.wz_set < wlr.wz_fdb - wlr.max_wz_error)
-		wlr.wz_set = wlr.wz_fdb - wlr.max_wz_error;
+//	if (wlr.wz_set > wlr.wz_fdb + wlr.max_wz_error)//z轴速度窗口 很重要
+//		wlr.wz_set = wlr.wz_fdb + wlr.max_wz_error;
+//	else if (wlr.wz_set < wlr.wz_fdb - wlr.max_wz_error)
+//		wlr.wz_set = wlr.wz_fdb - wlr.max_wz_error;
 	wlr.wz_offs   = pid_calc(&pid_wz, wlr.wz_fdb, wlr.wz_set);//Yaw控制
 	//两侧轮腿分别独立控制
 	for (int i = 0; i < 2; i++) {
@@ -266,7 +267,7 @@ void wlr_control(void)
 			wlr.wz_offs = 0;
 		} else																//常态 跳跃压腿阶段 跳跃落地阶段
 			wlr.side[i].Fy = pid_calc(&pid_leg_length[i], tlm.l_ref[i], vmc[i].L_fdb)\
-                                + 35 * vmc[i].L_fdb + 14 + WLR_SIGN(i) * wlr.roll_offs;
+                                + 35 * vmc[i].L_fdb + 19 + WLR_SIGN(i) * wlr.roll_offs;
 		wlr.side[i].T0 = -lqr[i].U_ref[0] / 2 + WLR_SIGN(i) * wlr.q0_offs;	//两条腿时，LQR输出力矩需要除以2
 		vmc_inverse_solution(&vmc[i], wlr.high_set, wlr.q0_set, wlr.side[i].T0, wlr.side[i].Fy);
 	}
