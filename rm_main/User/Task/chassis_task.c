@@ -341,8 +341,10 @@ static void chassis_data_input(void)
     else if (wlr.yaw_set > 2 * PI)
         wlr.yaw_set -= 2 * PI;
     wlr.yaw_err = circle_error(wlr.yaw_set, wlr.yaw_fdb, 2 * PI);
-    chassis.output.vx = chassis.input.vx * arm_cos_f32(wlr.yaw_err) - chassis.input.vy * arm_sin_f32(wlr.yaw_err);
-    chassis.output.vy = chassis.input.vx * arm_sin_f32(wlr.yaw_err) + chassis.input.vy * arm_cos_f32(wlr.yaw_err);
+    chassis.output.vx = chassis.input.vx;
+    chassis.output.vy = chassis.input.vy;
+//    chassis.output.vx = chassis.input.vx * arm_cos_f32(wlr.yaw_err) - chassis.input.vy * arm_sin_f32(wlr.yaw_err);
+//    chassis.output.vy = chassis.input.vx * arm_sin_f32(wlr.yaw_err) + chassis.input.vy * arm_cos_f32(wlr.yaw_err);
 
 	wlr.v_set = chassis.output.vx;
     //陀螺仪数据输入
@@ -410,6 +412,7 @@ void chassis_task(void const *argu)
     {
         if (reset_flag == 1)
             joint_motor_reset();
+        thread_wake_time = osKernelSysTick();
 //        taskENTER_CRITICAL();
         chassis_mode_switch();
         chassis_data_input();
