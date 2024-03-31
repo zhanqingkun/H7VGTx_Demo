@@ -22,7 +22,7 @@ static float uint_to_float(int x_int, float x_min, float x_max, int bits)
     return ((float)x_int)*span/((float)((1<<bits)-1)) + offset;
 }
 
-static void ht_motor_output_single_data(ht_motor_t *motor);
+//static void ht_motor_output_single_data(ht_motor_t *motor);
 
 /*
  * @brief     海泰电机初始化设置
@@ -112,7 +112,7 @@ void ht_motor_set_control_cmd(ht_motor_t *motor, uint8_t cmd)
     can_std_transmit(motor->can_channel, motor->can_id, buf);
 }
 
-static void ht_motor_output_single_data(ht_motor_t *motor)
+void ht_motor_output_single_data(ht_motor_t *motor)
 {
     static uint8_t buf[8];
     uint16_t p, v ,kp, kd, t;

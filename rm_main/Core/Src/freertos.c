@@ -168,17 +168,11 @@ __weak void start_task(void const * argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN start_task */
-//    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-//    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-//    TIM3->CCR1 = pwm_val1;
-//    TIM3->CCR2 = pwm_val2;
+
   /* Infinite loop */
   for(;;)
   {
       osDelay(100);
-//      TIM3->CCR1 = pwm_val1;//500-2500 570
-//      TIM3->CCR2 = pwm_val2;//1000-2000
-//      __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, pwm_val);
   }
   /* USER CODE END start_task */
 }

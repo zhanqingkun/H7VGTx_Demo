@@ -110,10 +110,10 @@ int main(void)
   MX_FDCAN2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(500);
+  HAL_Delay(100);
   us_timer_start();
-  can_comm_init();
   usart_comm_init();
+  can_comm_init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

@@ -100,6 +100,7 @@ void can_comm_init(void)
     ht_motor_init(&joint_motor[1], CAN_CHANNEL_1, 0x02, 0.78f);
     ht_motor_init(&joint_motor[2], CAN_CHANNEL_1, 0x03, 0.77f);
     ht_motor_init(&joint_motor[3], CAN_CHANNEL_1, 0x04, 0.65f);
+    
     dji_motor_init(&driver_motor[0], DJI_3508_MOTOR, CAN_CHANNEL_2, 0x203, 14.0f);
     dji_motor_init(&driver_motor[1], DJI_3508_MOTOR, CAN_CHANNEL_2, 0x204, 14.0f);
     dji_motor_init(&yaw_motor, DJI_6020_MOTOR, CAN_CHANNEL_2, 0x205, 1.0f);
