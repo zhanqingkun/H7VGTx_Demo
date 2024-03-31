@@ -3,6 +3,9 @@
 #include "data_log.h"
 #include "stdint.h"
 
+#include "gimbal_task.h"
+#include "shoot_task.h"
+#include "drv_dji_motor.h"
 #include "prot_judge.h"
 #include "kalman_filter.h"
 #include "func_generator.h"
@@ -17,19 +20,31 @@ void log_scope_data_pkg(void)
 {
     switch(debug_wave)
     {
-        case 1:
+        case 1://云台pid调试
         {
-            log_scope_get_data(frame_header.seq);
-//            us_timer_interval_test_start(&test_time);
-//            us_timer_delay(200);
-//            us_timer_interval_test_end(&test_time);
-//            log_scope_get_data(test_time.dt);
-//            test.measured_vector[0] = (float)rc.ch1;
-//            test.measured_vector[1] = (float)rc.ch2;
-//            kalman_filter_update(&test);
-//            log_scope_get_data(test.filter_vector[0]);
-//            log_scope_get_data((float)rc.ch1);
-//            log_scope_get_data((float)rc.ch2);
+//            log_scope_get_data(gimbal.yaw_spd.ref);
+//            log_scope_get_data(gimbal.yaw_spd.fdb);
+//            log_scope_get_data(gimbal.yaw_angle.ref);
+//            log_scope_get_data(gimbal.yaw_angle.fdb);
+//            log_scope_get_data(gimbal.yaw_output);
+//            log_scope_get_data(yaw_motor.tx_current);
+            
+//            log_scope_get_data(gimbal.pit_spd.ref);
+//            log_scope_get_data(gimbal.pit_spd.fdb);
+//            log_scope_get_data(gimbal.pit_angle.ref);
+//            log_scope_get_data(gimbal.pit_angle.fdb);
+//            log_scope_get_data(gimbal.pit_output);
+//            log_scope_get_data(pit_motor.tx_current);
+            break;
+        }
+        case 2://拨盘pid调试
+        {
+//            log_scope_get_data(shoot.trigger_spd.ref);
+//            log_scope_get_data(shoot.trigger_spd.fdb);
+//            log_scope_get_data(shoot.trigger_ecd.ref);
+//            log_scope_get_data(shoot.trigger_ecd.fdb);
+//            log_scope_get_data(shoot.trigger_output);
+//            log_scope_get_data(trigger_motor.tx_current);
             break;
         }
         default:break;
@@ -39,13 +54,6 @@ void log_scope_data_pkg(void)
 /* 串口上位机数据发送任务 */
 void debug_task(void const* argument)
 {
-    kalman_filter_init(&test, 1, 0, 2);
-    test.A_data[0] = 1;
-    test.H_data[0] = 1;
-    test.H_data[1] = 1;
-    test.Q_data[0] = 1;
-    test.R_data[0] = 100;
-    test.R_data[3] = 100;
     uint32_t thread_wake_time = osKernelSysTick();
     for(;;)
     {

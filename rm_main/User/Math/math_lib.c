@@ -72,25 +72,25 @@ void bubble_sort(float *data, uint8_t len)
 
 /*
  * @brief     环形数据计算偏差值
- * @param[in] set        : 目标值指针
- * @param[in] get        : 实际值指针
+ * @param[in] set        : 目标值
+ * @param[in] get        : 实际值
  * @param[in] circle_para: 一圈数值
  * @retval    返回目标值与实际值在环形中的差
  */
-float circle_error(float *set, float *get, float circle_para)
+float circle_error(float set, float get, float circle_para)
 {
     float error;
-    if (*set > *get) {
-        if (*set - *get > circle_para / 2) {
-            error = *set - *get - circle_para;
+    if (set > get) {
+        if (set - get > circle_para / 2) {
+            error = set - get - circle_para;
         } else {
-            error = *set - *get;
+            error = set - get;
         }
-    } else if (*set < *get) {
-        if (*set - *get < -1.0f * circle_para / 2) {
-            error = *set - *get + circle_para;
+    } else if (set < get) {
+        if (set - get < -1.0f * circle_para / 2) {
+            error = set - get + circle_para;
         } else {
-            error = *set - *get;
+            error = set - get;
         }
     } else {
         error = 0;

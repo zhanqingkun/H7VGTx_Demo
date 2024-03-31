@@ -25,7 +25,7 @@ void abs_limit(float *data, float abs_max, float offset);
 float data_fusion(float data1, float data2, float weight);
 float sigmoid_function(float x);
 void bubble_sort(float *data, uint8_t len);
-float circle_error(float *set, float *get, float circle_para);
+float circle_error(float set, float get, float circle_para);
 float ramp_input(float ref, float fdb, float slope);
 void ramp_init(ramp_t *ramp, float frame_period, float min, float max);
 float ramp_calc(ramp_t *ramp, float input);

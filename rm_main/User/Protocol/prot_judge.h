@@ -422,6 +422,9 @@ typedef __packed struct
 
 extern frame_header_t frame_header;
 
+extern robot_status_t robot_status;
+extern shoot_data_t shoot_data;
+
 void judge_init(UART_HandleTypeDef *huart);
 uint8_t judge_get_data(uint8_t *data);
 

@@ -1,6 +1,7 @@
 #include "wlr.h"
 #include "leg_vmc.h"
 #include "wheel_leg_model.h"
+#include "drv_dji_motor.h"
 #include "pid.h"
 #include "kalman_filter.h"
 #include "math_lib.h"
@@ -58,7 +59,7 @@ kalman_filter_t kal_fn[2];
 
 pid_t pid_leg_length[2];
 pid_t pid_leg_length_fast[2];
-pid_t pid_q0, pid_roll, pid_wz;
+pid_t pid_q0, pid_roll, pid_yaw, pid_wz;
 
 static float wlr_fn_calc(float az, float Fy_fdb, float T0_fdb, float L0[3], float theta[3])
 {
@@ -123,6 +124,7 @@ void wlr_init(void)
 	//卡尔曼滤波器初始化
 	
 	//PID参数初始化
+    pid_init(&pid_yaw, -5, 0, 0, 0, 5);
 	pid_init(&pid_wz, 2.0f, 0, 7.0f, 0, 2.5f);//与LQR的速度控制协同
 	pid_init(&pid_q0, 60, 0, 100, 0, 10);//与LQR的虚拟腿摆角控制拮抗 60 0 120
 	pid_init(&pid_roll, 500, 0, 4000, 0, 15);//与VMC的腿长控制协同  1000 0 3500
@@ -138,6 +140,7 @@ void wlr_protest(void)
 void wlr_control(void)
 {
 	//------------------------反馈数据更新------------------------//
+	wlr.wz_set = pid_calc(&pid_yaw, wlr.yaw_fdb + wlr.yaw_err, wlr.yaw_fdb);
 	//更新两轮模型
 	twm_feedback_calc(&twm, wlr.side[0].wy, wlr.side[1].wy, wlr.wz_fdb);//输入左右轮子转速
 	twm_reference_calc(&twm, wlr.v_set, wlr.wz_set);//计算两侧轮腿模型的设定速度
@@ -217,7 +220,7 @@ void wlr_control(void)
 		aMartix_Cover(lqr[0].K, (float*)K_Array_Fly, 2, 6);
 		aMartix_Cover(lqr[1].K, (float*)K_Array_Fly, 2, 6);
 	} else if (wlr.side[0].fly_flag == 0 && wlr.side[1].fly_flag == 0) {//在地面
-        if (wlr.ctrl_mode == 1) {//力控
+        if (wlr.ctrl_mode == 2) {//力控
 //            k_array_fit1(K_Array_test, vmc[0].L_fdb);
 //            aMartix_Cover(lqr[0].K, (float*)K_Array_test, 2, 6);
 //            k_array_fit1(K_Array_test, vmc[1].L_fdb);
@@ -226,7 +229,7 @@ void wlr_control(void)
             aMartix_Cover(lqr[0].K, (float*)K_Array_test, 2, 6);
             k_array_fit2(K_Array_test, vmc[1].L_fdb, vmc[1].q_fdb[0]/PI*180);
             aMartix_Cover(lqr[1].K, (float*)K_Array_test, 2, 6);
-		} else if (wlr.ctrl_mode == 0) {//位控
+		} else if (wlr.ctrl_mode == 1) {//位控
 			aMartix_Cover(lqr[0].K, (float*)K_Array_Wheel, 2, 6);
 			aMartix_Cover(lqr[1].K, (float*)K_Array_Wheel, 2, 6);
 		}

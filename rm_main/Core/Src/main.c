@@ -110,7 +110,7 @@ int main(void)
   MX_FDCAN2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(100);
+  HAL_Delay(500);
   us_timer_start();
   can_comm_init();
   usart_comm_init();

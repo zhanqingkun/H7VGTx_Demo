@@ -5,7 +5,6 @@
 
 #define DR16_DATA_LEN 18
 
-
 #define RC_LEFT_LU  ( 1<<0 ) //居左上
 #define RC_LEFT_RU  ( 1<<1 ) //居右上
 #define RC_LEFT_RD  ( 1<<2 ) //居右下
@@ -14,11 +13,6 @@
 #define RC_RIGHT_RU ( 1<<5 ) //居右上
 #define RC_RIGHT_RD ( 1<<6 ) //居右下
 #define RC_RIGHT_LD ( 1<<7 ) //居左下
-
-typedef struct
-{
-    float ch1, ch2, ch3, ch4, ch5;
-} scale_t;
 
 typedef __packed struct
 {
@@ -93,7 +87,6 @@ typedef enum
     KEY_END = 0
 } rc_key_status_e;
 
-extern scale_t scale;
 extern dr16_t rc;
 extern int kb_status[13];
 

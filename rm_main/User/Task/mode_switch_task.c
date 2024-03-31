@@ -2,83 +2,62 @@
 #include "prot_dr16.h"
 #include "cmsis_os.h"
 
-mode_t mode;
+uint8_t lock_flag, reset_flag;
+ctrl_mode_e ctrl_mode;
 
-static void remote_unlock(void)
-{
-    if (rc.sw1 == RC_MI && rc.sw2 == RC_UP) {
-        if (rc.ch3 == 660 && rc.ch4 == -660) {
-            mode.lock_flag = 1;
+static void unlock_init(void) {
+    if (rc.sw1 == RC_UP && rc.sw2 == RC_UP ) { //左拨杆居中，右拨杆置上
+        if (rc.ch4 < -600 && rc.ch3 > 600) {
+            lock_flag = 1;  //左控制杆拨至右下
         }
+    }
+}
+
+static void sw1_mode_handler(void) { //由拨杆1决定系统模式切换，主要是云台、底盘和发射器
+    switch (rc.sw1) {
+        case RC_UP: {
+            ctrl_mode = PROTECT_MODE;break;
+        }
+        case RC_MI: {
+            ctrl_mode = REMOTER_MODE;break;
+        }
+        case RC_DN: {
+            ctrl_mode = KEYBOARD_MODE;   
+            if (rc.mouse.r == 1) {
+                ctrl_mode = VISION_MODE;    //视觉模式，右键开启
+            } else {
+                ctrl_mode = KEYBOARD_MODE;  //键盘模式
+            }
+            break;
+        }
+        default:break;
     }
 }
 
 static void remote_reset(void)
 {
     static uint8_t reset_press = 0;
-    if (rc.sw1 == RC_MI && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660 && reset_press == 0) {
-        mode.chassis_flag.reset = 1;
+    //保护模式下右拨杆拨至左下
+    if (rc.sw1 == RC_UP && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660 && reset_press == 0) {
+        reset_flag = 1;
         reset_press = 1;
-    } else if (!(rc.sw1 == RC_MI && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660)) {
+    } else if (!(rc.sw1 == RC_UP && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660)) {
         reset_press = 0;
-         mode.chassis_flag.reset = 0;
-    }
-}
-
-static void get_keyboard_mode(void)
-{
-    key_scan(KB_Q);
-    key_scan(KB_E);
-    key_scan(KB_R);
-    key_scan(KB_F);
-    key_scan(KB_G);
-    key_scan(KB_Z);
-    key_scan(KB_X);
-    key_scan(KB_C);
-    key_scan(KB_V);
-    key_scan(KB_B);
-    key_scan(KB_CTRL);
-}
-
-static void get_sw_mode(void)
-{
-    get_keyboard_mode();
-    if (rc.sw1 == RC_MI && rc.sw2 == RC_UP)
-        mode.ctrl_mode = PROTECT_MODE;
-    else if (rc.sw1 == RC_DN)
-        mode.ctrl_mode = KEYBOARD_MODE;
-    else
-        mode.ctrl_mode = REMOTER_MODE;
-
-    if (mode.ctrl_mode == PROTECT_MODE) {
-        mode.chassis_mode = CHASSIS_MODE_PROTECT;
-    } else {
-        mode.chassis_mode = CHASSIS_MODE_FOLLOW;
-        if (rc.sw2 == RC_UP) {
-            mode.chassis_flag.ctrl = CHASSIS_MODE_POSITION;
-            mode.chassis_flag.hight = 0;
-            mode.chassis_flag.stop = 0;
-        } else if (rc.sw2 == RC_MI) {
-            mode.chassis_flag.ctrl = CHASSIS_MODE_FORCE;
-            mode.chassis_flag.hight = 0;
-            mode.chassis_flag.stop = 0;
-        } else if (rc.sw2 == RC_DN) {
-            mode.chassis_flag.ctrl = CHASSIS_MODE_FORCE;
-            mode.chassis_flag.hight = 1;
-            mode.chassis_flag.stop = 0;
-        }
+        reset_flag = 0;
     }
 }
 
 void mode_switch_task(void const *argu)
 {
-    for(;;)
-    {
-        if (!mode.lock_flag) {
-            remote_unlock();
-        } else {
+    ctrl_mode   = PROTECT_MODE;
+    lock_flag = 0;
+    for (;;) {
+        if (!lock_flag) {
+            unlock_init();  //解锁操作
+        }
+        else {
             remote_reset();
-            get_sw_mode();
+            sw1_mode_handler();  //根据左拨杆切换系统模式
         }
         osDelay(10);
     }

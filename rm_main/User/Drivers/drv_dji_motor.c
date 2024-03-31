@@ -107,13 +107,16 @@ void dji_motor_get_data(uint32_t id, uint8_t *data)
 void dji_motor_set_torque(dji_motor_t *motor, float t)
 {
     motor->t = t;
+    LIMIT(motor->t,   motor->reduction_ratio \
+                    * motor_para_table[motor->motor_type][CURRENT_RANGE] \
+                    * motor_para_table[motor->motor_type][TORQUE_CONSTANT] \
+                    / motor_para_table[motor->motor_type][REDUCTION_RATIO]);
     motor->tx_current = (int16_t)(motor->t \
                         / motor->reduction_ratio \
                         * motor_para_table[motor->motor_type][DATA_RANGE] \
                         / motor_para_table[motor->motor_type][CURRENT_RANGE] \
                         / motor_para_table[motor->motor_type][TORQUE_CONSTANT] \
                         * motor_para_table[motor->motor_type][REDUCTION_RATIO]);
-    LIMIT(motor->tx_current, motor_para_table[motor->motor_type][DATA_RANGE]);
 }
 
 /*

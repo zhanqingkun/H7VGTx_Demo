@@ -12,7 +12,6 @@
 #define RC_RIGHT_RD_CH_VALUE ( rc.ch2 < -500 && rc.ch1 >  500 )   //居右下
 #define RC_RIGHT_LD_CH_VALUE ( rc.ch2 < -500 && rc.ch1 < -500 )   //居左下
 
-scale_t scale;
 dr16_t rc;
 int kb_status[13] = {0};
 

@@ -133,20 +133,20 @@ void judge_init(UART_HandleTypeDef *huart)
  * @retval    void
  */
 uint8_t send_data[150];
-static void judge_send_data(frame_header_t *frame_header, cmd_id_e cmd_id, uint8_t *data)
-{
-    //如果串口对应的DMA还未发送完就等待，防止变量UartTxBuf被CPU和DMA同时使用。
-    //发送裁判系统数据不用急
-    while (judge_huart->gState != HAL_UART_STATE_READY) {
-        osDelay(1);
-    }
-    memcpy(send_data, frame_header, 5);//写入帧头数据
-    send_data[5] = cmd_id >> 8;//写入id
-    send_data[6] = cmd_id & 0x0f;
-    memcpy(send_data + 7, data, frame_header->data_length);
-    crc16_set_checksum(send_data, frame_header->data_length + 9);
-    HAL_UART_Transmit_DMA(judge_huart, send_data, frame_header->data_length + 9);
-}
+//static void judge_send_data(frame_header_t *frame_header, cmd_id_e cmd_id, uint8_t *data)
+//{
+//    //如果串口对应的DMA还未发送完就等待，防止变量UartTxBuf被CPU和DMA同时使用。
+//    //发送裁判系统数据不用急
+//    while (judge_huart->gState != HAL_UART_STATE_READY) {
+//        osDelay(1);
+//    }
+//    memcpy(send_data, frame_header, 5);//写入帧头数据
+//    send_data[5] = cmd_id >> 8;//写入id
+//    send_data[6] = cmd_id & 0x0f;
+//    memcpy(send_data + 7, data, frame_header->data_length);
+//    crc16_set_checksum(send_data, frame_header->data_length + 9);
+//    HAL_UART_Transmit_DMA(judge_huart, send_data, frame_header->data_length + 9);
+//}
 
 /*
  * @brief     发送机器人交互数据
@@ -156,22 +156,22 @@ static void judge_send_data(frame_header_t *frame_header, cmd_id_e cmd_id, uint8
  * @param[in] data  : 子数据指针
  * @retval    void
  */
-static void robot_interaction_send_data(uint16_t rcv_id, robot_interaction_id_e id, robot_interaction_len_e len, uint8_t *data)
-{
-    frame_header_t frame_header;
-    robot_interaction_data_t robot_interaction_data;
-    frame_header.SOF = 0xA5;
-    frame_header.data_length = len + 6;
-    frame_header.seq = 0;
-    crc8_set_checksum((uint8_t *)&frame_header, 5);
-    robot_interaction_data.data_cmd_id = id;
-    //发送接收id设置
-    robot_interaction_data.sender_id = robot_status.robot_id;
-    robot_interaction_data.receiver_id = rcv_id;
-    
-    memcpy((uint8_t *)&robot_interaction_data, data, len);
-    
-    judge_send_data(&frame_header, 0x0301, (uint8_t *)&robot_interaction_data);
-}
+//static void robot_interaction_send_data(uint16_t rcv_id, robot_interaction_id_e id, robot_interaction_len_e len, uint8_t *data)
+//{
+//    frame_header_t frame_header;
+//    robot_interaction_data_t robot_interaction_data;
+//    frame_header.SOF = 0xA5;
+//    frame_header.data_length = len + 6;
+//    frame_header.seq = 0;
+//    crc8_set_checksum((uint8_t *)&frame_header, 5);
+//    robot_interaction_data.data_cmd_id = id;
+//    //发送接收id设置
+//    robot_interaction_data.sender_id = robot_status.robot_id;
+//    robot_interaction_data.receiver_id = rcv_id;
+//    
+//    memcpy((uint8_t *)&robot_interaction_data, data, len);
+//    
+//    judge_send_data(&frame_header, 0x0301, (uint8_t *)&robot_interaction_data);
+//}
 
 

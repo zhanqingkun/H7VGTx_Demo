@@ -28,7 +28,9 @@
 /* USER CODE BEGIN Includes */
 #include "comm_task.h"
 #include "mode_switch_task.h"
+#include "gimbal_task.h"
 #include "chassis_task.h"
+#include "shoot_task.h"
 #include "debug_task.h"
 
 #include "tim.h"
@@ -55,6 +57,8 @@
 osThreadId CommTaskHandle;
 osThreadId ModeSwitchTaskHandle;
 osThreadId ChassisTaskHandle;
+osThreadId GimbalTaskHandle;
+osThreadId ShootTaskHandle;
 osThreadId DebugTaskHandle;
 /* USER CODE END Variables */
 osThreadId StartTaskHandle;
@@ -139,8 +143,12 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(ModeSwitchTask, mode_switch_task, osPriorityHigh, 0, 128);
   ModeSwitchTaskHandle = osThreadCreate(osThread(ModeSwitchTask), NULL);
   
-  osThreadDef(ChassisTask, chassis_task, osPriorityNormal, 0, 128);
+  osThreadDef(ChassisTask, chassis_task, osPriorityNormal, 0, 256);
   ChassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
+  osThreadDef(GimbalTask, gimbal_task, osPriorityNormal, 0, 256);
+  ChassisTaskHandle = osThreadCreate(osThread(GimbalTask), NULL);
+  osThreadDef(ShootTask, shoot_task, osPriorityNormal, 0, 256);
+  ChassisTaskHandle = osThreadCreate(osThread(ShootTask), NULL);
   
   osThreadDef(DebugTask, debug_task, osPriorityLow, 0, 128);
   DebugTaskHandle = osThreadCreate(osThread(DebugTask), NULL);
@@ -154,24 +162,22 @@ void MX_FREERTOS_Init(void) {
   * @param  argument: Not used
   * @retval None
   */
-int pwm_val1 = 0;
-int pwm_val2 = 0;
 /* USER CODE END Header_start_task */
 __weak void start_task(void const * argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN start_task */
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-    TIM3->CCR1 = pwm_val1;
-    TIM3->CCR2 = pwm_val2;
+//    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+//    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+//    TIM3->CCR1 = pwm_val1;
+//    TIM3->CCR2 = pwm_val2;
   /* Infinite loop */
   for(;;)
   {
       osDelay(100);
-      TIM3->CCR1 = pwm_val1;//500-2500 570
-      TIM3->CCR2 = pwm_val2;//1000-2000
+//      TIM3->CCR1 = pwm_val1;//500-2500 570
+//      TIM3->CCR2 = pwm_val2;//1000-2000
 //      __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, pwm_val);
   }
   /* USER CODE END start_task */

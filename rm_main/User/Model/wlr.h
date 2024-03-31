@@ -1,6 +1,7 @@
 #ifndef __WHEEL_LEG_ROBOT_H
 #define __WHEEL_LEG_ROBOT_H
 
+#include "pid.h"
 #include "stdint.h"
 
 typedef struct
@@ -19,17 +20,18 @@ typedef struct
 //全身运动控制
 typedef struct
 {
+    float yaw_err;
     //目标数据
-    float v_set, wz_set, high_set, roll_set, q0_set;
-    float yaw_set;
+    float v_set, yaw_set, high_set, roll_set, q0_set;
+    float wz_set;
     //反馈数据
-    float roll_fdb, pit_fdb, wy_fdb, wz_fdb, az_fdb;
+    float yaw_fdb, roll_fdb, pit_fdb, wy_fdb, wz_fdb, az_fdb;
     //补偿
     float q0_offs, roll_offs, wz_offs;
     //限幅控制
     float max_stop_angle, max_wz_error;
     //控制标志
-    uint8_t jump_flag, jump_cnt, high_flag, stop_flag, ctrl_mode;
+    uint8_t jump_flag, jump_cnt, high_flag, stop_flag, ctrl_mode, shift_flag;
     //单侧控制参数
     struct
     {
