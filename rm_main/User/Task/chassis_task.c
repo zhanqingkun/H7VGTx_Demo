@@ -339,8 +339,10 @@ static void chassis_data_input(void)
         }
         case CHASSIS_MODE_REMOTER_ROTATE:
         case CHASSIS_MODE_KEYBOARD_ROTATE: {
+            if (last_chassis_mode != CHASSIS_MODE_REMOTER_ROTATE && last_chassis_mode != CHASSIS_MODE_KEYBOARD_ROTATE)
+                wlr.yaw_set = -chassis_imu.yaw;
             wlr.yaw_set += (float)CHASSIS_ROTATE_SPEED * 0.002f;
-            wlr.yaw_fdb =  (float)yaw_motor.ecd / 8192 * 2 * PI;
+            wlr.yaw_fdb = -chassis_imu.yaw;
             break;
         }
         case CHASSIS_MODE_KEYBOARD_UNFOLLOW: {
@@ -357,11 +359,11 @@ static void chassis_data_input(void)
         wlr.yaw_set += 2 * PI;
     else if (wlr.yaw_set > 2 * PI)
         wlr.yaw_set -= 2 * PI;
-    wlr.yaw_err = circle_error((float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI, wlr.yaw_fdb, 2 * PI);
-//    chassis.output.vx = chassis.input.vx;
-//    chassis.output.vy = chassis.input.vy;
+    //此yaw_err用于平移速度体系换算
+    wlr.yaw_err = circle_error((float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI, (float)yaw_motor.ecd / 8192 * 2 * PI, 2 * PI);
     chassis.output.vx = chassis.input.vx * arm_cos_f32(wlr.yaw_err) - chassis.input.vy * arm_sin_f32(wlr.yaw_err);
     chassis.output.vy = chassis.input.vx * arm_sin_f32(wlr.yaw_err) + chassis.input.vy * arm_cos_f32(wlr.yaw_err);
+    //此yaw_err用于旋转速度pid
     wlr.yaw_err = circle_error(wlr.yaw_set, wlr.yaw_fdb, 2 * PI);
 	wlr.v_set = chassis.output.vx;
     //陀螺仪数据输入
@@ -427,11 +429,6 @@ void chassis_task(void const *argu)
     chassis_init();
     for(;;)
     {
-        if (reset_flag == 1) {
-            __set_FAULTMASK(1);
-            NVIC_SystemReset();
-//            joint_motor_reset();
-        }
         thread_wake_time = osKernelSysTick();
 //        taskENTER_CRITICAL();
         chassis_mode_switch();

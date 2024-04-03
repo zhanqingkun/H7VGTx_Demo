@@ -97,7 +97,7 @@ static void shoot_mode_sw(void)
             }
             if (house_switch_enable && rc.ch5 <= -500) {  //切换弹舱开关状态标志位
                 house_switch_enable = 0;
-                house_mode = (house_mode_e) (!(uint8_t)house_mode);  //开关弹舱盖
+                house_mode = (house_mode_e)(!(uint8_t)house_mode);  //开关弹舱盖
             }
             break;
         }

@@ -36,14 +36,10 @@ static void sw1_mode_handler(void) { //由拨杆1决定系统模式切换，主�
 
 static void remote_reset(void)
 {
-    static uint8_t reset_press = 0;
     //保护模式下右拨杆拨至左下
-    if (rc.sw1 == RC_UP && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660 && reset_press == 0) {
-        reset_flag = 1;
-        reset_press = 1;
-    } else if (!(rc.sw1 == RC_UP && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660)) {
-        reset_press = 0;
-        reset_flag = 0;
+    if (rc.sw1 == RC_UP && rc.sw2 == RC_UP && rc.ch1 == -660 && rc.ch2 == -660) {
+        __set_FAULTMASK(1);
+        NVIC_SystemReset();
     }
 }
 

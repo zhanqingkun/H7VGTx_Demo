@@ -1,8 +1,10 @@
 #include "drv_ws2812b.h"
-//#include "spi.h"
+#include "spi.h"
+#include "dma.h"
 
 #define brightness 0x05 //亮度 0x00-0xff
 const uint8_t code[] = {0xC0, 0xF8};
+extern DMA_HandleTypeDef hdma_spi1_tx;
 
 rgb_t rgb = {0};
 
@@ -29,6 +31,5 @@ void rgb_reflash(uint8_t reflash_num)
             data_g >>= 1; data_r >>= 1; data_b >>= 1;
         }
     }
-//    while (HAL_DMA_GetState(&hdma_spi1_tx) != HAL_DMA_STATE_READY);
-//    HAL_SPI_Transmit_DMA(&hspi1, SPI_RGB_BUFFER, 24);
+    HAL_SPI_Transmit_DMA(&hspi1, rgb.rgb_buffer, 24);
 }

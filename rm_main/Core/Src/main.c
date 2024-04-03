@@ -23,6 +23,7 @@
 #include "dma.h"
 #include "fdcan.h"
 #include "rng.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -109,6 +110,7 @@ int main(void)
   MX_FDCAN1_Init();
   MX_FDCAN2_Init();
   MX_TIM3_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(100);
   us_timer_start();

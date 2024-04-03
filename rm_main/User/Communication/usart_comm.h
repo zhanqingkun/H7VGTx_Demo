@@ -6,7 +6,7 @@
 
 //串口定义
 #define	DBUS_HUART	huart1
-#define JUDGE_HUART huart3
+#define JUDGE_HUART huart2
 #define DEBUG_HUART	huart6
 
 void usart_comm_init(void);
