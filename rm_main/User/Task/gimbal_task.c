@@ -38,7 +38,7 @@ static void gimbal_pid_calc(void)
     gimbal.pit_angle.fdb = gimbal_imu.pit;
     gimbal.pit_spd.ref = pid_calc(&gimbal.pit_angle.pid, gimbal.pit_angle.ref, gimbal.pit_angle.fdb);
     gimbal.pit_spd.fdb = gimbal_imu.wy;
-    gimbal.pit_output = pid_calc(&gimbal.pit_spd.pid, gimbal.pit_spd.ref, gimbal.pit_spd.fdb);
+    gimbal.pit_output = 0.05f + pid_calc(&gimbal.pit_spd.pid, gimbal.pit_spd.ref, gimbal.pit_spd.fdb);
 
     if (gimbal.yaw_angle.ref < 0) {
         gimbal.yaw_angle.ref += 2 * PI;
@@ -49,7 +49,7 @@ static void gimbal_pid_calc(void)
     float yaw_err = circle_error(gimbal.yaw_angle.ref, gimbal.yaw_angle.fdb, 2*PI);
     gimbal.yaw_spd.ref = pid_calc(&gimbal.yaw_angle.pid, gimbal.yaw_angle.fdb + yaw_err, gimbal.yaw_angle.fdb);
     gimbal.yaw_spd.fdb = gimbal_imu.wz;
-    gimbal.yaw_output = -0.07f + pid_calc(&gimbal.yaw_spd.pid, gimbal.yaw_spd.ref, gimbal.yaw_spd.fdb);
+    gimbal.yaw_output = pid_calc(&gimbal.yaw_spd.pid, gimbal.yaw_spd.ref, gimbal.yaw_spd.fdb);
     //位置环反馈 电机编码器
     //速度环反馈 陀螺仪
 }

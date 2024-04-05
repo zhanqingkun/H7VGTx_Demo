@@ -24,7 +24,7 @@
 
 //弹舱盖
 #define COVER_PWM_OPEN   600
-#define COVER_PWM_CLOSE  2450
+#define COVER_PWM_CLOSE  2400
 #define Magazine_PWM     TIM3->CCR2
 #define Magazine_Time_CH (&htim3),TIM_CHANNEL_2
 

@@ -59,6 +59,7 @@ static void shoot_mode_sw(void)
             house_mode= HOUSE_MODE_PROTECT;
             break;
         }
+        
         case REMOTER_MODE: {
             /* 摩擦轮和拨盘模式切换 */
             switch (rc.sw2) {
@@ -75,8 +76,8 @@ static void shoot_mode_sw(void)
                     break;
                 }
                 case RC_DN: {
-                    fric.mode = FIRC_MODE_STOP;
-                    shoot.trigger_mode = TRIGGER_MODE_STOP;
+                    fric.mode = FIRC_MODE_RUN;
+                    shoot.trigger_mode = TRIGGER_MODE_SERIES;
 //                    if (fric.init_flag) {
 //                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
 //                    }

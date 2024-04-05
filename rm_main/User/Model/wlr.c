@@ -1,4 +1,5 @@
 #include "wlr.h"
+#include "chassis_task.h"
 #include "leg_vmc.h"
 #include "wheel_leg_model.h"
 #include "drv_dji_motor.h"
@@ -27,7 +28,7 @@ const float LegLengthNormal = 0.15f;//正常
 
 //float x3_balance_zero = 0.03, x5_balance_zero = -0.035f;//腿摆角角度偏置 机体俯仰角度偏置
 float x3_balance_zero = 0.08f, x5_balance_zero = -0.02f;//腿摆角角度偏置 机体俯仰角度偏置
-
+float x3_fight_zero = 0.06f;
 //								位移  速度	角度	角速度  角度	角速度
 float K_Array_Wheel[2][6] =		{{60, 30, 80, 8, 300, 10}, 
                                 { -0, -0.7, -8, -1, 3, 2}};
@@ -159,7 +160,10 @@ void wlr_control(void)
 		lqr[i].X_fdb[0] += (lqr[i].X_fdb[1] + lqr[i].last_x2) / 2 * CHASSIS_PERIOD_DU * 0.001f;//使用梯形积分速度求位移
 		lqr[i].X_fdb[4] = x5_balance_zero + wlr.pit_fdb;
 		lqr[i].X_fdb[5] = wlr.wy_fdb;
-		lqr[i].X_fdb[2] = x3_balance_zero + (PI / 2 - lqr[i].X_fdb[4] - vmc[i].q_fdb[0]);
+        if (chassis.mode == CHASSIS_MODE_KEYBOARD_FIGHT)
+            lqr[i].X_fdb[2] = x3_fight_zero + (PI / 2 - lqr[i].X_fdb[4] - vmc[i].q_fdb[0]);
+        else
+            lqr[i].X_fdb[2] = x3_balance_zero + (PI / 2 - lqr[i].X_fdb[4] - vmc[i].q_fdb[0]);
 		lqr[i].X_fdb[3] = lqr[i].X_fdb[5] - vmc[i].V_fdb.e.w0_fdb;
 		lqr[i].dot_x4 = (lqr[i].X_fdb[3] - lqr[i].last_x4) / (CHASSIS_PERIOD_DU * 0.001f); //腿倾角加速度(状态变量x4的dot)计算
 		lqr[i].last_x4 = lqr[i].X_fdb[3];
