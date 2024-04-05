@@ -2,6 +2,7 @@
 #define __PROT_VISION_H
 
 #include "stdint.h"
+#include "math.h"
 
 #define VISION_DATA_LEN 23
 
@@ -16,16 +17,25 @@
 
 typedef enum
 {
-    AIMING = 0,
-    UNAIMING = 1,
-    TAIL_ERROR = 2,
-    REPEAT_ERROR = 3
+    NORMAL = 0,
+    TAIL_ERROR = 1,
+    REPEAT_ERROR = 2
 } vision_rx_status_e;
+
+typedef enum
+{
+    UNAIMING = 0,
+    AIMING = 1,
+    FIRST_LOST = 2
+} vision_aim_status_e;
 
 typedef struct
 {
-    uint32_t repeat_cnt;
-    vision_rx_status_e status;
+    uint32_t rx_repeat_cnt;
+    vision_rx_status_e rx_status;
+    vision_aim_status_e aim_status;
+    uint32_t new_frame_flag;
+    float target_yaw_angle, target_pit_angle;
     union
     {
         uint8_t buff[VISION_DATA_LEN];
@@ -45,7 +55,7 @@ typedef struct
     } rx[2];
     union
     {
-        uint8_t buff[21];
+        uint8_t buff[23];
         __packed struct
         {
             uint8_t sof;
@@ -60,10 +70,14 @@ typedef struct
             uint8_t empty;
             uint8_t eof1;
             uint8_t eof2;
+            uint16_t empty1;
         } data;
     } tx;
 } vision_t;
 
 extern vision_t vision;
+
+void vision_get_data(uint8_t *data);
+void vision_output_data(void);
 
 #endif

@@ -19,6 +19,9 @@ static void sw1_mode_handler(void) { //由拨杆1决定系统模式切换，主�
             ctrl_mode = PROTECT_MODE;break;
         }
         case RC_MI: {
+            if (rc.sw2 == RC_DN) {
+                ctrl_mode = VISION_MODE;
+            } else
             ctrl_mode = REMOTER_MODE;break;
         }
         case RC_DN: {

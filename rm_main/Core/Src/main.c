@@ -92,7 +92,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-	USB_Reset();//USB复位，让电脑重新识别
+//	USB_Reset();//USB复位，让电脑重新识别
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

@@ -157,16 +157,16 @@ static void chassis_mode_switch(void)
 //            kb_status[KEY_CHASSIS_UNFOLLOW] = 1; //视觉能量机关时，切入不跟随状态！！！！！！！！！！！！！！！
 //            chassis.mode = CHASSIS_MODE_KEYBOARD_UNFOLLOW; //进入底盘保护模式（击打能量机关）
 //        } else 
-        if (kb_status[KEY_CHASSIS_ROTATE]) { //进入小陀螺模式
-            chassis.mode = CHASSIS_MODE_KEYBOARD_ROTATE;
-        } else if (kb_status[KEY_CHASSIS_FIGHT]) { //进入迎敌模式
-            chassis.mode = CHASSIS_MODE_KEYBOARD_FIGHT;
-        } else if (kb_status[KEY_CHASSIS_UNFOLLOW]) {
-            chassis.mode = CHASSIS_MODE_KEYBOARD_UNFOLLOW;
-        } else { //正常模式
-            chassis.mode = CHASSIS_MODE_KEYBOARD_FOLLOW;
-        }
-        break;
+//        if (kb_status[KEY_CHASSIS_ROTATE]) { //进入小陀螺模式
+//            chassis.mode = CHASSIS_MODE_KEYBOARD_ROTATE;
+//        } else if (kb_status[KEY_CHASSIS_FIGHT]) { //进入迎敌模式
+//            chassis.mode = CHASSIS_MODE_KEYBOARD_FIGHT;
+//        } else if (kb_status[KEY_CHASSIS_UNFOLLOW]) {
+//            chassis.mode = CHASSIS_MODE_KEYBOARD_UNFOLLOW;
+//        } else { //正常模式
+//            chassis.mode = CHASSIS_MODE_KEYBOARD_FOLLOW;
+//        }
+//        break;
     }
     case KEYBOARD_MODE: { //键盘模式下：(跟随，陀螺，迎敌三种模式相互切换),(跟随与补给模式相互切换)
         /* 底盘模式切换 */
@@ -203,7 +203,7 @@ static void chassis_mode_switch(void)
         }
         case CHASSIS_MODE_KEYBOARD_UNFOLLOW: { //键盘不跟随模式下
             if (!kb_status[KEY_CHASSIS_UNFOLLOW]) { //恢复跟随模式
-                chassis.mode = CHASSIS_MODE_KEYBOARD_FIGHT;
+                chassis.mode = CHASSIS_MODE_KEYBOARD_FOLLOW;
                 kb_status[KEY_CHASSIS_FIGHT]=1;
             } else if (kb_status[KEY_CHASSIS_ROTATE]) { //进入小陀螺模式
                 chassis.mode = CHASSIS_MODE_KEYBOARD_ROTATE;
@@ -281,13 +281,21 @@ static void chassis_data_input(void)
         case CHASSIS_MODE_KEYBOARD_UNFOLLOW:
         case CHASSIS_MODE_KEYBOARD_PRONE: {
             //高速模式
-            if (kb_status[KEY_CHASSIS_POWER] == KEY_RUN) {
-                chassis_scale.keyboard = 3.0f;  //待修改 高速模式下
-                wlr.shift_flag = 1;
+//            if (kb_status[KEY_CHASSIS_POWER] == KEY_RUN) {
+//                chassis_scale.keyboard = 3.0f;  //待修改 高速模式下
+//                wlr.shift_flag = 1;
+//            } else {
+//                chassis_scale.keyboard = 2.0f;  //待修改 普通模式下
+//                wlr.shift_flag = 0;
+//            }
+            if (chassis.mode == CHASSIS_MODE_KEYBOARD_FIGHT) {
+                chassis_scale.keyboard = 1.0f;  //待修改 迎敌模式下
+//                wlr.shift_flag = 1;
             } else {
                 chassis_scale.keyboard = 2.0f;  //待修改 普通模式下
-                wlr.shift_flag = 0;
+//                wlr.shift_flag = 0;
             }
+           
             //速度输入
             chassis_ramp();
             chassis.input.vx = chassis_x_ramp.out;
