@@ -217,7 +217,7 @@ void wlr_control(void)
             wlr.high_set = LegLengthNormal;
     }
     //旋转压腿长 腿摆压腿长
-    wlr.high_set = data_fusion(wlr.high_set, 0.80f * wlr.high_set, fabs(wlr.wz_set/6.0f));
+    wlr.high_set = data_fusion(wlr.high_set, 0.75f * wlr.high_set, fabs(wlr.wz_set/6.0f));
 	//更新两腿模型
 	tlm_gnd_roll_calc(&tlm, -wlr.roll_fdb, vmc[0].L_fdb, vmc[1].L_fdb);//计算地形倾角
 	if (wlr.jump_flag != 0 || (wlr.side[0].fly_flag && wlr.side[1].fly_flag))

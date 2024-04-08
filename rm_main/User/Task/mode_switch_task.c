@@ -2,7 +2,8 @@
 #include "prot_dr16.h"
 #include "cmsis_os.h"
 
-uint8_t lock_flag, reset_flag;
+uint8_t lock_flag = 0;
+uint8_t reset_flag = 0;
 ctrl_mode_e ctrl_mode;
 
 static void unlock_init(void) {
@@ -19,13 +20,13 @@ static void sw1_mode_handler(void) { //由拨杆1决定系统模式切换，主�
             ctrl_mode = PROTECT_MODE;break;
         }
         case RC_MI: {
-            if (rc.sw2 == RC_DN) {
-                ctrl_mode = VISION_MODE;
-            } else
+//            if (rc.sw2 == RC_DN) {
+//                ctrl_mode = VISION_MODE;
+//            } else
             ctrl_mode = REMOTER_MODE;break;
         }
         case RC_DN: {
-            ctrl_mode = KEYBOARD_MODE;   
+            ctrl_mode = KEYBOARD_MODE;
             if (rc.mouse.r == 1) {
                 ctrl_mode = VISION_MODE;    //视觉模式，右键开启
             } else {
@@ -48,8 +49,8 @@ static void remote_reset(void)
 
 void mode_switch_task(void const *argu)
 {
-    ctrl_mode   = PROTECT_MODE;
-    lock_flag = 0;
+    ctrl_mode = PROTECT_MODE;
+    lock_flag = 1;
     for (;;) {
         if (!lock_flag) {
             unlock_init();  //解锁操作

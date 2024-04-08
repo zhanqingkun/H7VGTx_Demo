@@ -409,19 +409,19 @@ static void chassis_data_output(void)
             ht_motor_set_control_para(&joint_motor[i], 0, 0, 0, 0, 0);
         }
     } else if (wlr.ctrl_mode == 2) {//力控
-//        dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
-//        dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
-//        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0.03, wlr.side[0].T4);
-//        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0.03, wlr.side[0].T1);
-//        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0.03, -wlr.side[1].T1);
-//        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0.03, -wlr.side[1].T4);
-//    } else if (wlr.ctrl_mode == 1) {//位控
-//        dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
-//        dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
-//        ht_motor_set_control_para(&joint_motor[0],  wlr.side[0].P4 + joint_motor[0].zero_point,      0, 10, 2, 0);
-//        ht_motor_set_control_para(&joint_motor[1],  wlr.side[0].P1 - joint_motor[1].zero_point - PI, 0, 10, 2, 0);
-//        ht_motor_set_control_para(&joint_motor[2], -wlr.side[1].P1 + joint_motor[2].zero_point + PI, 0, 10, 2, 0);
-//        ht_motor_set_control_para(&joint_motor[3], -wlr.side[1].P4 - joint_motor[3].zero_point,      0, 10, 2, 0);
+        dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
+        dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
+        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0.03, wlr.side[0].T4);
+        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0.03, wlr.side[0].T1);
+        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0.03, -wlr.side[1].T1);
+        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0.03, -wlr.side[1].T4);
+    } else if (wlr.ctrl_mode == 1) {//位控
+        dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
+        dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
+        ht_motor_set_control_para(&joint_motor[0],  wlr.side[0].P4 + joint_motor[0].zero_point,      0, 10, 2, 0);
+        ht_motor_set_control_para(&joint_motor[1],  wlr.side[0].P1 - joint_motor[1].zero_point - PI, 0, 10, 2, 0);
+        ht_motor_set_control_para(&joint_motor[2], -wlr.side[1].P1 + joint_motor[2].zero_point + PI, 0, 10, 2, 0);
+        ht_motor_set_control_para(&joint_motor[3], -wlr.side[1].P4 - joint_motor[3].zero_point,      0, 10, 2, 0);
     } else {//错误时
         wlr_protest();
         dji_motor_set_torque(&driver_motor[0], 0);
