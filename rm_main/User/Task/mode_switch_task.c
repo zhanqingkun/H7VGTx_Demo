@@ -50,7 +50,7 @@ static void remote_reset(void)
 void mode_switch_task(void const *argu)
 {
     ctrl_mode = PROTECT_MODE;
-    lock_flag = 1;
+    lock_flag = 0;
     for (;;) {
         if (!lock_flag) {
             unlock_init();  //解锁操作

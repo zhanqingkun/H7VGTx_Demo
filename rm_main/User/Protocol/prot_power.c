@@ -1,4 +1,5 @@
 #include "prot_power.h"
+#include "mode_switch_task.h"
 #include "can_comm.h"
 #include "prot_judge.h"
 #include "string.h"
@@ -25,6 +26,56 @@ void power_judge_update(void)
     power_control.judge_power_buffer  = power_heat_data.buffer_energy;
 }
 
+void supercap_mode_update(void)
+{
+    if (!lock_flag) {
+        supercap.mode = CAP_PROTECT_MODE;
+    } else if (ctrl_mode == PROTECT_MODE) {
+//        if (supercap.volage > supercap.max_volage) {
+//            supercap.mode = CAP_PROTECT_MODE;
+//        } else {
+//            supercap.mode = CAP_CHARGE_MODE;
+//        }
+    } else {
+//        if (supercap.volage >= supercap.min_volage) {
+//            supercap.mode = CAP_DISCHARGE_MODE;
+//        } else if (power_control.judge_power_buffer <= power_control.min_buffer) {
+//            supercap.mode = CAP_PROTECT_MODE;
+//        } else {
+//            supercap.mode = CAP_CHARGE_MODE;
+//        }
+    }
+}
+
+void supercap_control(void)
+{
+    if (supercap.mode == CAP_PROTECT_MODE) {
+        supercap.charge_power_ref = 0;
+        supercap.charge_current_ref = 0;
+    } else if (supercap.mode == CAP_CHARGE_MODE) {
+        supercap.charge_power_fdb = power_control.source_power - power_control.chassis_power - 12.0f;
+        if (supercap.charge_power_fdb < 0)
+            supercap.charge_power_fdb = 0;
+        supercap.charge_power_ref = power_control.judge_max_power - power_control.chassis_power - 17.0f;
+        if (supercap.charge_power_ref < 0)
+            supercap.charge_power_ref = 0;
+        supercap.charge_current_ref = supercap.charge_power_ref / supercap.volage;
+        if (supercap.charge_current_ref <= 0)
+            supercap.charge_current_ref = 0;
+        else if (supercap.charge_current_ref >= 10)
+            supercap.charge_current_ref = 10;
+    } else if (supercap.mode == CAP_DISCHARGE_MODE) {
+        supercap.charge_power_ref = power_control.judge_max_power - 12.0f;
+        if (supercap.charge_power_ref < 0)
+            supercap.charge_power_ref = 0;
+        supercap.charge_current_ref = supercap.charge_power_ref / supercap.volage;
+        if (supercap.charge_current_ref <= 0)
+            supercap.charge_current_ref = 0;
+        else if (supercap.charge_current_ref >= 10)
+            supercap.charge_current_ref = 10;
+    }
+}
+
 void power_output_data(void)
 {
     uint8_t send_buff[8] = {0};
@@ -38,7 +89,7 @@ void power_get_data(uint8_t *data)
     uint16_t supercap_voltage = 0;
     uint16_t source_power = 0;
     uint16_t chassis_power = 0;
-    
+
     memcpy(&supercap_voltage, data, 2);
     memcpy(&source_power, data + 2, 2);
     memcpy(&chassis_power, data + 4, 2);

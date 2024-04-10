@@ -15,7 +15,7 @@ void comm_task(void const* argument)
         dji_motor_output_data();
         ht_motor_output_data();
         vision_output_data();
-//        power_output_data();
+        power_output_data();
         osDelayUntil(&thread_wake_time, 2);
     }
 }

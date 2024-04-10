@@ -7,6 +7,7 @@
 #include "drv_ht_motor.h"
 #include "prot_imu.h"
 #include "prot_dr16.h"
+#include "prot_power.h"
 #include "pid.h"
 #include "math_lib.h"
 #include "arm_math.h"
@@ -436,11 +437,14 @@ void chassis_task(void const *argu)
 {
     uint32_t thread_wake_time = osKernelSysTick();
     chassis_init();
+    power_init();
     for(;;)
     {
         thread_wake_time = osKernelSysTick();
 //        taskENTER_CRITICAL();
         chassis_mode_switch();
+        supercap_mode_update();
+        supercap_control();
         chassis_data_input();
         wlr_control();
         chassis_data_output();

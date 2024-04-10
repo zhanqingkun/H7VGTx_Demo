@@ -104,7 +104,6 @@ static void k_array_fit2(float K[2][6], float high_fdb, float q0_fdb)
 void wlr_init(void)
 {
 	wlr.max_stop_angle = 10;
-	wlr.max_wz_error = 1.0f;
 	wlr.high_set = LegLengthNormal;
 	wlr.roll_set = 0;
 	wlr.q0_set = PI / 2;

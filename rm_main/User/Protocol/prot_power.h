@@ -36,6 +36,10 @@ typedef struct
 extern supercap_t supercap;
 extern power_control_t power_control;
 
+void power_init(void);
+void power_judge_update(void);
+void supercap_mode_update(void);
+void supercap_control(void);
 void power_output_data(void);
 void power_get_data(uint8_t *data);
 
