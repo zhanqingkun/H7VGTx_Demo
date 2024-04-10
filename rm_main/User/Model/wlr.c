@@ -22,7 +22,7 @@ const float LegLengthJump1 = 0.15f;//压腿
 const float LegLengthJump2 = 0.35f;//蹬腿
 const float LegLengthJump3 = 0.24f;//收腿
 const float LegLengthJump4 = 0.22f;//落地
-const float LegLengthFly = 0.20f;//腾空
+const float LegLengthFly = 0.25f;//腾空
 const float LegLengthHigh = 0.20f;//长腿
 const float LegLengthNormal = 0.15f;//正常
 
@@ -59,6 +59,7 @@ wlr_t wlr;
 lqr_t lqr[2];
 
 kalman_filter_t kal_fn[2];
+kalman_filter_t kal_L0ddot[2], kal_x4dot[2];
 
 pid_t pid_leg_length[2];
 pid_t pid_leg_length_fast[2];
@@ -120,6 +121,16 @@ void wlr_init(void)
         kal_fn[i].H_data[0] = 1;
         kal_fn[i].Q_data[0] = 1;
         kal_fn[i].R_data[0] = 100;
+        kalman_filter_init(&kal_L0ddot[i], 1, 0, 1);
+        kal_L0ddot[i].A_data[0] = 1;
+        kal_L0ddot[i].H_data[0] = 1;
+        kal_L0ddot[i].Q_data[0] = 1;
+        kal_L0ddot[i].R_data[0] = 100;
+        kalman_filter_init(&kal_x4dot[i], 1, 0, 1);
+        kal_x4dot[i].A_data[0] = 1;
+        kal_x4dot[i].H_data[0] = 1;
+        kal_x4dot[i].Q_data[0] = 1;
+        kal_x4dot[i].R_data[0] = 100;
 		//PID参数初始化
 		pid_init(&pid_leg_length[i], 500, 0.0f, 20000, 10, 20);//i 2.5f
 		pid_init(&pid_leg_length_fast[i], 1000, 0, 10000, 30, 50);
@@ -171,6 +182,13 @@ void wlr_control(void)
         if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f || ABS(vmc[0].q_fdb[0] - vmc[1].q_fdb[0]) > 0.01f)//有输入速度 或 两腿有差角时 将位移反馈置0  不发挥作用
 			lqr[i].X_fdb[0] = 0;
 		//支持力解算
+//        kal_L0ddot[i].measured_vector[0] = vmc[i].Acc_fdb.L0_ddot;
+//        kalman_filter_update(&kal_L0ddot[i]);
+//        vmc[i].Acc_fdb.L0_ddot = kal_L0ddot[i].filter_vector[0];
+//        kal_x4dot[i].measured_vector[0] = lqr[i].dot_x4;
+//        kalman_filter_update(&kal_x4dot[i]);
+//        lqr[i].dot_x4 = kal_x4dot[i].filter_vector[0];
+        
 		float L0_array[3] = {vmc[i].L_fdb, vmc[i].V_fdb.e.vy0_fdb, vmc[i].Acc_fdb.L0_ddot};
 		float theta_array[3] = {lqr[i].X_fdb[2], lqr[i].X_fdb[3], lqr[i].dot_x4};
 		wlr.side[i].Fn_fdb = wlr_fn_calc(wlr.az_fdb, vmc[i].F_fdb.e.Fy_fdb, vmc[i].F_fdb.e.T0_fdb, L0_array, theta_array);
@@ -178,7 +196,7 @@ void wlr_control(void)
         kalman_filter_update(&kal_fn[i]);
         wlr.side[i].Fn_kal = kal_fn[i].filter_vector[0];
 		//离地检测
-		if(wlr.side[i].Fn_kal < 17.0f)
+		if(wlr.side[i].Fn_kal < 33.0f)
 			wlr.side[i].fly_cnt++;
 		else if(wlr.side[i].fly_cnt != 0)
 			wlr.side[i].fly_cnt--;
@@ -187,6 +205,17 @@ void wlr_control(void)
             wlr.side[i].fly_flag = 1;
         } else if(wlr.side[i].fly_cnt == 0)
             wlr.side[i].fly_flag = 0;
+        
+//        if(wlr.side[i].Fn_kal < 33.0f)
+//			wlr.side[i].fly_cnt++;
+//        else if(wlr.side[i].Fn_kal > 10.0f && wlr.side[i].fly_cnt != 0)
+//            wlr.side[i].fly_cnt--;
+
+//        if(wlr.side[i].fly_cnt > 30) {
+//            wlr.side[i].fly_flag = 1;
+//            wlr.side[i].fly_cnt = 30;
+//        } else if(wlr.side[i].fly_cnt == 0)
+//            wlr.side[i].fly_flag = 0;
 	}
 	//高度选择 跳跃状态改变
 	if (wlr.jump_flag == 1) {//跳跃起跳状态 先压腿
@@ -226,11 +255,11 @@ void wlr_control(void)
 		tlm_leg_length_cacl(&tlm, wlr.high_set, 0);//计算腿长设定值
 	//------------------------状态选择------------------------//
 	//根据当前状态选择合适的控制矩阵
-	if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {//腾空
-		aMartix_Cover(lqr[0].K, (float*)K_Array_Fly, 2, 6);
-		aMartix_Cover(lqr[1].K, (float*)K_Array_Fly, 2, 6);
-	} else if (wlr.side[0].fly_flag == 0 && wlr.side[1].fly_flag == 0) {//在地面
-        if (wlr.ctrl_mode == 2) {//力控
+    if (wlr.ctrl_mode == 2) {//力控
+        if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {//腾空
+            aMartix_Cover(lqr[0].K, (float*)K_Array_Fly, 2, 6);
+            aMartix_Cover(lqr[1].K, (float*)K_Array_Fly, 2, 6);
+        } else {
 //            k_array_fit1(K_Array_test, vmc[0].L_fdb);
 //            aMartix_Cover(lqr[0].K, (float*)K_Array_test, 2, 6);
 //            k_array_fit1(K_Array_test, vmc[1].L_fdb);
@@ -239,11 +268,12 @@ void wlr_control(void)
             aMartix_Cover(lqr[0].K, (float*)K_Array_test, 2, 6);
             k_array_fit2(K_Array_test, vmc[1].L_fdb, vmc[1].q_fdb[0]/PI*180);
             aMartix_Cover(lqr[1].K, (float*)K_Array_test, 2, 6);
-		} else if (wlr.ctrl_mode == 1) {//位控
-			aMartix_Cover(lqr[0].K, (float*)K_Array_Wheel, 2, 6);
-			aMartix_Cover(lqr[1].K, (float*)K_Array_Wheel, 2, 6);
-		}
-	}
+        }
+    } else if (wlr.ctrl_mode == 1) {//位控
+        aMartix_Cover(lqr[0].K, (float*)K_Array_Wheel, 2, 6);
+        aMartix_Cover(lqr[1].K, (float*)K_Array_Wheel, 2, 6);
+    }
+
 	//------------------------控制数据更新------------------------//
 	//全身运动控制
 	wlr.q0_offs   = pid_calc(&pid_q0, vmc[0].q_fdb[0], vmc[1].q_fdb[0]);//双腿摆角同步控制
@@ -272,7 +302,7 @@ void wlr_control(void)
 		else if (wlr.jump_flag == 3)                                        //跳跃收腿阶段 响应要大
 			wlr.side[i].Fy = pid_calc(&pid_leg_length_fast[i], tlm.l_ref[i], vmc[i].L_fdb);
 		else if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {            //浮空收腿 响应不用那么大
-			wlr.side[i].Fy = pid_calc(&pid_leg_length_fast[i], tlm.l_ref[i], vmc[i].L_fdb) - ml * GRAVITY;
+			wlr.side[i].Fy = pid_calc(&pid_leg_length_fast[i], tlm.l_ref[i], vmc[i].L_fdb);
 			wlr.wz_offs = 0;
 		} else																//常态 跳跃压腿阶段 跳跃落地阶段
 			wlr.side[i].Fy = pid_calc(&pid_leg_length[i], tlm.l_ref[i], vmc[i].L_fdb)\

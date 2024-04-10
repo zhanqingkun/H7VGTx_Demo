@@ -2,6 +2,7 @@
 #include "drv_dji_motor.h"
 #include "drv_ht_motor.h"
 #include "prot_imu.h"
+#include "prot_power.h"
 #include "fdcan.h"
 
 FDCAN_TxHeaderTypeDef tx_message;
@@ -51,13 +52,13 @@ void can_comm_init(void)
     can_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;//通过过滤后给邮箱1
     HAL_FDCAN_ConfigFilter(&hfdcan2, &can_filter);
     //功率控制
-//    can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-//    can_filter.FilterIndex = 3;
-//    can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
-//    can_filter.FilterID1 = 0x201;
-//    can_filter.FilterID2 = 0x201;
-//    can_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;//通过过滤后给邮箱1
-//    HAL_FDCAN_ConfigFilter(&hfdcan2, &can_filter);
+    can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
+    can_filter.FilterIndex = 3;
+    can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
+    can_filter.FilterID1 = 0x020;
+    can_filter.FilterID2 = 0x020;
+    can_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;//通过过滤后给邮箱0
+    HAL_FDCAN_ConfigFilter(&hfdcan2, &can_filter);
     HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, FDCAN_REJECT, FDCAN_REJECT, FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE);
     HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);//使能邮箱0新消息中断
     HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0);//使能邮箱1新消息中断
@@ -66,7 +67,7 @@ void can_comm_init(void)
     //can3过滤器设置
     //云台陀螺仪
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-    can_filter.FilterIndex = 3;
+    can_filter.FilterIndex = 4;
     can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
     can_filter.FilterID1 = 0x013;
     can_filter.FilterID2 = 0x014;
@@ -74,7 +75,7 @@ void can_comm_init(void)
     HAL_FDCAN_ConfigFilter(&hfdcan3, &can_filter);
     //pitch电机 拨盘电机
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-    can_filter.FilterIndex = 4;
+    can_filter.FilterIndex = 5;
     can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
     can_filter.FilterID1 = 0x206;
     can_filter.FilterID2 = 0x207;
@@ -120,7 +121,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         if (hfdcan->Instance == FDCAN1) {
             imu_get_data(&chassis_imu, rx_fifo0_message.Identifier, rx_fifo0_data);
         } else if (hfdcan->Instance == FDCAN2) {
-            
+            power_get_data(rx_fifo0_data);
         } else if (hfdcan->Instance == FDCAN3) {
             imu_get_data(&gimbal_imu, rx_fifo0_message.Identifier, rx_fifo0_data);
         }
