@@ -45,7 +45,7 @@ void can_comm_init(void)
     //can2过滤器设置
     //底盘2个驱动电机 yaw电机
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-    can_filter.FilterIndex = 2;
+    can_filter.FilterIndex = 0;
     can_filter.FilterType = FDCAN_FILTER_RANGE;//范围过滤
     can_filter.FilterID1 = 0x203;
     can_filter.FilterID2 = 0x205;
@@ -53,7 +53,7 @@ void can_comm_init(void)
     HAL_FDCAN_ConfigFilter(&hfdcan2, &can_filter);
     //功率控制
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-    can_filter.FilterIndex = 3;
+    can_filter.FilterIndex = 1;
     can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
     can_filter.FilterID1 = 0x020;
     can_filter.FilterID2 = 0x020;
@@ -67,7 +67,7 @@ void can_comm_init(void)
     //can3过滤器设置
     //云台陀螺仪
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-    can_filter.FilterIndex = 4;
+    can_filter.FilterIndex = 0;
     can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
     can_filter.FilterID1 = 0x013;
     can_filter.FilterID2 = 0x014;
@@ -75,7 +75,7 @@ void can_comm_init(void)
     HAL_FDCAN_ConfigFilter(&hfdcan3, &can_filter);
     //pitch电机 拨盘电机
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
-    can_filter.FilterIndex = 5;
+    can_filter.FilterIndex = 1;
     can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
     can_filter.FilterID1 = 0x206;
     can_filter.FilterID2 = 0x207;

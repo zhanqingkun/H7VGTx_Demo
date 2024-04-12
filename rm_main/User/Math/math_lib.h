@@ -14,7 +14,7 @@
 
 typedef struct
 {
-    float input;
+    float target;
     float out;
     float min, max;
     float frame_period;

@@ -35,6 +35,10 @@ void abs_limit(float *data, float abs_max, float offset)
  */
 float data_fusion(float data1, float data2, float weight)
 {
+    if (weight > 1)
+        weight = 1;
+    else if (weight < 0)
+        weight = 0;
     return data1 * (1.0f - weight) + data2 * weight;
 }
 
@@ -126,7 +130,6 @@ float ramp_input(float ref, float fdb, float slope)
 void ramp_init(ramp_t *ramp, float frame_period, float min, float max)
 {
     ramp->frame_period = frame_period;
-    ramp->input = 0;
     ramp->min = min;
     ramp->max = max;
     ramp->out = 0;
@@ -135,13 +138,17 @@ void ramp_init(ramp_t *ramp, float frame_period, float min, float max)
 /*
  * @brief     斜波函数计算
  * @param[in] ramp : 斜波结构体
- * @param[in] input: 时间间隔
+ * @param[in] input: 输入值
  * @retval    返回一个斜坡过的输出
  */
-float ramp_calc(ramp_t *ramp, float input)
+float ramp_calc(ramp_t *ramp, float target)
 {
-    ramp->input = input;
-    ramp->out += ramp->frame_period * ramp->input;
+    ramp->target = target;
+    if (ramp->out < ramp->target) {
+        ramp->out += ramp->frame_period;
+    } else if (ramp->out > ramp->target) {
+        ramp->out -= ramp->frame_period;
+    }
     data_limit(&(ramp->out), ramp->min, ramp->max); 
     return ramp->out;
 }

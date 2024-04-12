@@ -13,7 +13,7 @@ typedef enum
 typedef struct
 {
     cap_mode_t mode;                        //电容模式
-    float volage, min_volage, max_volage;   //电容当前电压 最小电压 最大电压
+    float volage, min_volage, max_volage, limit_volage;   //电容当前电压 最小电压 最大电压 限制电流时电压
     uint8_t volume_percent;                 //电容电压百分比
     float charge_power_fdb;
     float charge_power_ref;

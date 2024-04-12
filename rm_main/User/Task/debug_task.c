@@ -7,8 +7,10 @@
 #include "shoot_task.h"
 #include "wlr.h"
 #include "leg_vmc.h"
+#include "wheel_leg_model.h"
 #include "drv_dji_motor.h"
 #include "prot_judge.h"
+#include "prot_power.h"
 #include "kalman_filter.h"
 #include "func_generator.h"
 #include "prot_dr16.h"
@@ -57,6 +59,7 @@ void log_scope_data_pkg(void)
         } case 4: {//底盘功率调试
             log_scope_get_data(power_heat_data.chassis_power);
             log_scope_get_data(power_heat_data.buffer_energy);
+            log_scope_get_data(supercap.volage);
             break;
         } case 5: {//支撑力调试
             log_scope_get_data(wlr.side[0].Fn_fdb);
@@ -66,17 +69,21 @@ void log_scope_data_pkg(void)
             log_scope_get_data(wlr.side[1].Fn_kal);
             log_scope_get_data(wlr.side[1].fly_cnt);
             break;
-        } case 6: {
-            log_scope_get_data(wlr.az_fdb);
-            log_scope_get_data(vmc[0].F_fdb.e.Fy_fdb);
-            log_scope_get_data(vmc[0].F_fdb.e.T0_fdb);
+        } case 6: {//向心力调试
+//            log_scope_get_data(twm.v0_ref);
+            log_scope_get_data(twm.v0_fdb);
+//            log_scope_get_data(twm.w0_ref);
+            log_scope_get_data(twm.w0_imu_fdb);
+//            log_scope_get_data(twm.a_ref);
+            log_scope_get_data(twm.a_fdb);
+//            log_scope_get_data(twm.r_ref);
+            log_scope_get_data(twm.r_fdb);
+            log_scope_get_data(twm.gravity_compensate_angle);
+        } case 7: {
             log_scope_get_data(vmc[0].L_fdb);
-            log_scope_get_data(vmc[0].V_fdb.e.vy0_fdb);
-            log_scope_get_data(vmc[0].Acc_fdb.L0_ddot);
-            log_scope_get_data(lqr[0].X_fdb[2]);
-            log_scope_get_data(lqr[0].X_fdb[3]);
-            log_scope_get_data(lqr[0].dot_x4);
-        } default:break;
+            log_scope_get_data(vmc[1].L_fdb);
+            log_scope_get_data(wlr.high_set);
+        }default:break;
     }
 }
 

@@ -28,10 +28,8 @@ typedef struct
     float yaw_fdb, roll_fdb, pit_fdb, wy_fdb, wz_fdb, az_fdb;
     //补偿
     float q0_offs, roll_offs, wz_offs;
-    //限幅控制
-    float max_stop_angle, max_wz_error;
     //控制标志
-    uint8_t jump_flag, jump_cnt, high_flag, stop_flag, ctrl_mode, shift_flag;
+    uint8_t jump_flag, jump_cnt, high_flag, prone_flag, ctrl_mode;
     //单侧控制参数
     struct
     {

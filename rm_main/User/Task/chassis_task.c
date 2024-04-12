@@ -23,31 +23,24 @@ ramp_t chassis_y_ramp;
 chassis_t chassis;
 chassis_scale_t chassis_scale = {
     .remote = 1.0f/660*2,
-    .keyboard = 2
+    .keyboard = 3
 };
 
-static void chassis_ramp(void) {
+static void chassis_ramp(void)
+{
     if (rc.kb.bit.W) {
-        ramp_calc(&chassis_x_ramp, 1.0f);
+        ramp_calc(&chassis_x_ramp, chassis_scale.keyboard);
     } else if (rc.kb.bit.S) {
-        ramp_calc(&chassis_x_ramp, -1.0f);
+        ramp_calc(&chassis_x_ramp, -chassis_scale.keyboard);
     } else {
-        if (chassis_x_ramp.out > 0) {
-            ramp_calc(&chassis_x_ramp, -1.0f);
-        } else if (chassis_x_ramp.out < 0) {
-            ramp_calc(&chassis_x_ramp, 1.0f);
-        }
+        ramp_calc(&chassis_x_ramp, 0);
     }
     if (rc.kb.bit.D) {
-        ramp_calc(&chassis_y_ramp, 1.0f);
+        ramp_calc(&chassis_y_ramp, chassis_scale.keyboard);
     } else if (rc.kb.bit.A) {
-        ramp_calc(&chassis_y_ramp, -1.0f);
+        ramp_calc(&chassis_y_ramp, -chassis_scale.keyboard);
     } else {
-        if (chassis_y_ramp.out > 0) {
-            ramp_calc(&chassis_y_ramp, -1.0f);
-        } else if (chassis_y_ramp.out < 0) {
-            ramp_calc(&chassis_y_ramp, 1.0f);
-        }
+        ramp_calc(&chassis_y_ramp, 0);
     }
 }
 
@@ -109,7 +102,7 @@ static void chassis_init()
     memset(&chassis_y_ramp, 0, sizeof(ramp_t));
     wlr_init();
 	joint_motor_reset();
-    ramp_init(&chassis_x_ramp, 0.02f, -chassis_scale.keyboard, chassis_scale.keyboard);//0.002 1s达到最大
+    ramp_init(&chassis_x_ramp, 0.02f, -chassis_scale.keyboard, chassis_scale.keyboard);//0.02 0.1s达到最大
     ramp_init(&chassis_y_ramp, 0.02f, -chassis_scale.keyboard, chassis_scale.keyboard);
     wlr.yaw_set = (float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI;
 }
@@ -121,8 +114,11 @@ static void chassis_mode_switch(void)
     /* 按键扫描 */
     key_scan(KEY_CHASSIS_ROTATE);
     key_scan(KEY_CHASSIS_POWER);
+    key_scan(KB_CTRL);
+    key_scan(KEY_CHASSIS_LOWSPEED);
     key_scan(KEY_CHASSIS_HEIGHT);
     key_scan(KEY_CHASSIS_FIGHT);
+    key_scan(KEY_CHASSIS_PRONE);
     key_scan(KEY_CHASSIS_UNFOLLOW);
     /* 底盘状态切换 */
     switch (ctrl_mode) {
@@ -173,7 +169,7 @@ static void chassis_mode_switch(void)
         /* 底盘模式切换 */
         switch (chassis.mode) {
         case CHASSIS_MODE_KEYBOARD_FOLLOW: { //键盘跟随模式下
-            if(kb_status[KEY_SHOOT_HOUSE] && !wlr.high_flag) { //趴倒模式
+            if(kb_status[KEY_CHASSIS_PRONE] && !wlr.high_flag) { //趴倒模式
                 chassis.mode = CHASSIS_MODE_KEYBOARD_PRONE;
             } else if (kb_status[KEY_CHASSIS_ROTATE]) { //进入键盘陀螺模式
                 chassis.mode = CHASSIS_MODE_KEYBOARD_ROTATE;
@@ -214,7 +210,8 @@ static void chassis_mode_switch(void)
             break;
         }
         case CHASSIS_MODE_KEYBOARD_PRONE: {
-            if(!kb_status[KEY_SHOOT_HOUSE]) { //趴倒模式
+            if(!kb_status[KEY_CHASSIS_PRONE]) { //趴倒模式
+                wlr.prone_flag = 0;
                 chassis.mode = CHASSIS_MODE_KEYBOARD_FOLLOW;
             }
             break;
@@ -238,7 +235,7 @@ static void chassis_mode_switch(void)
     if (chassis.mode != CHASSIS_MODE_KEYBOARD_UNFOLLOW)
         key_status_clear(KEY_CHASSIS_UNFOLLOW);
     if(chassis.mode != CHASSIS_MODE_KEYBOARD_PRONE)
-        key_status_clear(KEY_SHOOT_HOUSE);
+        key_status_clear(KEY_CHASSIS_PRONE);
 }
 
 static void chassis_data_input(void)
@@ -273,30 +270,30 @@ static void chassis_data_input(void)
             break;
         }
         case CHASSIS_MODE_KEYBOARD_FOLLOW:  //跟随模式可以跳跃  底盘键盘跟随/陀螺/迎敌模式
-            if (rc.kb.bit.CTRL && wlr.jump_flag == 0)
-                wlr.jump_flag = 1;
-            else if (!rc.kb.bit.CTRL)
-                wlr.jump_flag = 0;
+//            if (rc.kb.bit.CTRL && wlr.jump_flag == 0)
+//                wlr.jump_flag = 1;
+//            else if (!rc.kb.bit.CTRL)
+//                wlr.jump_flag = 0;
         case CHASSIS_MODE_KEYBOARD_ROTATE:
         case CHASSIS_MODE_KEYBOARD_FIGHT:
         case CHASSIS_MODE_KEYBOARD_UNFOLLOW:
         case CHASSIS_MODE_KEYBOARD_PRONE: {
             //高速模式
-//            if (kb_status[KEY_CHASSIS_POWER] == KEY_RUN) {
-//                chassis_scale.keyboard = 3.0f;  //待修改 高速模式下
-//                wlr.shift_flag = 1;
-//            } else {
-//                chassis_scale.keyboard = 2.0f;  //待修改 普通模式下
-//                wlr.shift_flag = 0;
-//            }
             if (chassis.mode == CHASSIS_MODE_KEYBOARD_FIGHT) {
-                chassis_scale.keyboard = 1.0f;  //待修改 迎敌模式下
-//                wlr.shift_flag = 1;
+                chassis_scale.keyboard = 1.0f;  //迎敌模式下
+            } else if (kb_status[KB_CTRL] == KEY_RUN) {
+                chassis_scale.keyboard = 2.5f;  //高速模式下
+                key_status_clear(KEY_CHASSIS_LOWSPEED);
+                key_status_clear(KEY_CHASSIS_POWER);
+            } else if (kb_status[KEY_CHASSIS_POWER] == KEY_RUN) {
+                chassis_scale.keyboard = 3.0f;  //高速模式下
+                key_status_clear(KEY_CHASSIS_LOWSPEED);
+            } else if (kb_status[KEY_CHASSIS_LOWSPEED] == KEY_RUN) {
+                chassis_scale.keyboard = 1.0f;  //低速模式下
             } else {
-                chassis_scale.keyboard = 2.0f;  //待修改 普通模式下
-//                wlr.shift_flag = 0;
+                chassis_scale.keyboard = 2.0f;  //普通模式下
             }
-           
+
             //速度输入
             chassis_ramp();
             chassis.input.vx = chassis_x_ramp.out;
@@ -304,24 +301,15 @@ static void chassis_data_input(void)
             //控制模式
             wlr.ctrl_mode = 2; //键盘直接是轮腿模式
             if (chassis.mode == CHASSIS_MODE_KEYBOARD_PRONE) {
-                wlr.ctrl_mode = 1; //趴倒是锁腿开轮
-            }            
+                wlr.prone_flag = 1;
+            }
             //高度模式
             if(kb_status[KEY_CHASSIS_HEIGHT] == KEY_RUN && 
-                chassis.mode != CHASSIS_MODE_KEYBOARD_PRONE &&
-                chassis.mode != CHASSIS_MODE_KEYBOARD_ROTATE) {
+                chassis.mode != CHASSIS_MODE_KEYBOARD_PRONE) {
                 wlr.high_flag = 1;  //趴倒模式不能起
             } else {
                 wlr.high_flag = 0;
                 key_status_clear(KEY_CHASSIS_HEIGHT);
-            }
-            //刹车模式
-            if(rc.kb.bit.Q) {
-                wlr.stop_flag = 1;
-                chassis.input.vx = 0;
-                chassis.input.vy = 0;
-            } else {
-                wlr.stop_flag = 0;
             }
             break;
         }
@@ -337,9 +325,13 @@ static void chassis_data_input(void)
         case CHASSIS_MODE_REMOTER_FOLLOW:
         case CHASSIS_MODE_KEYBOARD_FOLLOW:
         case CHASSIS_MODE_KEYBOARD_PRONE: {
-//            wlr.yaw_set = (float)CHASSIS_YAW_FIGHT / 8192 * 2 * PI;
             wlr.yaw_set = (float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI;
             wlr.yaw_fdb = (float)yaw_motor.ecd / 8192 * 2 * PI;
+            //此yaw_err用于底盘前后都可跟随
+            wlr.yaw_err = circle_error(wlr.yaw_set, wlr.yaw_fdb, 2 * PI);
+            if (wlr.yaw_err > PI / 2 || wlr.yaw_err < - PI / 2) {
+                wlr.yaw_set = (float)CHASSIS_YAW_OFFSET / 8192 * 2 * PI - PI;
+            }
             break;
         }
         case CHASSIS_MODE_KEYBOARD_FIGHT: {
@@ -412,17 +404,17 @@ static void chassis_data_output(void)
     } else if (wlr.ctrl_mode == 2) {//力控
         dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
         dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
-        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0.03, wlr.side[0].T4);
-        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0.03, wlr.side[0].T1);
-        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0.03, -wlr.side[1].T1);
-        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0.03, -wlr.side[1].T4);
+        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0.5, wlr.side[0].T4);//0.03
+        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0.5, wlr.side[0].T1);
+        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0.5, -wlr.side[1].T1);
+        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0.5, -wlr.side[1].T4);
     } else if (wlr.ctrl_mode == 1) {//位控
         dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
         dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
-        ht_motor_set_control_para(&joint_motor[0],  wlr.side[0].P4 + joint_motor[0].zero_point,      0, 10, 2, 0);
-        ht_motor_set_control_para(&joint_motor[1],  wlr.side[0].P1 - joint_motor[1].zero_point - PI, 0, 10, 2, 0);
-        ht_motor_set_control_para(&joint_motor[2], -wlr.side[1].P1 + joint_motor[2].zero_point + PI, 0, 10, 2, 0);
-        ht_motor_set_control_para(&joint_motor[3], -wlr.side[1].P4 - joint_motor[3].zero_point,      0, 10, 2, 0);
+        ht_motor_set_control_para(&joint_motor[0],  wlr.side[0].P4 + joint_motor[0].zero_point,      0, 10, 2,  2);
+        ht_motor_set_control_para(&joint_motor[1],  wlr.side[0].P1 - joint_motor[1].zero_point - PI, 0, 10, 2, -2);
+        ht_motor_set_control_para(&joint_motor[2], -wlr.side[1].P1 + joint_motor[2].zero_point + PI, 0, 10, 2,  2);
+        ht_motor_set_control_para(&joint_motor[3], -wlr.side[1].P4 - joint_motor[3].zero_point,      0, 10, 2, -2);
     } else {//错误时
         wlr_protest();
         dji_motor_set_torque(&driver_motor[0], 0);

@@ -16,6 +16,7 @@ void power_init(void)
     power_control.min_buffer         = 30;
     power_control.limit_kp           = 0.4f;
     supercap.max_volage              = 23.6f;
+    supercap.limit_volage            = 20.0f;
     supercap.min_volage              = 13.5f;
 }
 
@@ -31,19 +32,19 @@ void supercap_mode_update(void)
     if (!lock_flag) {
         supercap.mode = CAP_PROTECT_MODE;
     } else if (ctrl_mode == PROTECT_MODE) {
-//        if (supercap.volage > supercap.max_volage) {
-//            supercap.mode = CAP_PROTECT_MODE;
-//        } else {
-//            supercap.mode = CAP_CHARGE_MODE;
-//        }
+        if (supercap.volage > supercap.max_volage || supercap.volage < supercap.min_volage) {
+            supercap.mode = CAP_PROTECT_MODE;
+        } else {
+            supercap.mode = CAP_CHARGE_MODE;
+        }
     } else {
-//        if (supercap.volage >= supercap.min_volage) {
-//            supercap.mode = CAP_DISCHARGE_MODE;
-//        } else if (power_control.judge_power_buffer <= power_control.min_buffer) {
-//            supercap.mode = CAP_PROTECT_MODE;
-//        } else {
-//            supercap.mode = CAP_CHARGE_MODE;
-//        }
+        if (supercap.volage >= supercap.min_volage) {
+            supercap.mode = CAP_DISCHARGE_MODE;
+        } else if (power_control.judge_power_buffer <= power_control.min_buffer) {
+            supercap.mode = CAP_PROTECT_MODE;
+        } else{
+            supercap.mode = CAP_CHARGE_MODE;
+        }
     }
 }
 
@@ -53,10 +54,10 @@ void supercap_control(void)
         supercap.charge_power_ref = 0;
         supercap.charge_current_ref = 0;
     } else if (supercap.mode == CAP_CHARGE_MODE) {
-        supercap.charge_power_fdb = power_control.source_power - power_control.chassis_power - 12.0f;
+        supercap.charge_power_fdb = power_control.source_power - power_control.chassis_power - 10.0f;
         if (supercap.charge_power_fdb < 0)
             supercap.charge_power_fdb = 0;
-        supercap.charge_power_ref = power_control.judge_max_power - power_control.chassis_power - 17.0f;
+        supercap.charge_power_ref = power_control.judge_max_power - power_control.chassis_power - 15.0f;
         if (supercap.charge_power_ref < 0)
             supercap.charge_power_ref = 0;
         supercap.charge_current_ref = supercap.charge_power_ref / supercap.volage;
@@ -65,7 +66,7 @@ void supercap_control(void)
         else if (supercap.charge_current_ref >= 10)
             supercap.charge_current_ref = 10;
     } else if (supercap.mode == CAP_DISCHARGE_MODE) {
-        supercap.charge_power_ref = power_control.judge_max_power - 12.0f;
+        supercap.charge_power_ref = power_control.judge_max_power - 10.0f;
         if (supercap.charge_power_ref < 0)
             supercap.charge_power_ref = 0;
         supercap.charge_current_ref = supercap.charge_power_ref / supercap.volage;
@@ -74,6 +75,9 @@ void supercap_control(void)
         else if (supercap.charge_current_ref >= 10)
             supercap.charge_current_ref = 10;
     }
+    //限制电流，使充电电流不突变
+    if (supercap.volage > supercap.limit_volage)
+        supercap.charge_current_ref = supercap.charge_current_ref * (supercap.max_volage - supercap.volage) / (supercap.max_volage - supercap.limit_volage);
 }
 
 void power_output_data(void)
