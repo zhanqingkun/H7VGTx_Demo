@@ -70,19 +70,19 @@ static void shoot_mode_sw(void)
                 }
                 case RC_MI: {
                     if (fric.init_flag) {
-//                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
-                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
+                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
+//                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
                     }
                     shoot.trigger_mode = TRIGGER_MODE_STOP;
                     break;
                 }
                 case RC_DN: {
                     fric.mode = FIRC_MODE_STOP;
-//                    shoot.trigger_mode = TRIGGER_MODE_SERIES;
-                    shoot.trigger_mode = TRIGGER_MODE_STOP;
+                    shoot.trigger_mode = TRIGGER_MODE_SERIES;
+//                    shoot.trigger_mode = TRIGGER_MODE_STOP;
                     if (fric.init_flag) {
-//                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
-                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
+                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
+//                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
                     }
 //                    if (rc_fsm_check(RC_RIGHT_LU)) {  //遥控器上电前，左拨杆置右上
 //                        shoot.trigger_mode = TRIGGER_MODE_SINGLE;  //单发 遥控器单发不能开底盘
