@@ -404,10 +404,10 @@ static void chassis_data_output(void)
     } else if (wlr.ctrl_mode == 2) {//力控
         dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
         dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
-        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0.5, wlr.side[0].T4);//0.03
-        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0.5, wlr.side[0].T1);
-        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0.5, -wlr.side[1].T1);
-        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0.5, -wlr.side[1].T4);
+        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0, wlr.side[0].T4);//0.03 0.5
+        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0, wlr.side[0].T1);
+        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0, -wlr.side[1].T1);
+        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0, -wlr.side[1].T4);
     } else if (wlr.ctrl_mode == 1) {//位控
         dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
         dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);

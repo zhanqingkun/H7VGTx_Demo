@@ -126,11 +126,11 @@ void ht_motor_output_single_data(ht_motor_t *motor)
     buf[0] = p >> 8;
     buf[1] = p & 0xFF;
     buf[2] = v >> 4;
-    buf[3] = ((v & 0xF) << 4) | (kp >> 8);
+    buf[3] = ((v & 0x0F) << 4) | (kp >> 8);
     buf[4] = kp & 0xFF;
     buf[5] = kd >> 4;
-    buf[6] = ((kd & 0xF) << 4) | (t >> 8);
-    buf[7] = t & 0xff;
+    buf[6] = ((kd & 0x0F) << 4) | (t >> 8);
+    buf[7] = t & 0xFF;
     //通过CAN接口把buf中的内容发送出去
     motor->send_cnt++;
     can_std_transmit(motor->can_channel, motor->can_id, buf);
