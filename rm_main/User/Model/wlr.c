@@ -230,8 +230,10 @@ void wlr_control(void)
         wlr.high_set = LegLengthNormal;
     }
     //旋转压腿长 腿摆压腿长
-    if (wlr.high_flag)
-        wlr.high_set = data_fusion(wlr.high_set, 0.80f * wlr.high_set, fabs(wlr.wz_set/6.0f));
+    if (wlr.high_flag) {
+        wlr.high_set = data_fusion(wlr.high_set, 0.90f * wlr.high_set, fabs(wlr.wz_set/6.0f));
+        wlr.high_set = data_fusion(wlr.high_set, 0.90f * wlr.high_set, (fabs(lqr[0].X_fdb[2])+fabs(lqr[0].X_fdb[2]))/0.6f);
+    }
 	//更新两腿模型
 	tlm_gnd_roll_calc(&tlm, -wlr.roll_fdb, vmc[0].L_fdb, vmc[1].L_fdb);//计算地形倾角
 	if (wlr.jump_flag != 0 || (wlr.side[0].fly_flag && wlr.side[1].fly_flag))
@@ -282,6 +284,9 @@ void wlr_control(void)
             lqr[i].X_ref[1] = data_fusion(twm.v_ref[i], lqr[i].X_fdb[1], (-0.3f - wlr.side[i].q4)/0.3f);
         else
             lqr[i].X_ref[1] = twm.v_ref[i];
+        //摔倒保护 在快要摔倒时减小速度输入
+        lqr[i].X_ref[1] = data_fusion(lqr[i].X_ref[1], lqr[i].X_fdb[1], fabs(wlr.pit_fdb/0.3f));
+        
 		aMartix_Add(1, lqr[i].X_ref, -1, lqr[i].X_fdb, lqr[i].X_diff, 6, 1);
 		aMartix_Mul(lqr[i].K, lqr[i].X_diff, lqr[i].U_ref, 2, 6, 1);
 		//腿部虚拟力控制

@@ -54,8 +54,8 @@
 #define SUPERCAP_CHAGER_VOLAGE    23.6f
 #define SUPERCAP_DISCHAGER_VOLAGE	13.5f //超级电容放电电压下限
 
-#define CHASSIS_YAW_OFFSET  6140
-#define CHASSIS_YAW_FIGHT   ((CHASSIS_YAW_OFFSET - 8192/4) % 8192)
+#define CHASSIS_YAW_OFFSET  640
+#define CHASSIS_YAW_FIGHT   ((CHASSIS_YAW_OFFSET + 8192/4) % 8192)
 #define CHASSIS_ROTATE_SPEED 9 //rad/s
 
 /*-----------------------------gimbal----------------------------*/
@@ -63,9 +63,5 @@
 #define GIMBAL_PIT_CENTER_OFFSET    5400
 #define GIMBAL_PIT_MAX              6400
 #define GIMBAL_PIT_MIN              5000
-
-#define GIMBAL_YAW_CENTER_OFFSET    3450
-#define GIMBAL_YAW_BETWEEN_ECD      ( 8191 / 4 )
-#define FIGHT_OFFSET_ERR            ( -1.0f * GIMBAL_YAW_BETWEEN_ECD / 8191 * 2 * PI )
 
 #endif

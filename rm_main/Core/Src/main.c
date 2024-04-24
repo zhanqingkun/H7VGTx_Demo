@@ -112,7 +112,7 @@ int main(void)
   MX_TIM3_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-//  HAL_Delay(100);
+  HAL_Delay(1500);
   us_timer_start();
   usart_comm_init();
   can_comm_init();
