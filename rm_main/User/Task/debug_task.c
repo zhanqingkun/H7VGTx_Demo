@@ -11,6 +11,7 @@
 #include "drv_dji_motor.h"
 #include "prot_judge.h"
 #include "prot_power.h"
+#include "prot_imu.h"
 #include "kalman_filter.h"
 #include "func_generator.h"
 #include "prot_dr16.h"
@@ -19,7 +20,7 @@
 
 us_time_t test_time;
 kalman_filter_t test;
-uint8_t debug_wave = 8;
+uint8_t debug_wave = 9;
 
 void log_scope_data_pkg(void)
 {
@@ -32,10 +33,10 @@ void log_scope_data_pkg(void)
 //            log_scope_get_data(gimbal.yaw_output);
 //            log_scope_get_data(yaw_motor.tx_current);
             
-//            log_scope_get_data(gimbal.pit_spd.ref);
-//            log_scope_get_data(gimbal.pit_spd.fdb);
-//            log_scope_get_data(gimbal.pit_angle.ref);
-//            log_scope_get_data(gimbal.pit_angle.fdb);
+            log_scope_get_data(gimbal.pit_spd.ref);
+            log_scope_get_data(gimbal.pit_spd.fdb);
+            log_scope_get_data(gimbal.pit_angle.ref);
+            log_scope_get_data(gimbal.pit_angle.fdb);
 //            log_scope_get_data(gimbal.pit_output);
 //            log_scope_get_data(pit_motor.tx_current);
             break;
@@ -88,6 +89,15 @@ void log_scope_data_pkg(void)
             log_scope_get_data(wlr.side[0].T0);
             log_scope_get_data(wlr.side[1].Fy);
             log_scope_get_data(wlr.side[1].T0);
+        } case 9: {
+            log_scope_get_data(wlr.side[0].v_fdb);
+            log_scope_get_data(wlr.side[0].v_kal);
+//            log_scope_get_data(wlr.side[1].v_fdb);
+//            log_scope_get_data(wlr.side[1].v_kal);
+            log_scope_get_data(wlr.side[0].a_fdb);
+            log_scope_get_data(wlr.side[0].a_kal);
+//            log_scope_get_data(wlr.side[1].a_fdb);
+//            log_scope_get_data(wlr.side[1].a_kal);
         }default:break;
     }
 }

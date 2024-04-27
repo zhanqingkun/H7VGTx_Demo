@@ -45,6 +45,8 @@ typedef struct
         uint8_t fly_flag;
         uint8_t fly_cnt;
         float Fn_kal, Fn_fdb;
+        float v_kal, v_fdb;
+        float a_kal, a_fdb;
         float T0, Fy;
     } side[2];
 } wlr_t;

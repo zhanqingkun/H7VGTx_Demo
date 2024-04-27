@@ -7,6 +7,7 @@
 #include "prot_imu.h"
 #include "math_lib.h"
 #include "cmsis_os.h"
+#include "arm_math.h"
 #include "string.h"
 
 gimbal_scale_t gimbal_scale = {
@@ -21,23 +22,26 @@ uint8_t test_gimbal_vision_mode = 0;//遥控0 视觉1
 static void gimbal_init(void)
 {
     memset(&gimbal, 0, sizeof(gimbal_t));
-    pid_init(&gimbal.yaw_angle.pid, 30, 0, 400, 0, 10);
+    pid_init(&gimbal.yaw_angle.pid, 30, 0, 400, 0, 15);
     pid_init(&gimbal.yaw_spd.pid, 0.5f, 0.006f, 0, 0.6f, 1.3f);
-//    pid_init(&gimbal.yaw_ecd.pid, 0, 0, 0, 0, 0);
 
     pid_init(&gimbal.pit_angle.pid, 30, 0, 500, 0, 15);
-    pid_init(&gimbal.pit_spd.pid, -0.2f, -0.003f, 0, 0.6f, 1.3f);
-//    pid_init(&gimbal.pit_ecd.pid, 0, 0, 0, 0, 0);
+    pid_init(&gimbal.pit_spd.pid, -0.3f, -0.003f, 0, 0.6f, 1.3f);
 }
 
 static void gimbal_pid_calc(void)
 {
-    //位置环反馈 陀螺仪
+    float yaw_err, pit_max, pit_min;
+    //位置环反馈 陀螺仪 -0.6 0.3
     //速度环反馈 陀螺仪
-    data_limit(&gimbal.pit_angle.ref, -0.7f, 0.3f);
-    gimbal.pit_angle.fdb = gimbal_imu.pit;
+    //此yaw_err用于云台pit限幅
+    yaw_err = circle_error(CHASSIS_YAW_OFFSET / 8192.0f * 2 * PI, yaw_motor.ecd / 8192.0f * 2 * PI, 2 * PI);
+    pit_max = arm_cos_f32(yaw_err) * chassis_imu.pit + 0.3f;
+    pit_min = arm_cos_f32(yaw_err) * chassis_imu.pit - 0.6f;
+    data_limit(&gimbal.pit_angle.ref, pit_min, pit_max);
+    gimbal.pit_angle.fdb = -gimbal_imu.pit;
     gimbal.pit_spd.ref = pid_calc(&gimbal.pit_angle.pid, gimbal.pit_angle.ref, gimbal.pit_angle.fdb);
-    gimbal.pit_spd.fdb = gimbal_imu.wy;
+    gimbal.pit_spd.fdb = -gimbal_imu.wy;
     gimbal.pit_output = 0.05f + pid_calc(&gimbal.pit_spd.pid, gimbal.pit_spd.ref, gimbal.pit_spd.fdb);
 
     if (gimbal.yaw_angle.ref < 0) {
@@ -46,7 +50,8 @@ static void gimbal_pid_calc(void)
         gimbal.yaw_angle.ref -= 2 * PI;
     }
     gimbal.yaw_angle.fdb = gimbal_imu.yaw;
-    float yaw_err = circle_error(gimbal.yaw_angle.ref, gimbal.yaw_angle.fdb, 2*PI);
+    //此yaw_err用于云台yaw环形控制
+    yaw_err = circle_error(gimbal.yaw_angle.ref, gimbal.yaw_angle.fdb, 2*PI);
     gimbal.yaw_spd.ref = pid_calc(&gimbal.yaw_angle.pid, gimbal.yaw_angle.fdb + yaw_err, gimbal.yaw_angle.fdb);
     gimbal.yaw_spd.fdb = gimbal_imu.wz;
     gimbal.yaw_output = pid_calc(&gimbal.yaw_spd.pid, gimbal.yaw_spd.ref, gimbal.yaw_spd.fdb);
@@ -78,10 +83,8 @@ static void gimbal_get_vision_data(void)
             break;
         }
         case UNAIMING: {//未识别到目标
-            if (rc.sw1 == RC_MI) {
-//                gimbal.pit_ecd.ref -= rc.ch2 * gimbal_scale.ecd_remote;
+            if (rc.sw1 == RC_MI || rc.sw1 == RC_UP) {
                 gimbal.pit_angle.ref -= rc.ch2 * gimbal_scale.angle_remote;
-//                gimbal.yaw_ecd.ref -= rc.ch1 * gimbal_scale.ecd_remote;
                 gimbal.yaw_angle.ref -= rc.ch1 * gimbal_scale.angle_remote;
             } else if (rc.sw1 == RC_DN) {
                 gimbal.pit_angle.ref += rc.mouse.y * gimbal_scale.angle_keyboard;
@@ -98,15 +101,19 @@ void gimbal_task(void const *argu)
     uint32_t thread_wake_time = osKernelSysTick();
     gimbal_init();
     for(;;) {
-//        taskENTER_CRITICAL();
         switch (ctrl_mode) {
             case PROTECT_MODE: {
-                gimbal.yaw_angle.ref = gimbal_imu.yaw;
-                gimbal.pit_angle.ref = 0;
-//                gimbal.pit_ecd.ref = GIMBAL_PIT_CENTER_OFFSET;
-//                gimbal.yaw_ecd.ref = GIMBAL_YAW_CENTER_OFFSET;
-                gimbal.pit_output = 0;
-                gimbal.yaw_output = 0;
+                if (rc.sw2 == RC_MI || rc.sw2 == RC_DN) {
+                    gimbal_get_vision_data();
+                    gimbal_pid_calc();
+                } else {
+                    gimbal.yaw_angle.ref = gimbal_imu.yaw;
+                    gimbal.pit_angle.ref = 0;
+//                 gimbal.pit_ecd.ref = GIMBAL_PIT_CENTER_OFFSET;
+//                 gimbal.yaw_ecd.ref = GIMBAL_YAW_CENTER_OFFSET;
+                    gimbal.pit_output = 0;
+                    gimbal.yaw_output = 0;
+                }
                 break;
             }
             case REMOTER_MODE: {
@@ -118,32 +125,30 @@ void gimbal_task(void const *argu)
                 break;
             }
             case KEYBOARD_MODE: {
-                if (kb_status[KEY_SHOOT_HOUSE]) { //补弹
-                    gimbal.pit_angle.ref = 0;
-                    gimbal.yaw_angle.ref -= rc.mouse.x * gimbal_scale.angle_keyboard * 0.5f;
+                if (rc.mouse.r == 1) {
+                    gimbal_get_vision_data();
                 } else {
-                    //一键调头
-                    if(key_scan_clear(KEY_GIMBAL_TURN_R)) {
-                        gimbal.yaw_angle.ref -= PI/2;
-                    } 
-                    else if (key_scan_clear(KEY_GIMBAL_TURN_L)) {
-                        gimbal.yaw_angle.ref += PI/2;
+                    if (kb_status[KEY_SHOOT_HOUSE]) { //补弹
+                        gimbal.pit_angle.ref = 0;
+                        gimbal.yaw_angle.ref -= rc.mouse.x * gimbal_scale.angle_keyboard * 0.5f;
+                    } else {
+                        //一键调头
+                        if(key_scan_clear(KEY_GIMBAL_TURN_R)) {
+                            gimbal.yaw_angle.ref -= PI/2;
+                        } 
+                        else if (key_scan_clear(KEY_GIMBAL_TURN_L)) {
+                            gimbal.yaw_angle.ref += PI/2;
+                        }
+                        gimbal.pit_angle.ref += rc.mouse.y * gimbal_scale.angle_keyboard * 0.5f;
+                        gimbal.yaw_angle.ref -= rc.mouse.x * gimbal_scale.angle_keyboard;
                     }
-                    gimbal.pit_angle.ref += rc.mouse.y * gimbal_scale.angle_keyboard * 0.5f;
-                    gimbal.yaw_angle.ref -= rc.mouse.x * gimbal_scale.angle_keyboard;
                 }
-                gimbal_pid_calc();
-                break;
-            }
-            case VISION_MODE: { //视觉模式 
-                gimbal_get_vision_data();
                 gimbal_pid_calc();
                 break;
             }
             default:break;
         }
         gimbal_data_output();
-//        taskEXIT_CRITICAL();
         osDelayUntil(&thread_wake_time, 2);
     }
 }

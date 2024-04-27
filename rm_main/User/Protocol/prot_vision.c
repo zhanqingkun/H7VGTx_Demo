@@ -48,9 +48,9 @@ void vision_get_data(uint8_t *data)
 
 void vision_output_data(void)
 {
-    vision.tx.data.imu_pit = gimbal_imu.pit / PI * 180;
+    vision.tx.data.imu_pit = -gimbal_imu.pit / PI * 180;
     vision.tx.data.imu_yaw = gimbal_imu.yaw / PI * 180;
-    vision.tx.data.imu_pit_spd = gimbal_imu.wy / PI * 180;
+    vision.tx.data.imu_pit_spd = -gimbal_imu.wy / PI * 180;
     vision.tx.data.imu_yaw_spd = gimbal_imu.wz / PI * 180;
     
     switch (shoot.shoot_speed_ref) {

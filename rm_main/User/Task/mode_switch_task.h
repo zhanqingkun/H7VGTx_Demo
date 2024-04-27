@@ -8,7 +8,6 @@ typedef enum
     PROTECT_MODE,   //保护模式
     REMOTER_MODE,   //遥控模式
     KEYBOARD_MODE,  //键盘模式
-    VISION_MODE     //视觉模式(鼠标右键开启)
 } ctrl_mode_e;
 
 extern uint8_t lock_flag, reset_flag;

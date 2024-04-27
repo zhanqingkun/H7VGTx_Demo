@@ -20,12 +20,13 @@
 
 void read_status(void)
 {
-    if (ctrl_mode == REMOTER_MODE || ctrl_mode == KEYBOARD_MODE) {
-        rgb_change(1,7);
-    } else if (ctrl_mode == VISION_MODE) {
+    if (((rc.sw2 == RC_MI || rc.sw2 == RC_DN) && ctrl_mode == PROTECT_MODE) ||
+        (rc.mouse.r == 1 && ctrl_mode == KEYBOARD_MODE)) {
         rgb_change(1,2);
-    } else {
+    } else if (ctrl_mode == PROTECT_MODE) {
         rgb_change(1,0);
+    } else {
+        rgb_change(1,7);
     }
 
 	if (chassis.mode == CHASSIS_MODE_REMOTER_FOLLOW || \

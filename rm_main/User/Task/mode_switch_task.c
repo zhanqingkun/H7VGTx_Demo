@@ -7,7 +7,7 @@ uint8_t reset_flag = 0;
 ctrl_mode_e ctrl_mode;
 
 static void unlock_init(void) {
-    if (rc.sw1 == RC_UP && rc.sw2 == RC_UP ) { //左拨杆居中，右拨杆置上
+    if (rc.sw1 == RC_UP && rc.sw2 == RC_UP ) { //左拨杆置上，右拨杆置上
         if (rc.ch4 < -600 && rc.ch3 > 600) {
             lock_flag = 1;  //左控制杆拨至右下
         }
@@ -20,19 +20,13 @@ static void sw1_mode_handler(void) { //由拨杆1决定系统模式切换，主�
             ctrl_mode = PROTECT_MODE;break;
         }
         case RC_MI: {
-//            if (rc.sw2 == RC_DN) {
-//                ctrl_mode = VISION_MODE;
-//            } else
             ctrl_mode = REMOTER_MODE;break;
         }
         case RC_DN: {
-            ctrl_mode = KEYBOARD_MODE;
-            if (rc.mouse.r == 1) {
-                ctrl_mode = VISION_MODE;    //视觉模式，右键开启
-            } else {
-                ctrl_mode = KEYBOARD_MODE;  //键盘模式
-            }
-            break;
+//        if (rc.mouse.r == 1) {
+//            ctrl_mode = VISION_MODE;    //视觉模式，右键开启
+//        } else {
+            ctrl_mode = KEYBOARD_MODE;break;
         }
         default:break;
     }

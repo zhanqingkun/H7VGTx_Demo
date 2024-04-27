@@ -149,22 +149,6 @@ static void chassis_mode_switch(void)
         }
         break;
     }
-    case VISION_MODE: {
-//        if (vision.mode == vMODE_bENERGY || vision.mode == vMODE_sENERGY) {
-//            kb_status[KEY_CHASSIS_UNFOLLOW] = 1; //视觉能量机关时，切入不跟随状态！！！！！！！！！！！！！！！
-//            chassis.mode = CHASSIS_MODE_KEYBOARD_UNFOLLOW; //进入底盘保护模式（击打能量机关）
-//        } else 
-//        if (kb_status[KEY_CHASSIS_ROTATE]) { //进入小陀螺模式
-//            chassis.mode = CHASSIS_MODE_KEYBOARD_ROTATE;
-//        } else if (kb_status[KEY_CHASSIS_FIGHT]) { //进入迎敌模式
-//            chassis.mode = CHASSIS_MODE_KEYBOARD_FIGHT;
-//        } else if (kb_status[KEY_CHASSIS_UNFOLLOW]) {
-//            chassis.mode = CHASSIS_MODE_KEYBOARD_UNFOLLOW;
-//        } else { //正常模式
-//            chassis.mode = CHASSIS_MODE_KEYBOARD_FOLLOW;
-//        }
-//        break;
-    }
     case KEYBOARD_MODE: { //键盘模式下：(跟随，陀螺，迎敌三种模式相互切换),(跟随与补给模式相互切换)
         /* 底盘模式切换 */
         switch (chassis.mode) {
@@ -369,9 +353,9 @@ static void chassis_data_input(void)
     wlr.yaw_err = circle_error(wlr.yaw_set, wlr.yaw_fdb, 2 * PI);
 	wlr.v_set = chassis.output.vx;
     //陀螺仪数据输入
-    wlr.roll_fdb    = -chassis_imu.rol;
-    wlr.pit_fdb     =  chassis_imu.pit;
-    wlr.wy_fdb      =  chassis_imu.wy;
+    wlr.roll_fdb    =  chassis_imu.rol;
+    wlr.pit_fdb     = -chassis_imu.pit;
+    wlr.wy_fdb      = -chassis_imu.wy;
     wlr.wz_fdb      =  chassis_imu.wz;
     wlr.az_fdb      =  chassis_imu.az;
     //电机数据输入

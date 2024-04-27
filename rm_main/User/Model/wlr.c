@@ -2,6 +2,7 @@
 #include "chassis_task.h"
 #include "leg_vmc.h"
 #include "wheel_leg_model.h"
+#include "prot_imu.h"
 #include "drv_dji_motor.h"
 #include "pid.h"
 #include "kalman_filter.h"
@@ -60,7 +61,7 @@ float K_Array_List_lq[12][4][4] =
 wlr_t wlr;
 lqr_t lqr[2];
 
-kalman_filter_t kal_fn[2];
+kalman_filter_t kal_fn[2], kal_v[2];
 
 pid_t pid_leg_length[2];
 pid_t pid_leg_length_fast[2];
@@ -120,12 +121,18 @@ void wlr_init(void)
         kal_fn[i].H_data[0] = 1;
         kal_fn[i].Q_data[0] = 1;
         kal_fn[i].R_data[0] = 100;
+        kalman_filter_init(&kal_v[i], 2, 0, 2);
+        kal_v[i].A_data[0] = 1; kal_v[i].A_data[1] = 0.002f; kal_v[i].A_data[3] = 1;
+        kal_v[i].H_data[0] = 1; kal_v[i].H_data[3] = 1;
+        kal_v[i].Q_data[0] = 0.01f; kal_v[i].Q_data[3] = 1000000000000000000000000.0f;
+        kal_v[i].R_data[0] = 100.0f; kal_v[i].R_data[3] = 10.0f;
+//        kal_v[i].min_variance[0] = 100.0f; kal_v[i].min_variance[3] = 100.0f;
 		//PID参数初始化
 		pid_init(&pid_leg_length[i], 500, 0.0f, 20000, 10, 20);//i 2.5f
 		pid_init(&pid_leg_length_fast[i], 1000, 0, 10000, 30, 50);
 	}
 	//卡尔曼滤波器初始化
-	
+
 	//PID参数初始化
     pid_init(&pid_yaw, -7, 0, 0, 0, 10);
 	pid_init(&pid_wz, 2.0f, 0, 7.0f, 0, 2.5f);
@@ -156,6 +163,16 @@ void wlr_control(void)
 									  wlr.side[i].w4, wlr.side[i].t1, wlr.side[i].t4);
 		//LQR输入反馈值
 		lqr[i].last_x2 = lqr[i].X_fdb[1];
+        
+        
+        kal_v[i].measured_vector[0] = -wlr.side[i].wy * WheelRadius;
+        kal_v[i].measured_vector[1] = -chassis_imu.ax;
+        kalman_filter_update(&kal_v[i]);
+        wlr.side[i].v_fdb = -wlr.side[i].wy * WheelRadius;
+        wlr.side[i].a_fdb = -chassis_imu.ax;
+        wlr.side[i].v_kal = kal_v[i].filter_vector[0];
+        wlr.side[i].a_kal = kal_v[i].filter_vector[1];
+        
 		lqr[i].X_fdb[1] = -wlr.side[i].wy * WheelRadius;
 		lqr[i].X_fdb[0] -= (lqr[i].X_fdb[1] + lqr[i].last_x2) / 2 * CHASSIS_PERIOD_DU * 0.001f;//使用梯形积分速度求位移
 		lqr[i].X_fdb[4] = x5_balance_zero + wlr.pit_fdb;

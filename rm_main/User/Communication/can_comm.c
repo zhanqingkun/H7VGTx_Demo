@@ -25,7 +25,7 @@ void can_comm_init(void)
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
     can_filter.FilterIndex = 0;
     can_filter.FilterType = FDCAN_FILTER_RANGE;//范围过滤
-    can_filter.FilterID1 = 0x013;
+    can_filter.FilterID1 = 0x011;
     can_filter.FilterID2 = 0x015;
     can_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;//通过过滤后给邮箱0
     HAL_FDCAN_ConfigFilter(&hfdcan1, &can_filter);
@@ -68,8 +68,8 @@ void can_comm_init(void)
     //云台陀螺仪
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
     can_filter.FilterIndex = 0;
-    can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
-    can_filter.FilterID1 = 0x013;
+    can_filter.FilterType = FDCAN_FILTER_RANGE;//范围过滤
+    can_filter.FilterID1 = 0x011;
     can_filter.FilterID2 = 0x014;
     can_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;//通过过滤后给邮箱0
     HAL_FDCAN_ConfigFilter(&hfdcan3, &can_filter);

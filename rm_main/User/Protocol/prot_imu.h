@@ -3,6 +3,11 @@
 
 #include "stm32h7xx.h"
 
+#define IMU_PIT_ID 0x011
+#define IMU_YAW_ID 0x012
+#define IMU_ROL_ID 0x013
+#define IMU_ACC_ID 0x014
+
 #define IMU_PALSTANCE_ID    0x013
 #define IMU_ANGLE_ID        0x014
 #define IMU_ELSE_ID         0x015

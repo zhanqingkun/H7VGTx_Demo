@@ -27,7 +27,7 @@ static void trigger_pid_calc(void)
 static uint8_t single_shoot_reset(void)
 {
     return (
-        (rc.mouse.l == 0 && ctrl_mode == VISION_MODE)
+        (rc.mouse.l == 0 && ctrl_mode == KEYBOARD_MODE)
         || (ABS(rc.ch5) < 10 && ctrl_mode == REMOTER_MODE)
     );
 }
@@ -46,8 +46,8 @@ static uint8_t series_shoot_enable(void)
 {
     return (
         ((ctrl_mode == REMOTER_MODE)// && vision.shoot_enable
+            || (ctrl_mode == PROTECT_MODE && (rc.sw2 == RC_MI || rc.sw2 == RC_DN))
             || (ctrl_mode == KEYBOARD_MODE && rc.mouse.l) 
-            || (ctrl_mode == VISION_MODE && rc.mouse.l)
         )
         && shoot.barrel.heat_remain >= MIN_HEAT  //热量控制
         && frequency_cnt * SHOOT_PERIOD >= shoot.trigger_period  //射频控制

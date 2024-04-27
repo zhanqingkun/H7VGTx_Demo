@@ -53,46 +53,8 @@ static void shoot_mode_sw(void)
 
     /* 模式切换 */
     switch (ctrl_mode) {
-        case PROTECT_MODE: {
-            fric.mode = FIRC_MODE_STOP;
-            shoot.trigger_mode = TRIGGER_MODE_PROTECT;
-            house_mode= HOUSE_MODE_PROTECT;
-            break;
-        }
-        
+        case PROTECT_MODE: 
         case REMOTER_MODE: {
-            /* 摩擦轮和拨盘模式切换 */
-            switch (rc.sw2) {
-                case RC_UP: {
-                    fric.mode = FIRC_MODE_STOP;
-                    shoot.trigger_mode = TRIGGER_MODE_STOP;
-                    break;
-                }
-                case RC_MI: {
-                    if (fric.init_flag) {
-                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
-//                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
-                    }
-                    shoot.trigger_mode = TRIGGER_MODE_STOP;
-                    break;
-                }
-                case RC_DN: {
-                    fric.mode = FIRC_MODE_STOP;
-                    shoot.trigger_mode = TRIGGER_MODE_SERIES;
-//                    shoot.trigger_mode = TRIGGER_MODE_STOP;
-                    if (fric.init_flag) {
-                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
-//                        fric.mode = FIRC_MODE_STOP;  //开启摩擦轮
-                    }
-//                    if (rc_fsm_check(RC_RIGHT_LU)) {  //遥控器上电前，左拨杆置右上
-//                        shoot.trigger_mode = TRIGGER_MODE_SINGLE;  //单发 遥控器单发不能开底盘
-//                    } else {
-//                        shoot.trigger_mode = TRIGGER_MODE_SERIES;  //连发
-//                    }
-                    break;
-                }
-                default: break;
-            }
             /* 弹舱盖模式切换 */
             static uint8_t house_switch_enable = 1;
             if (last_ctrl_mode != REMOTER_MODE) {
@@ -105,9 +67,40 @@ static void shoot_mode_sw(void)
                 house_switch_enable = 0;
                 house_mode = (house_mode_e)(!(uint8_t)house_mode);  //开关弹舱盖
             }
+            /* 摩擦轮和拨盘模式切换 */
+            switch (rc.sw2) {
+                case RC_UP: {
+                    fric.mode = FIRC_MODE_STOP;
+                    if (ctrl_mode == PROTECT_MODE) {
+                        shoot.trigger_mode = TRIGGER_MODE_PROTECT;
+                        house_mode= HOUSE_MODE_PROTECT;
+                    } else {
+                        shoot.trigger_mode = TRIGGER_MODE_STOP;
+                    }
+                    break;
+                }
+                case RC_MI: {
+                    if (fric.init_flag) {
+                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
+                    } else {
+                        fric.mode = FIRC_MODE_STOP;
+                    }
+                    shoot.trigger_mode = TRIGGER_MODE_STOP;
+                    break;
+                }
+                case RC_DN: {
+                    if (fric.init_flag) {
+                        fric.mode = FIRC_MODE_RUN;  //开启摩擦轮
+                    } else {
+                        fric.mode = FIRC_MODE_STOP;
+                    }
+                    shoot.trigger_mode = TRIGGER_MODE_SERIES;
+                    break;
+                }
+                default: break;
+            }
             break;
         }
-        case VISION_MODE:
         case KEYBOARD_MODE: {
             /* 摩擦轮模式切换 */
             if (robot_status.power_management_shooter_output && fric.init_flag) {  //发射机构得到供电 
@@ -172,7 +165,6 @@ void shoot_task(void const *argu)
     shoot_init();
     for(;;)
     {
-//        taskENTER_CRITICAL();
         /* 电调初始化 */
         static uint8_t last_fric_enable, fric_enable;
         fric_enable = robot_status.power_management_shooter_output;
@@ -187,7 +179,6 @@ void shoot_task(void const *argu)
         house_control();    /* 弹舱盖控制 */
         trigger_control();	/* 拨弹电机控制 */
         shoot_test();
-//        taskEXIT_CRITICAL();
         osDelayUntil(&thread_wake_time, 2);
     }
 }
