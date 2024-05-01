@@ -165,6 +165,7 @@ void shoot_task(void const *argu)
     shoot_init();
     for(;;)
     {
+//        taskENTER_CRITICAL();
         /* 电调初始化 */
         static uint8_t last_fric_enable, fric_enable;
         fric_enable = robot_status.power_management_shooter_output;
@@ -179,6 +180,7 @@ void shoot_task(void const *argu)
         house_control();    /* 弹舱盖控制 */
         trigger_control();	/* 拨弹电机控制 */
         shoot_test();
+//        taskEXIT_CRITICAL();
         osDelayUntil(&thread_wake_time, 2);
     }
 }

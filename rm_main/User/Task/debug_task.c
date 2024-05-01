@@ -20,23 +20,23 @@
 
 us_time_t test_time;
 kalman_filter_t test;
-uint8_t debug_wave = 9;
+uint8_t debug_wave = 10;
 
 void log_scope_data_pkg(void)
 {
     switch(debug_wave) {
         case 1: {//云台pid调试
-//            log_scope_get_data(gimbal.yaw_spd.ref);
-//            log_scope_get_data(gimbal.yaw_spd.fdb);
-//            log_scope_get_data(gimbal.yaw_angle.ref);
-//            log_scope_get_data(gimbal.yaw_angle.fdb);
+            log_scope_get_data(gimbal.yaw_spd.ref);
+            log_scope_get_data(gimbal.yaw_spd.fdb);
+            log_scope_get_data(gimbal.yaw_angle.ref);
+            log_scope_get_data(gimbal.yaw_angle.fdb);
 //            log_scope_get_data(gimbal.yaw_output);
 //            log_scope_get_data(yaw_motor.tx_current);
             
-            log_scope_get_data(gimbal.pit_spd.ref);
-            log_scope_get_data(gimbal.pit_spd.fdb);
-            log_scope_get_data(gimbal.pit_angle.ref);
-            log_scope_get_data(gimbal.pit_angle.fdb);
+//            log_scope_get_data(gimbal.pit_spd.ref);
+//            log_scope_get_data(gimbal.pit_spd.fdb);
+//            log_scope_get_data(gimbal.pit_angle.ref);
+//            log_scope_get_data(gimbal.pit_angle.fdb);
 //            log_scope_get_data(gimbal.pit_output);
 //            log_scope_get_data(pit_motor.tx_current);
             break;
@@ -69,6 +69,16 @@ void log_scope_data_pkg(void)
             log_scope_get_data(wlr.side[1].Fn_fdb);
             log_scope_get_data(wlr.side[1].Fn_kal);
             log_scope_get_data(wlr.side[1].fly_cnt);
+            
+//            log_scope_get_data(wlr.az_fdb);
+//            log_scope_get_data(vmc[0].F_fdb.e.Fy_fdb);
+//            log_scope_get_data(vmc[0].F_fdb.e.T0_fdb);
+//            log_scope_get_data(vmc[0].L_fdb);
+//            log_scope_get_data(vmc[0].V_fdb.e.vy0_fdb);
+//            log_scope_get_data(vmc[0].Acc_fdb.L0_ddot);
+//            log_scope_get_data(lqr[0].X_fdb[2]);
+//            log_scope_get_data(lqr[0].X_fdb[3]);
+//            log_scope_get_data(lqr[0].dot_x4);
             break;
         } case 6: {//向心力调试
 //            log_scope_get_data(twm.v0_ref);
@@ -80,24 +90,39 @@ void log_scope_data_pkg(void)
 //            log_scope_get_data(twm.r_ref);
             log_scope_get_data(twm.r_fdb);
             log_scope_get_data(twm.gravity_compensate_angle);
+            break;
         } case 7: {
             log_scope_get_data(vmc[0].L_fdb);
             log_scope_get_data(vmc[1].L_fdb);
             log_scope_get_data(wlr.high_set);
+            break;
         } case 8: {
             log_scope_get_data(wlr.side[0].Fy);
             log_scope_get_data(wlr.side[0].T0);
             log_scope_get_data(wlr.side[1].Fy);
             log_scope_get_data(wlr.side[1].T0);
+            
+            log_scope_get_data(wlr.side[0].Fy);
+            log_scope_get_data(wlr.side[0].T0);
+            log_scope_get_data(wlr.side[1].Fy);
+            log_scope_get_data(wlr.side[1].T0);
+            break;
         } case 9: {
             log_scope_get_data(wlr.side[0].v_fdb);
             log_scope_get_data(wlr.side[0].v_kal);
-//            log_scope_get_data(wlr.side[1].v_fdb);
-//            log_scope_get_data(wlr.side[1].v_kal);
-            log_scope_get_data(wlr.side[0].a_fdb);
-            log_scope_get_data(wlr.side[0].a_kal);
+            log_scope_get_data(wlr.side[1].v_fdb);
+            log_scope_get_data(wlr.side[1].v_kal);
+//            log_scope_get_data(wlr.side[0].a_fdb);
+//            log_scope_get_data(wlr.side[0].a_kal);
 //            log_scope_get_data(wlr.side[1].a_fdb);
 //            log_scope_get_data(wlr.side[1].a_kal);
+            break;
+        } case 10: {
+            log_scope_get_data(lqr[0].X_fdb[0]);
+            log_scope_get_data(lqr[0].X_fdb[1]);
+            log_scope_get_data(lqr[1].X_fdb[0]);
+            log_scope_get_data(lqr[1].X_fdb[1]);
+            break;
         }default:break;
     }
 }

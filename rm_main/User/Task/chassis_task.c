@@ -244,9 +244,9 @@ static void chassis_data_input(void)
                 wlr.ctrl_mode = 1; //锁腿开轮
            //高度模式
            if (wlr.ctrl_mode == 2) {  //轮腿模式下才可控制腿长
-               if(rc.sw2 == RC_MI)
-                   wlr.high_flag = 0;
-               else if(rc.sw2 == RC_DN)
+//               if(rc.sw2 == RC_MI)
+//                   wlr.high_flag = 0;
+//               else if(rc.sw2 == RC_DN)
                    wlr.high_flag = 1;
            } else {
                wlr.high_flag = 0;
@@ -388,10 +388,17 @@ static void chassis_data_output(void)
     } else if (wlr.ctrl_mode == 2) {//力控
         dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
         dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);
-        ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0, wlr.side[0].T4);//0.03 0.5
-        ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0, wlr.side[0].T1);
-        ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0, -wlr.side[1].T1);
-        ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0, -wlr.side[1].T4);
+        if (wlr.prone_flag) {
+            ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0.1, 0);//0.03 0.5
+            ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0.1, 0);
+            ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0.1, 0);
+            ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0.1, 0);
+        } else {
+            ht_motor_set_control_para(&joint_motor[0], 0, 0, 0, 0, wlr.side[0].T4);//0.03 0.5
+            ht_motor_set_control_para(&joint_motor[1], 0, 0, 0, 0, wlr.side[0].T1);
+            ht_motor_set_control_para(&joint_motor[2], 0, 0, 0, 0, -wlr.side[1].T1);
+            ht_motor_set_control_para(&joint_motor[3], 0, 0, 0, 0, -wlr.side[1].T4);
+        }
     } else if (wlr.ctrl_mode == 1) {//位控
         dji_motor_set_torque(&driver_motor[0], -wlr.side[0].Tw);
         dji_motor_set_torque(&driver_motor[1], wlr.side[1].Tw);

@@ -20,8 +20,8 @@
 
 /*-----------------------------shoot-----------------------------*/
 #define LOW_SPEED           0       //526
-#define MID_SPEED	        450
-#define HIGH_SPEED	        450    //535
+#define MID_SPEED	        420
+#define HIGH_SPEED	        420    //450
 
 //弹舱盖
 #define COVER_PWM_OPEN   600

@@ -28,7 +28,6 @@ const float LegLengthFly = 0.20f;//正常腿长腾空
 const float LegLengthHigh = 0.20f;//长腿
 const float LegLengthNormal = 0.15f;//正常
 
-//float x3_balance_zero = 0.03, x5_balance_zero = -0.035f;//腿摆角角度偏置 机体俯仰角度偏置
 float x3_balance_zero = 0.08f, x5_balance_zero = -0.02f;//腿摆角角度偏置 机体俯仰角度偏置
 float x3_fight_zero = 0.06f;
 //								位移  速度	角度	角速度  角度	角速度
@@ -36,7 +35,7 @@ float K_Array_Wheel[2][6] =		{{60, 30, 80, 8, 300, 10},
                                 { -0, -0.7, -8, -1, 3, 2}};
 float K_Array_Leg[2][6] =		{{6.08535, 12.6636, 49.1418, 7.57203, 54.8073, 12.7387}, {-0.793527, -1.75976, -13.1544, -1.78789, 4.8796, 1.66868}};
 float K_Array_Fly[2][6] =		{{0, 0, 80, 10, 0, 0}, { 0, 0, 0, 0, 0, 0}};
-float K_Array_Prone[2][6] =     {{0, 0, 0, 0, 0, 0}, {0, 20, 0, 0, 0, 0}};
+float K_Array_Prone[2][6] =     {{0, 0, 0, 0, 0, 0}, {0, 20, 0, 0, 0, 2}};
 
 float K_Array_test[2][6];
 float K_Array_List[12][4] = 
@@ -124,22 +123,23 @@ void wlr_init(void)
         kalman_filter_init(&kal_v[i], 2, 0, 2);
         kal_v[i].A_data[0] = 1; kal_v[i].A_data[1] = 0.002f; kal_v[i].A_data[3] = 1;
         kal_v[i].H_data[0] = 1; kal_v[i].H_data[3] = 1;
-        kal_v[i].Q_data[0] = 0.01f; kal_v[i].Q_data[3] = 1000000000000000000000000.0f;
-        kal_v[i].R_data[0] = 100.0f; kal_v[i].R_data[3] = 10.0f;
-//        kal_v[i].min_variance[0] = 100.0f; kal_v[i].min_variance[3] = 100.0f;
+//        kal_v[i].Q_data[0] = 0.0003f; kal_v[i].Q_data[3] = 0.01f;
+//        kal_v[i].R_data[0] = 1.0f; kal_v[i].R_data[3] = 10.0f;
+        kal_v[i].Q_data[0] = 0.01f; kal_v[i].Q_data[3] = 0.01f;
+        kal_v[i].R_data[0] = 1.0f; kal_v[i].R_data[3] = 10.0f;
 		//PID参数初始化
-		pid_init(&pid_leg_length[i], 500, 0.0f, 20000, 10, 20);//i 2.5f
-		pid_init(&pid_leg_length_fast[i], 1000, 0, 10000, 30, 50);
+		pid_init(&pid_leg_length[i], NONE, 500, 0.0f, 20000, 10, 20);//i 2.5f
+		pid_init(&pid_leg_length_fast[i], NONE, 1000, 0, 10000, 30, 50);
 	}
 	//卡尔曼滤波器初始化
 
 	//PID参数初始化
-    pid_init(&pid_yaw, -7, 0, 0, 0, 10);
-	pid_init(&pid_wz, 2.0f, 0, 7.0f, 0, 2.5f);
+    pid_init(&pid_yaw, NONE, -7, 0, 0, 0, 10);
+	pid_init(&pid_wz, NONE, 2.0f, 0, 7.0f, 0, 2.5f);
 //    pid_init(&pid_yaw, -5, 0, 0, 0, 7);
 //	pid_init(&pid_wz, 2.0f, 0, 7.0f, 0, 2.5f);//与LQR的速度控制协同
-	pid_init(&pid_q0, 60, 0, 100, 0, 10);//与LQR的虚拟腿摆角控制拮抗 60 0 120
-	pid_init(&pid_roll, 500, 0, 3000, 0, 30);//与VMC的腿长控制协同  1000 0 3500
+	pid_init(&pid_q0, NONE, 60, 0, 100, 0, 10);//与LQR的虚拟腿摆角控制拮抗 60 0 120
+	pid_init(&pid_roll, NONE, 500, 0, 3000, 0, 30);//与VMC的腿长控制协同  1000 0 3500
 }
 
 void wlr_protest(void)
@@ -148,6 +148,7 @@ void wlr_protest(void)
 	pid_leg_length[1].i_out = 0;
 }
 
+float x0_clear = 0;
 //轮子：位移、速度   摆角：角度、角速度   机体俯仰：角度、角速度
 void wlr_control(void)
 {
@@ -164,7 +165,6 @@ void wlr_control(void)
 		//LQR输入反馈值
 		lqr[i].last_x2 = lqr[i].X_fdb[1];
         
-        
         kal_v[i].measured_vector[0] = -wlr.side[i].wy * WheelRadius;
         kal_v[i].measured_vector[1] = -chassis_imu.ax;
         kalman_filter_update(&kal_v[i]);
@@ -173,8 +173,10 @@ void wlr_control(void)
         wlr.side[i].v_kal = kal_v[i].filter_vector[0];
         wlr.side[i].a_kal = kal_v[i].filter_vector[1];
         
-		lqr[i].X_fdb[1] = -wlr.side[i].wy * WheelRadius;
-		lqr[i].X_fdb[0] -= (lqr[i].X_fdb[1] + lqr[i].last_x2) / 2 * CHASSIS_PERIOD_DU * 0.001f;//使用梯形积分速度求位移
+        lqr[i].X_fdb[1] = kal_v[i].filter_vector[0];
+//		lqr[i].X_fdb[1] = -wlr.side[i].wy * WheelRadius;
+//        lqr[i].X_fdb[0] = 
+		lqr[i].X_fdb[0] -= (lqr[i].X_fdb[1] + lqr[i].last_x2) / 2 * CHASSIS_PERIOD_DU * 0.0001f;//使用梯形积分速度求位移
 		lqr[i].X_fdb[4] = x5_balance_zero + wlr.pit_fdb;
 		lqr[i].X_fdb[5] = wlr.wy_fdb;
         if (chassis.mode == CHASSIS_MODE_KEYBOARD_FIGHT)
@@ -196,7 +198,7 @@ void wlr_control(void)
         wlr.side[i].Fn_kal = kal_fn[i].filter_vector[0];
 		//离地检测
         if (wlr.high_flag) {
-             if(wlr.side[i].Fn_kal < 23.0f)
+             if(wlr.side[i].Fn_kal < 30.0f)
                 wlr.side[i].fly_cnt++;
             else if(wlr.side[i].fly_cnt != 0)
                 wlr.side[i].fly_cnt--;
@@ -206,7 +208,7 @@ void wlr_control(void)
             } else if(wlr.side[i].fly_cnt == 0)
             wlr.side[i].fly_flag = 0;
         } else {
-            if(wlr.side[i].Fn_kal < 25.0f)
+            if(wlr.side[i].Fn_kal < 30.0f)
                 wlr.side[i].fly_cnt++;
             else if(wlr.side[i].fly_cnt != 0)
                 wlr.side[i].fly_cnt--;
@@ -261,12 +263,12 @@ void wlr_control(void)
 	//------------------------状态选择------------------------//
 	//根据当前状态选择合适的控制矩阵
     if (wlr.ctrl_mode == 2) {//力控
-        if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {//腾空
-            aMartix_Cover(lqr[0].K, (float*)K_Array_Fly, 2, 6);
-            aMartix_Cover(lqr[1].K, (float*)K_Array_Fly, 2, 6);
-        } else if (wlr.prone_flag) {
+        if (wlr.prone_flag) {
             aMartix_Cover(lqr[0].K, (float*)K_Array_Prone, 2, 6);
             aMartix_Cover(lqr[1].K, (float*)K_Array_Prone, 2, 6);
+        } else if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {//腾空
+            aMartix_Cover(lqr[0].K, (float*)K_Array_Fly, 2, 6);
+            aMartix_Cover(lqr[1].K, (float*)K_Array_Fly, 2, 6);
         } else {
 //            k_array_fit1(K_Array_test, vmc[0].L_fdb);
 //            aMartix_Cover(lqr[0].K, (float*)K_Array_test, 2, 6);
@@ -314,15 +316,14 @@ void wlr_control(void)
 			wlr.side[i].Fy = pid_calc(&pid_leg_length_fast[i], tlm.l_ref[i], vmc[i].L_fdb);
 		else if (wlr.side[0].fly_flag && wlr.side[1].fly_flag) {            //浮空收腿 响应不用那么大
 			wlr.side[i].Fy = pid_calc(&pid_leg_length_fast[i], tlm.l_ref[i], vmc[i].L_fdb);
-			wlr.wz_offs = 0;
 		} else																//常态 跳跃压腿阶段 跳跃落地阶段
 			wlr.side[i].Fy = pid_calc(&pid_leg_length[i], tlm.l_ref[i], vmc[i].L_fdb)\
                                  + 27 + WLR_SIGN(i) * wlr.roll_offs;
 		wlr.side[i].T0 = -lqr[i].U_ref[0] / 2 + WLR_SIGN(i) * wlr.q0_offs;	//两条腿时，LQR输出力矩需要除以2
-        if (wlr.prone_flag) {
-            wlr.side[i].Fy = 0;
-            wlr.side[i].T0 = 0;
-        }
+//        if (wlr.prone_flag) {
+//            wlr.side[i].Fy = 0;
+//            wlr.side[i].T0 = 0;
+//        }
 		vmc_inverse_solution(&vmc[i], wlr.high_set, wlr.q0_set, wlr.side[i].T0, wlr.side[i].Fy);
 	}
 	//------------------------控制数据输出------------------------//

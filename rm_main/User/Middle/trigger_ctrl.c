@@ -57,8 +57,8 @@ static uint8_t series_shoot_enable(void)
 
 void trigger_init(void)
 {
-    pid_init(&shoot.trigger_ecd.pid, 0.3f, 0, 0.3f, 0, 5000);
-    pid_init(&shoot.trigger_spd.pid, 0.0015f, 0, 0, 0, 1);
+    pid_init(&shoot.trigger_ecd.pid, NONE, 0.3f, 0, 0.3f, 0, 5000);
+    pid_init(&shoot.trigger_spd.pid, NONE, 0.0015f, 0, 0, 0, 1);
 }
 
 void trigger_control(void)

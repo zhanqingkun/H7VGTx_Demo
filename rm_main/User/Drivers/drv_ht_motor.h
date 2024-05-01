@@ -18,8 +18,8 @@
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f     // N*m/rad/s
 #define KD_MAX 5.0f
-#define T_MIN -18.0f    // N*m
-#define T_MAX 18.0f
+#define T_MIN -15.0f    // N*m 18
+#define T_MAX 15.0f
 
 typedef struct
 {
