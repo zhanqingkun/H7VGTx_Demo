@@ -23,6 +23,7 @@ const float LegLengthJump1 = 0.15f;//压腿
 const float LegLengthJump2 = 0.35f;//蹬腿
 const float LegLengthJump3 = 0.24f;//收腿
 const float LegLengthJump4 = 0.22f;//落地
+
 const float LegLengthHightFly = 0.25f;//长腿腿长腾空
 const float LegLengthFly = 0.20f;//正常腿长腾空
 const float LegLengthHigh = 0.20f;//长腿
@@ -175,8 +176,11 @@ void wlr_control(void)
         
         lqr[i].X_fdb[1] = kal_v[i].filter_vector[0];
 //		lqr[i].X_fdb[1] = -wlr.side[i].wy * WheelRadius;
-//        lqr[i].X_fdb[0] = 
-		lqr[i].X_fdb[0] -= (lqr[i].X_fdb[1] + lqr[i].last_x2) / 2 * CHASSIS_PERIOD_DU * 0.0001f;//使用梯形积分速度求位移
+
+        //第一方案
+//        lqr[i].X_fdb[0] += (lqr[i].X_fdb[1] + lqr[i].last_x2) / 2 * CHASSIS_PERIOD_DU * 0.04f;//使用梯形积分速度求位移
+        //第二方案
+        lqr[i].X_fdb[0] = - WLR_SIGN(i) * driver_motor[i].position * WheelRadius;
 		lqr[i].X_fdb[4] = x5_balance_zero + wlr.pit_fdb;
 		lqr[i].X_fdb[5] = wlr.wy_fdb;
         if (chassis.mode == CHASSIS_MODE_KEYBOARD_FIGHT)
@@ -186,10 +190,14 @@ void wlr_control(void)
 		lqr[i].X_fdb[3] = lqr[i].X_fdb[5] - vmc[i].V_fdb.e.w0_fdb;
 		lqr[i].dot_x4 = (lqr[i].X_fdb[3] - lqr[i].last_x4) / (CHASSIS_PERIOD_DU * 0.001f); //腿倾角加速度(状态变量x4的dot)计算
 		lqr[i].last_x4 = lqr[i].X_fdb[3];
-		data_limit(&lqr[i].X_fdb[0], 1.0f, -1.0f);//位移限幅  位移系数主要起到一个适应重心的作用 不用太大
-        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f || ABS(vmc[0].q_fdb[0] - vmc[1].q_fdb[0]) > 0.01f)//有输入速度 或 两腿有差角时 将位移反馈置0  不发挥作用
-			lqr[i].X_fdb[0] = 0;
-		//支持力解算 
+//		data_limit(&lqr[i].X_fdb[0], -1.0f, 1.0f);//位移限幅  位移系数主要起到一个适应重心的作用 不用太大
+        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f || ABS(vmc[0].q_fdb[0] - vmc[1].q_fdb[0]) > 0.01f) {//有输入速度 或 两腿有差角时 将位移反馈置0  不发挥作用
+            //第一方案	
+//            lqr[i].X_fdb[0] = 0;
+            //第二方案
+            lqr[i].X_ref[0] = lqr[i].X_fdb[0];
+        }
+		//支持力解算
 		float L0_array[3] = {vmc[i].L_fdb, vmc[i].V_fdb.e.vy0_fdb, vmc[i].Acc_fdb.L0_ddot};
 		float theta_array[3] = {lqr[i].X_fdb[2], lqr[i].X_fdb[3], lqr[i].dot_x4};
 		wlr.side[i].Fn_fdb = wlr_fn_calc(wlr.az_fdb, vmc[i].F_fdb.e.Fy_fdb, vmc[i].F_fdb.e.T0_fdb, L0_array, theta_array);
