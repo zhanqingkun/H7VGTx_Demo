@@ -3,6 +3,7 @@
 #include "shoot_task.h"
 #include "drv_dji_motor.h"
 #include "prot_dr16.h"
+#include "prot_vision.h"
 //#include "control_def.h"
 //#include "math_lib.h"
 //#include "pid.h"
@@ -45,9 +46,10 @@ static uint8_t single_shoot_enable(void)
 static uint8_t series_shoot_enable(void)
 {
     return (
-        ((ctrl_mode == REMOTER_MODE)// && vision.shoot_enable
-            || (ctrl_mode == PROTECT_MODE && (rc.sw2 == RC_MI || rc.sw2 == RC_DN))
-            || (ctrl_mode == KEYBOARD_MODE && rc.mouse.l) 
+        ((ctrl_mode == REMOTER_MODE && vision.shoot_enable)// && vision.shoot_enable
+            || (ctrl_mode == PROTECT_MODE && (rc.sw2 == RC_MI || rc.sw2 == RC_DN) && vision.shoot_enable)
+            || (ctrl_mode == KEYBOARD_MODE && rc.mouse.l && rc.mouse.r && vision.shoot_enable)
+            || (ctrl_mode == KEYBOARD_MODE && rc.mouse.l && rc.mouse.r == 0)
         )
         && shoot.barrel.heat_remain >= MIN_HEAT  //热量控制
         && frequency_cnt * SHOOT_PERIOD >= shoot.trigger_period  //射频控制

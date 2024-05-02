@@ -1,5 +1,6 @@
 #include "prot_vision.h"
 #include "shoot_task.h"
+#include "gimbal_task.h"
 #include "prot_judge.h"
 #include "prot_imu.h"
 #include "math_lib.h"
@@ -36,8 +37,14 @@ void vision_get_data(uint8_t *data)
         vision.new_frame_flag = 1;
         vision.target_yaw_angle = vision.rx[0].data.yaw / 180.0f * PI;
         vision.target_pit_angle = -vision.rx[0].data.pit / 180.0f * PI;
+        vision.min_yaw_err = vision.rx[0].data.dis / 180.0f * PI;
+        if (ABS(gimbal.yaw_angle.fdb - vision.target_yaw_angle) < vision.min_yaw_err)
+            vision.shoot_enable = 1;
+        else
+            vision.shoot_enable = 0;
     } else {
         vision.aim_status = UNAIMING;
+        vision.shoot_enable = 0;
     }
 
     if (last_aim_status == AIMING && vision.aim_status == UNAIMING)
