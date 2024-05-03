@@ -24,10 +24,10 @@ const float LegLengthJump2 = 0.35f;//蹬腿
 const float LegLengthJump3 = 0.24f;//收腿
 const float LegLengthJump4 = 0.22f;//落地
 
-const float LegLengthHightFly = 0.25f;//长腿腿长腾空
-const float LegLengthFly = 0.20f;//正常腿长腾空
-const float LegLengthHigh = 0.20f;//长腿
-const float LegLengthNormal = 0.15f;//正常
+const float LegLengthHightFly = 0.30f;//长腿腿长腾空
+const float LegLengthFly = 0.25f;//正常腿长腾空
+const float LegLengthHigh = 0.25f;//长腿
+const float LegLengthNormal = 0.20f;//正常
 
 float x3_balance_zero = 0.08f, x5_balance_zero = -0.02f;//腿摆角角度偏置 机体俯仰角度偏置
 float x3_fight_zero = 0.06f;
@@ -205,7 +205,7 @@ void wlr_control(void)
         kalman_filter_update(&kal_fn[i]);
         wlr.side[i].Fn_kal = kal_fn[i].filter_vector[0];
 		//离地检测
-        if (wlr.high_flag) {
+//        if (wlr.high【
              if(wlr.side[i].Fn_kal < 30.0f)
                 wlr.side[i].fly_cnt++;
             else if(wlr.side[i].fly_cnt != 0)
@@ -215,17 +215,17 @@ void wlr_control(void)
                 wlr.side[i].fly_flag = 1;
             } else if(wlr.side[i].fly_cnt == 0)
             wlr.side[i].fly_flag = 0;
-        } else {
-            if(wlr.side[i].Fn_kal < 30.0f)
-                wlr.side[i].fly_cnt++;
-            else if(wlr.side[i].fly_cnt != 0)
-                wlr.side[i].fly_cnt--;
-            if(wlr.side[i].fly_cnt > 50) {
-                wlr.side[i].fly_cnt = 50;
-                wlr.side[i].fly_flag = 1;
-            } else if(wlr.side[i].fly_cnt == 0)
-            wlr.side[i].fly_flag = 0;
-        }
+//        } else {
+//            if(wlr.side[i].Fn_kal < 30.0f)
+//                wlr.side[i].fly_cnt++;
+//            else if(wlr.side[i].fly_cnt != 0)
+//                wlr.side[i].fly_cnt--;
+//            if(wlr.side[i].fly_cnt > 50) {
+//                wlr.side[i].fly_cnt = 50;
+//                wlr.side[i].fly_flag = 1;
+//            } else if(wlr.side[i].fly_cnt == 0)
+//            wlr.side[i].fly_flag = 0;
+//        }
 	}
 	//高度选择 跳跃状态改变
 	if (wlr.jump_flag == 1) {//跳跃起跳状态 先压腿
