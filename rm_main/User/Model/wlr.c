@@ -155,8 +155,8 @@ void wlr_control(void)
 	//------------------------反馈数据更新------------------------//
 	wlr.wz_set = pid_calc(&pid_yaw, wlr.yaw_fdb + wlr.yaw_err, wlr.yaw_fdb);
     //限制
-    wlr.wz_set = data_fusion(wlr.wz_set, 0, fabs(kal_v[0].filter_vector[0]+kal_v[1].filter_vector[0])/2.0f/3.0f);
-    wlr.v_set = data_fusion(wlr.v_set, 0, fabs(wlr.wz_fdb)/6.0f);
+//    wlr.wz_set = data_fusion(wlr.wz_set, 0, fabs(kal_v[0].filter_vector[0]+kal_v[1].filter_vector[0])/2.0f/3.0f);
+//    wlr.v_set = data_fusion(wlr.v_set, 0, fabs(wlr.wz_fdb)/6.0f);
 	//更新两轮模型
 	twm_feedback_calc(&twm, wlr.side[0].wy, wlr.side[1].wy, wlr.wz_fdb);//输入左右轮子转速
 	twm_reference_calc(&twm, wlr.v_set, wlr.wz_set);//计算两侧轮腿模型的设定速度
@@ -261,7 +261,7 @@ void wlr_control(void)
     //旋转压腿长 腿摆压腿长
     if (wlr.high_flag) {
         wlr.high_set = data_fusion(wlr.high_set, 0.90f * wlr.high_set, fabs(wlr.wz_set/6.0f));
-        wlr.high_set = data_fusion(wlr.high_set, 0.90f * wlr.high_set, (fabs(lqr[0].X_fdb[2])+fabs(lqr[0].X_fdb[2]))/0.6f);
+//        wlr.high_set = data_fusion(wlr.high_set, 0.90f * wlr.high_set, (fabs(lqr[0].X_fdb[2])+fabs(lqr[0].X_fdb[2]))/0.6f);
     }
 	//更新两腿模型
 	tlm_gnd_roll_calc(&tlm, -wlr.roll_fdb, vmc[0].L_fdb, vmc[1].L_fdb);//计算地形倾角
@@ -314,7 +314,7 @@ void wlr_control(void)
         else
             lqr[i].X_ref[1] = twm.v_ref[i];
         //摔倒保护 在快要摔倒时减小速度输入
-        lqr[i].X_ref[1] = data_fusion(lqr[i].X_ref[1], lqr[i].X_fdb[1], fabs(wlr.pit_fdb/0.3f));
+//        lqr[i].X_ref[1] = data_fusion(lqr[i].X_ref[1], lqr[i].X_fdb[1], fabs(wlr.pit_fdb/0.3f));
         
 		aMartix_Add(1, lqr[i].X_ref, -1, lqr[i].X_fdb, lqr[i].X_diff, 6, 1);
 		aMartix_Mul(lqr[i].K, lqr[i].X_diff, lqr[i].U_ref, 2, 6, 1);
