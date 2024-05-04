@@ -54,9 +54,12 @@ void can_comm_init(void)
     //功率控制
     can_filter.IdType = FDCAN_STANDARD_ID;//标准帧
     can_filter.FilterIndex = 1;
-    can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
-    can_filter.FilterID1 = 0x020;
-    can_filter.FilterID2 = 0x020;
+//    can_filter.FilterType = FDCAN_FILTER_DUAL;//等于过滤
+//    can_filter.FilterID1 = 0x020;
+//    can_filter.FilterID2 = 0x020;
+    can_filter.FilterType = FDCAN_FILTER_RANGE;//范围过滤
+    can_filter.FilterID1 = 0x011;
+    can_filter.FilterID2 = 0x015;
     can_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;//通过过滤后给邮箱0
     HAL_FDCAN_ConfigFilter(&hfdcan2, &can_filter);
     HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, FDCAN_REJECT, FDCAN_REJECT, FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE);
@@ -101,7 +104,7 @@ void can_comm_init(void)
     ht_motor_init(&joint_motor[1], CAN_CHANNEL_1, 0x02, 0.78f);
     ht_motor_init(&joint_motor[2], CAN_CHANNEL_1, 0x03, 0.77f);
     ht_motor_init(&joint_motor[3], CAN_CHANNEL_1, 0x04, 0.65f);
-    
+
     dji_motor_init(&driver_motor[0], DJI_3508_MOTOR, CAN_CHANNEL_2, 0x203, 14.0f);
     dji_motor_init(&driver_motor[1], DJI_3508_MOTOR, CAN_CHANNEL_2, 0x204, 14.0f);
     dji_motor_init(&yaw_motor, DJI_6020_MOTOR, CAN_CHANNEL_2, 0x205, 1.0f);
@@ -119,9 +122,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET) {
         HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_fifo0_message, rx_fifo0_data);
         if (hfdcan->Instance == FDCAN1) {
-            imu_get_data(&chassis_imu, rx_fifo0_message.Identifier, rx_fifo0_data);
+//            imu_get_data(&chassis_imu, rx_fifo0_message.Identifier, rx_fifo0_data);
         } else if (hfdcan->Instance == FDCAN2) {
-            power_get_data(rx_fifo0_data);
+//            power_get_data(rx_fifo0_data);
+            imu_get_data(&chassis_imu, rx_fifo0_message.Identifier, rx_fifo0_data);
         } else if (hfdcan->Instance == FDCAN3) {
             imu_get_data(&gimbal_imu, rx_fifo0_message.Identifier, rx_fifo0_data);
         }

@@ -149,12 +149,14 @@ void wlr_protest(void)
 	pid_leg_length[1].i_out = 0;
 }
 
-float x0_clear = 0;
 //轮子：位移、速度   摆角：角度、角速度   机体俯仰：角度、角速度
 void wlr_control(void)
 {
 	//------------------------反馈数据更新------------------------//
 	wlr.wz_set = pid_calc(&pid_yaw, wlr.yaw_fdb + wlr.yaw_err, wlr.yaw_fdb);
+    //限制
+    wlr.wz_set = data_fusion(wlr.wz_set, 0, fabs(kal_v[0].filter_vector[0]+kal_v[1].filter_vector[0])/2.0f/3.0f);
+    wlr.v_set = data_fusion(wlr.v_set, 0, fabs(wlr.wz_fdb)/6.0f);
 	//更新两轮模型
 	twm_feedback_calc(&twm, wlr.side[0].wy, wlr.side[1].wy, wlr.wz_fdb);//输入左右轮子转速
 	twm_reference_calc(&twm, wlr.v_set, wlr.wz_set);//计算两侧轮腿模型的设定速度
@@ -191,7 +193,7 @@ void wlr_control(void)
 		lqr[i].dot_x4 = (lqr[i].X_fdb[3] - lqr[i].last_x4) / (CHASSIS_PERIOD_DU * 0.001f); //腿倾角加速度(状态变量x4的dot)计算
 		lqr[i].last_x4 = lqr[i].X_fdb[3];
 //		data_limit(&lqr[i].X_fdb[0], -1.0f, 1.0f);//位移限幅  位移系数主要起到一个适应重心的作用 不用太大
-        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f || ABS(vmc[0].q_fdb[0] - vmc[1].q_fdb[0]) > 0.01f) {//有输入速度 或 两腿有差角时 将位移反馈置0  不发挥作用
+        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f || ABS(vmc[0].q_fdb[0] - vmc[1].q_fdb[0]) > 0.02f) {//有输入速度 或 两腿有差角时 将位移反馈置0  不发挥作用
             //第一方案	
 //            lqr[i].X_fdb[0] = 0;
             //第二方案
@@ -205,7 +207,7 @@ void wlr_control(void)
         kalman_filter_update(&kal_fn[i]);
         wlr.side[i].Fn_kal = kal_fn[i].filter_vector[0];
 		//离地检测
-//        if (wlr.high【
+//        if (wlr.high
              if(wlr.side[i].Fn_kal < 30.0f)
                 wlr.side[i].fly_cnt++;
             else if(wlr.side[i].fly_cnt != 0)
